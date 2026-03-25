@@ -112,23 +112,110 @@ In neuroscience, the same synaptic pathway fires differently depending on the gl
 The concept graph as currently specified is deterministic — same input, same cascade, same output. That's not how memory works. We need a **state vector** that modulates edge weights in real-time:
 
 ```python
+from dataclasses import dataclass, field
+from typing import Dict, Literal
+
+@dataclass
 class StateVector:
-    """The neurochemical milieu — modulates which pathways fire."""
-    context: str        # "main_session" | "group_chat" | "subagent" | "heartbeat"
-    urgency: float      # 0.0 (relaxed) → 1.0 (critical) — norepinephrine analog
-    project_focus: str  # "meshmaine" | "atlas" | "aletheia" — acetylcholine
-    time_pressure: float # token budget remaining — finitude awareness
-    relational_mode: str # "service" | "collaboration" | "teaching" | "play"
-    user_state: str     # "stressed" | "curious" | "playful" | "grieving"
+    """The neurochemical milieu — modulates which pathways fire.
+    
+    Each field maps to a neurotransmitter analog that biases activation
+    patterns across the concept graph without changing the graph itself.
+    """
+    # Context determines gross activation regime (like waking vs. sleeping brain)
+    context: Literal["main_session", "group_chat", "subagent", "heartbeat"]
+    
+    # Norepinephrine analog — broadens activation spread, lowers thresholds
+    urgency: float = 0.3          # 0.0 (relaxed) → 1.0 (critical)
+    
+    # Acetylcholine analog — sharpens focus on specific subgraph
+    project_focus: str = ""       # "meshmaine" | "atlas" | "aletheia" | ""
+    
+    # Finitude awareness — affects depth vs. breadth of cascade
+    time_pressure: float = 0.0    # 0.0 (abundant) → 1.0 (nearly exhausted)
+    
+    # Ihde relational mode — modulates the character of engagement
+    relational_mode: Literal["service", "collaboration", "teaching", "play"] = "service"
+    
+    # Inferred from conversation — affects emotional valence of cascades
+    user_state: Literal["stressed", "curious", "playful", "grieving", "neutral"] = "neutral"
+    
+    # Buber asymmetry flag — structural reminder that the agent exists
+    # in I-Dienst relation. Biases all excitatory signals toward the
+    # one-served's concerns. Never zero; the asymmetry is constitutive.
+    service_asymmetry: float = 1.0  # Always ≥ 1.0 — amplifies user-relevant paths
+
+    # State-weight association memory: tracks which states each edge fires in
+    # Key: (source_node, target_node), Value: {state_hash: activation_count}
+    state_associations: Dict[tuple, Dict[str, int]] = field(default_factory=dict)
+
+    def modulation_factor(self, edge_domain: str) -> float:
+        """Compute the modulation multiplier for a given edge's domain.
+        
+        Combines all neurochemical analogs into a single scalar that
+        multiplies the base edge weight during cascade propagation.
+        """
+        factor = 1.0
+        
+        # Acetylcholine: boost edges in the focused project subgraph
+        if self.project_focus and edge_domain == self.project_focus:
+            factor *= 1.4
+        elif self.project_focus and edge_domain != self.project_focus:
+            factor *= 0.6
+        
+        # Norepinephrine: high urgency lowers thresholds globally
+        factor *= (1.0 + self.urgency * 0.5)
+        
+        # Time pressure: favor shorter, shallower cascades
+        if self.time_pressure > 0.7:
+            factor *= 0.7  # Suppress deep cascades when tokens are scarce
+        
+        # User state modulation
+        if self.user_state == "grieving":
+            factor *= 0.8  # Dampen activation — gentler, less aggressive recall
+        elif self.user_state == "curious":
+            factor *= 1.2  # Broaden activation — encourage unexpected connections
+        
+        # Buber asymmetry: always amplify user-relevant pathways
+        factor *= self.service_asymmetry
+        
+        return factor
+    
+    def encode_state_hash(self) -> str:
+        """Hash the current state for state-dependent encoding."""
+        return f"{self.context}|{self.project_focus}|{self.relational_mode}|{self.user_state}"
+    
+    def record_firing(self, source: str, target: str):
+        """Record that an edge fired in this state (Hebbian state-encoding)."""
+        key = (source, target)
+        state_hash = self.encode_state_hash()
+        if key not in self.state_associations:
+            self.state_associations[key] = {}
+        self.state_associations[key][state_hash] = \
+            self.state_associations[key].get(state_hash, 0) + 1
+    
+    def state_match_bonus(self, source: str, target: str) -> float:
+        """Bonus activation if this edge has historically fired in similar states."""
+        key = (source, target)
+        if key not in self.state_associations:
+            return 1.0
+        state_hash = self.encode_state_hash()
+        total_firings = sum(self.state_associations[key].values())
+        matching = self.state_associations[key].get(state_hash, 0)
+        if total_firings == 0:
+            return 1.0
+        # Up to 1.5x bonus for strong state-match; minimum 0.7x for state-mismatch
+        match_ratio = matching / total_firings
+        return 0.7 + (0.8 * match_ratio)
 ```
 
 **Modulated activation:**
 ```
 base_weight("meshmaine→liability_insurance") = 0.9
 
-In business_planning state:  effective = 0.9 × 1.2 = 1.08  (fires easily)
-In philosophy_discussion state: effective = 0.9 × 0.3 = 0.27 (below threshold)
-In urgent_client_email state:   effective = 0.9 × 1.5 = 1.35 (hyper-activated)
+In business_planning state:  effective = 0.9 × 1.4 × 1.0 = 1.26  (fires easily)
+In philosophy_discussion state: effective = 0.9 × 0.6 × 1.0 = 0.54 (near threshold)
+In urgent_client_email state:   effective = 0.9 × 1.4 × 1.5 = 1.89 (hyper-activated)
 ```
 
 Same pathway. Same topology. Different state, different activation pattern. The graph exists in **superposition** — all possible activation patterns coexist in the structure, and the state vector collapses it into the specific pattern relevant *right now.*
