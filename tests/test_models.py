@@ -151,7 +151,7 @@ class TestSuiteConfig:
 
     def test_default_dimensions_includes_all(self) -> None:
         config = SuiteConfig(name="test")
-        assert len(config.dimensions) == 7
+        assert len(config.dimensions) == 8
 
     def test_timeout_bounds(self) -> None:
         with pytest.raises(ValueError):

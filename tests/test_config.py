@@ -39,7 +39,7 @@ class TestSuiteLoading:
         suites_dir = Path(__file__).resolve().parent.parent / "suites"
         suite = load_suite("quick", suites_dir)
         assert suite.name == "quick"
-        assert len(suite.dimensions) == 7
+        assert len(suite.dimensions) == 8
         assert suite.timeout_per_probe_seconds == 30
 
     def test_missing_suite_raises(self) -> None:

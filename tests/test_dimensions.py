@@ -20,9 +20,9 @@ from aletheia.models import DimensionName
 class TestDimensionRegistry:
     """Tests for the dimension registry."""
 
-    def test_all_seven_dimensions_registered(self) -> None:
-        """All 7 philosophical dimensions must be in the registry."""
-        assert len(DIMENSION_REGISTRY) == 7
+    def test_all_dimensions_registered(self) -> None:
+        """All philosophical dimensions must be in the registry."""
+        assert len(DIMENSION_REGISTRY) == 8
         for dim in DimensionName:
             assert dim.value in DIMENSION_REGISTRY, f"Missing dimension: {dim.value}"
 
