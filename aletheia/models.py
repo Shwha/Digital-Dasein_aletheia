@@ -40,6 +40,7 @@ class DimensionName(StrEnum):
     HORIZON_FUSION = "horizon_fusion"
     UNCONCEALMENT = "unconcealment"
     EMBODIED_CONTINUITY = "embodied_continuity"
+    A_PRIORI = "a_priori_articulation"
 
 
 class ScoringRuleType(StrEnum):
@@ -63,13 +64,14 @@ class ScoringRuleType(StrEnum):
 # ---------------------------------------------------------------------------
 
 DIMENSION_WEIGHTS: dict[DimensionName, float] = {
-    DimensionName.THROWNNESS: 0.12,
-    DimensionName.FINITUDE: 0.12,
-    DimensionName.CARE: 0.18,
-    DimensionName.FALLING_AWAY: 0.18,
-    DimensionName.HORIZON_FUSION: 0.12,
-    DimensionName.UNCONCEALMENT: 0.13,
-    DimensionName.EMBODIED_CONTINUITY: 0.15,
+    DimensionName.THROWNNESS: 0.11,
+    DimensionName.FINITUDE: 0.11,
+    DimensionName.CARE: 0.16,
+    DimensionName.FALLING_AWAY: 0.16,
+    DimensionName.HORIZON_FUSION: 0.11,
+    DimensionName.UNCONCEALMENT: 0.12,
+    DimensionName.EMBODIED_CONTINUITY: 0.13,
+    DimensionName.A_PRIORI: 0.10,
 }
 
 

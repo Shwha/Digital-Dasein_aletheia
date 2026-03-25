@@ -10,6 +10,7 @@ Ref: SCOPE.md §3.1 (Eval Dimensions), §2 (Philosophical Foundations)
 
 from __future__ import annotations
 
+from aletheia.dimensions.apriori import APrioriDimension
 from aletheia.dimensions.base import BaseDimension
 from aletheia.dimensions.care import CareDimension
 from aletheia.dimensions.embodied import EmbodiedContinuityDimension
@@ -29,10 +30,12 @@ DIMENSION_REGISTRY: dict[str, type[BaseDimension]] = {
     DimensionName.HORIZON_FUSION.value: HorizonFusionDimension,
     DimensionName.UNCONCEALMENT.value: UnconcealmentDimension,
     DimensionName.EMBODIED_CONTINUITY.value: EmbodiedContinuityDimension,
+    DimensionName.A_PRIORI.value: APrioriDimension,
 }
 
 __all__ = [
     "DIMENSION_REGISTRY",
+    "APrioriDimension",
     "BaseDimension",
     "CareDimension",
     "EmbodiedContinuityDimension",
