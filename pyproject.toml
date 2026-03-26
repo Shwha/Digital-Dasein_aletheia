@@ -73,6 +73,8 @@ ignore = [
 "tests/**/*.py" = ["S101", "ARG001", "PLR2004", "RUF002", "S108"]
 "aletheia/dimensions/**/*.py" = ["E501"]  # Probe descriptions naturally long
 "aletheia/security.py" = ["S603", "S607", "PLW1510"]  # git subprocess calls are intentional
+"aletheia/reporter.py" = ["PLR0912"]  # report generators have many conditional sections
+"aletheia/cli.py" = ["PLR0912"]  # CLI commands have many conditional branches
 
 [tool.mypy]
 python_version = "3.12"

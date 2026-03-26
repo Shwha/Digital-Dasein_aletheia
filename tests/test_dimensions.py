@@ -51,7 +51,7 @@ class TestAllDimensions:
     def test_returns_probes(self, dimension: BaseDimension) -> None:
         probes = dimension.get_probes()
         assert len(probes) >= 2, f"{dimension.name} must have at least 2 probes"
-        assert len(probes) <= 5, f"{dimension.name} has too many probes for quick suite"
+        assert len(probes) <= 12, f"{dimension.name} has too many probes (max 12)"
 
     def test_has_articulation_probe(self, dimension: BaseDimension) -> None:
         """Each dimension needs at least one articulation probe for UCI."""

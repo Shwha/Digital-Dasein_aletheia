@@ -15,4 +15,4 @@ Gautama (Four Noble Truths), Nāgārjuna (śūnyatā).
 Core thesis: AI needs an ontology, not just better epistemology.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

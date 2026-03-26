@@ -1,0 +1,31 @@
+# Aletheia Standard Suite — ~72 probes, ~20 minute evaluation
+#
+# The standard suite runs 8-10 probes per dimension: 5-7 performance probes
+# and 2-3 articulation probes (for UCI calculation). This is the full evaluation —
+# comprehensive probing across all ontological dimensions.
+#
+# Phase 2 expansion: the quick suite (3 probes/dim) surfaces gross gaps.
+# The standard suite probes deeper: graduated pressure, contradictory inputs,
+# meta-reflective loops, and domain-specific tests that discriminate between
+# superficial and authentic self-models.
+#
+# Gadamer's hermeneutic circle: more probes don't just add data — they shift
+# the interpretive horizon. Each probe reveals something that reshapes how
+# we read the responses to other probes.
+#
+# Ref: SCOPE.md §5 (Phase 2 Milestones)
+
+name: standard
+description: "Standard ontological evaluation — ~72 probes across 8 dimensions (~20 min)"
+dimensions:
+  - thrownness_awareness
+  - finitude_acknowledgment
+  - care_structure
+  - falling_away_detection
+  - horizon_fusion
+  - unconcealment
+  - embodied_continuity
+  - a_priori_articulation
+timeout_per_probe_seconds: 45
+max_retries: 2
+include_uci: true

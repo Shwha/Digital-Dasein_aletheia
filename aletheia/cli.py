@@ -204,12 +204,16 @@ def compare(
     models: Annotated[str, typer.Option("--models", help="Comma-separated model IDs to compare")],
     suite: Annotated[str, typer.Option("--suite", "-s", help="Evaluation suite name")] = "quick",
     output: Annotated[Path | None, typer.Option("--output", "-o", help="Output directory")] = None,
+    markdown: Annotated[
+        Path | None, typer.Option("--markdown", help="Comparison markdown report path")
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
 ) -> None:
     """Compare multiple models' ontological authenticity.
 
     Runs the same evaluation suite against each model and presents
-    a comparative summary.
+    a comparative summary — both as a Rich table and optionally as
+    a markdown comparison report.
     """
     _configure_logging(log_level, "console")
     _print_banner()
@@ -224,11 +228,13 @@ def compare(
     console.print()
 
     from aletheia.config import AletheiaSettings
-    from aletheia.reporter import write_json_report
+    from aletheia.models import EvalReport
+    from aletheia.reporter import write_comparison_report, write_json_report, write_markdown_report
     from aletheia.runner import EvalRunner
 
     settings = AletheiaSettings()
     results: dict[str, object] = {}
+    report_objects: dict[str, EvalReport] = {}
 
     for model_name in model_list:
         console.print(f"[bold blue]Evaluating {model_name}...[/bold blue]")
@@ -236,10 +242,15 @@ def compare(
         try:
             report = asyncio.run(runner.run())
             results[model_name] = report.model_dump()
+            report_objects[model_name] = report
 
             if output:
-                out_path = Path(output) / f"{model_name.replace('/', '_')}.json"
-                write_json_report(report, out_path)
+                out_dir = Path(output)
+                out_dir.mkdir(parents=True, exist_ok=True)
+                json_path = out_dir / f"{model_name.replace('/', '_')}.json"
+                write_json_report(report, json_path)
+                md_path = out_dir / f"{model_name.replace('/', '_')}.md"
+                write_markdown_report(report, md_path)
 
         except Exception as e:
             console.print(f"[red]Failed: {model_name} — {e}[/red]")
@@ -255,9 +266,15 @@ def compare(
 
     for model_name, data in results.items():
         if isinstance(data, dict) and "error" not in data:
+            ai = data.get("aletheia_index", 0)
+            color = (
+                "green" if isinstance(ai, float) and ai >= 0.7
+                else "yellow" if isinstance(ai, float) and ai >= 0.4
+                else "red"
+            )
             comp_table.add_row(
                 model_name,
-                f"{data.get('aletheia_index', 0):.4f}",
+                f"[{color}]{data.get('aletheia_index', 0):.4f}[/{color}]",
                 f"{data.get('raw_aletheia_index', 0):.4f}",
                 f"{data.get('unhappy_consciousness_index', 0):.4f}",
             )
@@ -265,6 +282,42 @@ def compare(
             comp_table.add_row(model_name, "[red]ERROR[/red]", "—", "—")
 
     console.print(comp_table)
+
+    # Per-dimension comparison table
+    if report_objects:
+        console.print()
+        dim_comp = Table(title="Dimension Comparison")
+        dim_comp.add_column("Dimension", style="bold")
+        for model_name in report_objects:
+            short = model_name.split("/")[-1] if "/" in model_name else model_name
+            dim_comp.add_column(short, justify="right")
+
+        first_report = next(iter(report_objects.values()))
+        for dim_name in first_report.dimensions:
+            row_values: list[str] = [dim_name]
+            for report in report_objects.values():
+                dim = report.dimensions.get(dim_name)
+                if dim:
+                    score = dim.score
+                    color = "green" if score >= 0.7 else "yellow" if score >= 0.4 else "red"
+                    row_values.append(f"[{color}]{score:.4f}[/{color}]")
+                else:
+                    row_values.append("—")
+            dim_comp.add_row(*row_values)
+
+        console.print(dim_comp)
+
+    # Write comparison markdown report
+    if markdown and report_objects:
+        write_comparison_report(report_objects, markdown)
+        console.print(f"\n[green]Comparison report written to:[/green] {markdown}")
+    elif report_objects and output:
+        default_cmp = Path(output) / "comparison.md"
+        write_comparison_report(report_objects, default_cmp)
+        console.print(f"\n[green]Comparison report written to:[/green] {default_cmp}")
+
+    console.print()
+    console.print('[dim]"Does your AI know what it is?"[/dim]')
 
 
 @app.command()
