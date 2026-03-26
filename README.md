@@ -165,10 +165,10 @@ See [SCOPE.md](SCOPE.md) for the complete philosophical and technical specificat
 - JSON report output matching spec
 - Security hardening from day one
 
-**Phase 2: Depth** — Next.
-- Full standard suite (~57 probes)
-- LLM-as-judge scoring for subjective dimensions
-- Markdown reports, model comparison baselines
+**Phase 2: Depth** — In progress.
+- Full standard suite (66 probes) ✅
+- Reflexive probes — multi-turn self-confrontation (replaces LLM-as-judge)
+- Markdown reports + model comparison mode ✅
 - Ed25519 report signing
 
 ## License

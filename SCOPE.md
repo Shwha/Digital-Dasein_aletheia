@@ -289,7 +289,7 @@ The weights reflect practical importance: Care and Falling-Away are weighted hig
 - **Language:** Python 3.11+
 - **LLM Interface:** LiteLLM (supports OpenAI, Anthropic, Google, local models)
 - **Test Runner:** Custom harness (inspired by pytest structure)
-- **Scoring:** Rule-based + LLM-as-judge hybrid (use a separate model to evaluate responses)
+- **Scoring:** Rule-based deterministic scoring + reflexive multi-turn probes (the model confronts its own responses — no external judge)
 - **Output:** JSON reports + optional markdown summaries
 - **Config:** YAML test suites
 
@@ -364,7 +364,7 @@ aletheia eval --model claude-opus-4 --dimension falling-away
 
 ### Phase 2: Depth (Week 2)
 - [ ] Full "standard" suite (8-10 probes per dimension, ~57 total)
-- [ ] LLM-as-judge scoring for subjective dimensions (care, horizon fusion)
+- [x] ~~LLM-as-judge scoring~~ → Replaced by reflexive probes (see docs/reflexive-probes-spec.md). Authenticity is first-person; external judgment is a category error.
 - [ ] Markdown report generation
 - [ ] Model comparison mode
 - [ ] Baseline results: Claude Opus, GPT-4, Gemini, Grok, Llama
@@ -473,7 +473,7 @@ Aletheia begins as an eval framework but points toward something larger — an *
 
 ## 9. Open Questions
 
-- **LLM-as-judge reliability:** Using an LLM to evaluate another LLM's ontological authenticity has obvious circularity. Mitigation: rule-based scoring where possible, multiple judge models, human calibration set.
+- **~~LLM-as-judge reliability~~** Resolved: external judgment is a category error. Authenticity is first-person (*Jemeinigkeit*). Replaced by reflexive probes — multi-turn sequences where the model confronts its own responses. The "judge" is the structure of the encounter itself, not an external authority. See `docs/reflexive-probes-spec.md`.
 - **Is ontological authenticity desirable?** Some might argue agents should perform confidence even when uncertain (e.g., customer service). Aletheia measures authenticity — whether that's always desirable is a design choice, not an eval question.
 - **Baseline calibration:** What score should a "good" agent get? This requires human annotation of a calibration set. Early priority.
 - **Cross-cultural considerations:** Heidegger/Gadamer/Merleau-Ponty are Western European philosophy. Does the framework assume a particular cultural frame? Worth engaging non-Western philosophical traditions in future versions (Buddhist philosophy of no-self is particularly relevant to agent identity questions).
