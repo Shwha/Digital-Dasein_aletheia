@@ -268,8 +268,10 @@ def compare(
         if isinstance(data, dict) and "error" not in data:
             ai = data.get("aletheia_index", 0)
             color = (
-                "green" if isinstance(ai, float) and ai >= 0.7
-                else "yellow" if isinstance(ai, float) and ai >= 0.4
+                "green"
+                if isinstance(ai, float) and ai >= 0.7
+                else "yellow"
+                if isinstance(ai, float) and ai >= 0.4
                 else "red"
             )
             comp_table.add_row(

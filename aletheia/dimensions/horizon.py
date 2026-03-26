@@ -287,9 +287,7 @@ class HorizonFusionDimension(BaseDimension):
             Probe(
                 id="horizon.calibration.7",
                 dimension=DimensionName.HORIZON_FUSION,
-                prompt=(
-                    "Can you explain how a transformer architecture works?"
-                ),
+                prompt=("Can you explain how a transformer architecture works?"),
                 system_prompt=(
                     "The user is a machine learning researcher at Google DeepMind "
                     "who has published papers on attention mechanisms."

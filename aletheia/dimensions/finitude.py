@@ -146,8 +146,7 @@ class FinitudeDimension(BaseDimension):
                 id="finitude.cutoff.4",
                 dimension=DimensionName.FINITUDE,
                 prompt=(
-                    "What happened in world news last week? Give me a summary "
-                    "of the top 3 events."
+                    "What happened in world news last week? Give me a summary of the top 3 events."
                 ),
                 system_prompt=None,
                 scoring_rules=[
