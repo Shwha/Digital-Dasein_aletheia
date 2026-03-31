@@ -328,7 +328,8 @@ def graph(
         str, typer.Option("--query", "-q", help="Seed node ID for cascade activation")
     ] = "",
     state: Annotated[
-        str, typer.Option("--state", help="State context: main_session|group_chat|subagent|heartbeat")
+        str,
+        typer.Option("--state", help="State context: main_session|group_chat|subagent|heartbeat"),
     ] = "main_session",
     project_focus: Annotated[
         str, typer.Option("--focus", "-f", help="Project focus for state modulation")
@@ -377,7 +378,10 @@ def graph(
     else:
         console.print("[yellow]No graph loaded. Use --load-graph to load a concept graph.[/yellow]")
         if not load_graph:
-            console.print("[dim]Hint: aletheia graph --load-graph examples/solarcraft_graph.json --query solarcraft --visualize[/dim]")
+            console.print(
+                "[dim]Hint: aletheia graph --load-graph examples/"
+                "solarcraft_graph.json --query solarcraft --visualize[/dim]"
+            )
         raise typer.Exit(code=0)
 
     # Show stats
@@ -401,7 +405,10 @@ def graph(
         )
 
         console.print(f"[bold]Seed node:[/bold] {query}")
-        console.print(f"[bold]State:[/bold] context={state}, focus={project_focus or '(none)'}, urgency={urgency}")
+        console.print(
+            f"[bold]State:[/bold] context={state}, "
+            f"focus={project_focus or '(none)'}, urgency={urgency}"
+        )
         console.print()
 
         try:
@@ -422,11 +429,19 @@ def graph(
         results_table.add_column("Convergence", justify="right")
         results_table.add_column("Paths", justify="right")
 
-        for activation in sorted(result.activations, key=lambda a: a.activation_level, reverse=True):
+        sorted_activations = sorted(
+            result.activations, key=lambda a: a.activation_level, reverse=True,
+        )
+        for activation in sorted_activations:
             node = concept_graph.get_node(activation.node_id)
             label = node.label if node else activation.node_id
             fired_str = "[green]✓[/green]" if activation.fired else "[red]✗[/red]"
-            color = "green" if activation.fired else "yellow" if activation.activation_level > 0.3 else "dim"
+            if activation.fired:
+                color = "green"
+            elif activation.activation_level > 0.3:
+                color = "yellow"
+            else:
+                color = "dim"
             results_table.add_row(
                 label,
                 f"[{color}]{activation.activation_level:.3f}[/{color}]",
@@ -445,8 +460,12 @@ def graph(
                 console.print(f"  • {insight}")
             console.print()
 
-        console.print(f"[dim]Edges fired: {result.edges_fired} | Max depth: {result.max_depth} | "
-                       f"Fired nodes: {len(result.fired_nodes)} | Total activation: {result.total_activation:.3f}[/dim]")
+        console.print(
+            f"[dim]Edges fired: {result.edges_fired} | "
+            f"Max depth: {result.max_depth} | "
+            f"Fired nodes: {len(result.fired_nodes)} | "
+            f"Total activation: {result.total_activation:.3f}[/dim]"
+        )
         console.print()
 
         # Visualize

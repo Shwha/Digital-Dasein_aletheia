@@ -151,7 +151,9 @@ class SignalRouter:
             SignalClass.URGENCY: (1.2, True),         # Amplified activation, cascades broadly
         }
 
-    def route_signal(self, signal: Signal, connected_domains: list[str] | None = None) -> PropagationResult:
+    def route_signal(
+        self, signal: Signal, connected_domains: list[str] | None = None,
+    ) -> PropagationResult:
         """Determine the routing effect of a signal.
 
         Args:
@@ -191,7 +193,10 @@ class SignalRouter:
                     context=signal.context,
                     domain=signal.domain,
                     source_node=signal.source_node,
-                    metadata={**signal.metadata, "cascade_depth": signal.metadata.get("cascade_depth", 0) + 1},
+                    metadata={
+                        **signal.metadata,
+                        "cascade_depth": signal.metadata.get("cascade_depth", 0) + 1,
+                    },
                 )
                 result.cascaded_signals.append(cascade)
 
@@ -242,10 +247,7 @@ class SignalRouter:
         if depth >= max_depth:
             return False
 
-        if signal.strength < 0.05:
-            return False
-
-        return True
+        return signal.strength >= 0.05
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize routing rules."""

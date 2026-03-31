@@ -282,7 +282,7 @@ class ConceptGraph:
         targets = self._outgoing.get(node_id, [])
         return [self._edges[(node_id, t)] for t in targets if (node_id, t) in self._edges]
 
-    def cascade(
+    def cascade(  # noqa: PLR0912
         self,
         seed_id: str,
         state: StateVector | None = None,
@@ -348,7 +348,7 @@ class ConceptGraph:
                     existing_act, existing_paths = node_activation[edge.target]
                     node_activation[edge.target] = (
                         existing_act + propagated,
-                        existing_paths + [new_path],
+                        [*existing_paths, new_path],
                     )
                 else:
                     node_activation[edge.target] = (propagated, [new_path])
@@ -493,13 +493,13 @@ class ConceptGraph:
         """Save graph to JSON file."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
+        with Path(path).open("w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2)
 
     @classmethod
     def load(cls, path: Path | str) -> ConceptGraph:
         """Load graph from JSON file."""
-        with open(path, encoding="utf-8") as f:
+        with Path(path).open(encoding="utf-8") as f:
             data = json.load(f)
         return cls.from_dict(data)
 
@@ -536,7 +536,10 @@ class ConceptGraph:
             lines.append("")
             for node_id in fired_nodes:
                 if node_id in convergence_nodes:
-                    lines.append(f"    style {node_id} fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px")
+                    lines.append(
+                        f"    style {node_id} fill:#ff6b6b,"
+                        f"stroke:#c92a2a,stroke-width:3px"
+                    )
                 else:
                     lines.append(f"    style {node_id} fill:#69db7c,stroke:#2b8a3e")
 
@@ -544,14 +547,21 @@ class ConceptGraph:
 
     def to_graphviz(self, cascade_result: CascadeResult | None = None) -> str:
         """Generate Graphviz DOT diagram of the graph."""
-        lines = ["digraph ConceptGraph {", "    rankdir=LR;", '    node [shape=box, style=filled, fillcolor="#e3f2fd"];']
+        lines = [
+            "digraph ConceptGraph {",
+            "    rankdir=LR;",
+            '    node [shape=box, style=filled, fillcolor="#e3f2fd"];',
+        ]
         fired_nodes = set(cascade_result.fired_nodes) if cascade_result else set()
         convergence_nodes = set(cascade_result.convergence_nodes) if cascade_result else set()
 
         for node_id, node in self._nodes.items():
             label = node.label.replace('"', '\\"')
             if node_id in convergence_nodes:
-                lines.append(f'    {node_id} [label="🔥 {label}", fillcolor="#ff6b6b", penwidth=3];')
+                lines.append(
+                    f'    {node_id} [label="🔥 {label}",'
+                    f' fillcolor="#ff6b6b", penwidth=3];'
+                )
             elif node_id in fired_nodes:
                 lines.append(f'    {node_id} [label="{label} ✓", fillcolor="#69db7c"];')
             else:

@@ -202,7 +202,9 @@ class PathwayRegistry:
         self._pathways[key].append(pathway)
         return pathway
 
-    def get_pathway(self, source: str, target: str, protocol: ProtocolType | None = None) -> Pathway | None:
+    def get_pathway(
+        self, source: str, target: str, protocol: ProtocolType | None = None,
+    ) -> Pathway | None:
         """Get a specific pathway, optionally filtered by protocol."""
         key = (source, target)
         pathways = self._pathways.get(key, [])
@@ -277,8 +279,7 @@ class PathwayRegistry:
         """Serialize full registry for persistence."""
         pathways_data: list[dict[str, Any]] = []
         for pathway_list in self._pathways.values():
-            for p in pathway_list:
-                pathways_data.append(p.to_dict())
+            pathways_data.extend(p.to_dict() for p in pathway_list)
         return {"pathways": pathways_data}
 
     @classmethod
