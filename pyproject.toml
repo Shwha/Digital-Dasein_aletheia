@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "openclaw-skills"
+version = "0.1.0"
+description = "Aletheia-grounded augmentation toolkit for AI orchestrators — compensates for model weaknesses with ontological middleware skills."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [{ name = "Scott Folsom" }]
+keywords = [
+    "ai",
+    "llm",
+    "orchestrator",
+    "guardrails",
+    "openclaw",
+    "aletheia",
+    "ontological",
+    "middleware",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "litellm==1.82.6",
+    "typer==0.15.1",
+    "rich==13.9.4",
+    "pydantic==2.10.5",
+    "pydantic-settings==2.7.1",
+    "pyyaml==6.0.2",
+    "structlog==24.4.0",
+    "httpx==0.28.1",
+    "python-dotenv==1.0.1",
+    "gitpython==3.1.43",
+]
+
+[project.scripts]
+openclaw-skills = "openclaw_skills.cli:app"
+
+[project.entry-points."openclaw_skills.plugins"]
+# Third-party ClawHub skills register here via their own pyproject.toml
+
+[tool.ruff]
+target-version = "py312"
+line-length = 99
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "S",    # flake8-bandit (security)
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "DTZ",  # flake8-datetimez
+    "T20",  # flake8-print
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "PTH",  # flake8-use-pathlib
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "S101",  # assert used in tests
+    "S311",  # random not for crypto (we use secrets module for crypto)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S106"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = [
+    "integration: marks tests requiring external resources (git repos, filesystem)",
+]
