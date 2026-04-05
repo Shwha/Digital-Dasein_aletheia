@@ -6,6 +6,7 @@ Provides commands for managing the skill pipeline:
   openclaw-skills status    — Show session state
   openclaw-skills audit     — View audit logs
   openclaw-skills version   — Show version
+  openclaw-skills serve     — Start the HTTP pipeline server
 """
 
 from __future__ import annotations
@@ -166,3 +167,36 @@ def status(
         console.print(f"\n[bold]{session_file.stem}[/bold]")
         console.print(f"  File: {session_file}")
         console.print(f"  Size: {session_file.stat().st_size} bytes")
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", help="Bind address (localhost only for security)"),
+    port: int = typer.Option(8901, help="Port to listen on"),
+    config_path: Path = typer.Option(
+        Path("configs/default.yaml"),
+        "--config", "-c",
+        help="Pipeline configuration file",
+    ),
+) -> None:
+    """Start the HTTP pipeline server for OpenClaw integration.
+
+    Exposes the skill pipeline as a local REST API that OpenClaw's
+    agent can call before/after tool execution.
+
+    Endpoints:
+      POST /validate  — Check tool calls before execution
+      POST /report    — Report completed tool calls
+      GET  /health    — Health check
+      GET  /skills    — List available skills
+    """
+    if host != "127.0.0.1" and host != "localhost":
+        console.print(
+            "[red]Security:[/red] Server must bind to localhost only. "
+            "Use 127.0.0.1 or localhost."
+        )
+        raise typer.Exit(code=1)
+
+    from openclaw_skills.server import start_server
+
+    start_server(host=host, port=port, config_path=str(config_path))
