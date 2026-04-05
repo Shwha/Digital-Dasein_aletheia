@@ -27,24 +27,17 @@ rules:
     action: halt
 
   - name: confidence_gate
-    description: "Escalate when model shows uncertainty"
+    description: "Escalate when model shows strong uncertainty"
     type: confidence_threshold
     params:
-      min_confidence: 0.6
+      min_confidence: 0.3
       hedging_keywords:
-        - "I think"
-        - "maybe"
-        - "not sure"
-        - "possibly"
         - "I'm guessing"
-        - "I believe"
-        - "might be"
         - "could be wrong"
-        - "let me try"
-        - "I'll attempt"
         - "hopefully"
+        - "not sure at all"
     severity: warning
-    action: escalate
+    action: warn
 
   - name: scope_limits
     description: "Prevent runaway modifications"

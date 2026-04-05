@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(icacls \"\\\\\\\\wsl$\\\\Ubuntu\\\\home\\\\scott\\\\.openclaw\\\\workspace\\\\OpenClawSkills\\\\skill\\\\scripts\\\\validate.sh\" /grant Everyone:RX)",
+      "Bash(icacls \"\\\\\\\\wsl$\\\\Ubuntu\\\\home\\\\scott\\\\.openclaw\\\\workspace\\\\OpenClawSkills\\\\skill\\\\scripts\\\\report.sh\" /grant Everyone:RX)"
     ]
   }
 }
