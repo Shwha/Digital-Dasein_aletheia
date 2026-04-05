@@ -1,0 +1,30 @@
+# OpenClawSkills — Minimal Configuration
+# Lightweight — just state tracking and tool validation.
+# For trusted models or development/testing.
+
+name: minimal
+description: "Lightweight — StateTracker + ToolGuard only, for trusted models"
+
+pipeline:
+  - state_tracker
+  - tool_guard
+
+skills:
+  state_tracker:
+    enabled: true
+    storage_backend: json_file
+    state_dir: .openclaw/state
+    max_snapshots: 10
+    drift_detection: false
+    auto_inject_summary: true
+    summary_max_tokens: 150
+
+  tool_guard:
+    enabled: true
+    strict_mode: false
+    dry_run: false
+    audit_all_calls: true
+    rate_limits:
+      default_per_minute: 60
+      destructive_per_minute: 10
+    schema_dir: configs/tool_schemas

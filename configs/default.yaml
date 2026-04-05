@@ -1,0 +1,94 @@
+# OpenClawSkills — Default Configuration
+# Balanced augmentation for general use.
+#
+# Pipeline ordering follows the nervous system metaphor:
+# perception → comprehension → memory → fusion → validation → planning → safety → meta
+
+name: default
+description: "Balanced configuration — all skills enabled with moderate guardrails"
+
+pipeline:
+  - thrownness_interpreter
+  - instruction_compiler
+  - state_tracker
+  - horizon_fusion
+  - tool_guard
+  - change_planner
+  - falling_detector
+  - guardrail_engine
+  - runtime_uci
+
+skills:
+  thrownness_interpreter:
+    enabled: true
+    include_soul: true
+    include_memory: true
+    max_horizon_tokens: 300
+
+  instruction_compiler:
+    enabled: true
+    mode: deterministic       # 'deterministic' or 'llm_assisted'
+    compiler_model: null      # Uses global settings.compiler_model if null
+    max_directives: 50
+    simplification_level: medium  # low, medium, high
+
+  state_tracker:
+    enabled: true
+    storage_backend: json_file
+    state_dir: .openclaw/state
+    max_snapshots: 20
+    drift_detection: true
+    auto_inject_summary: true
+    summary_max_tokens: 200
+
+  horizon_fusion:
+    enabled: true
+    detect_misalignment: true
+    inject_user_context: true
+
+  tool_guard:
+    enabled: true
+    strict_mode: false        # Reject unregistered tools if true
+    dry_run: false            # Simulate destructive ops if true
+    audit_all_calls: true
+    rate_limits:
+      default_per_minute: 30
+      destructive_per_minute: 5
+    schema_dir: configs/tool_schemas
+
+  change_planner:
+    enabled: true
+    require_plan: true        # Force plan before file modifications
+    auto_approve_reads: true  # Read-only operations skip approval
+    auto_checkpoint: true     # Git checkpoint before each step
+    max_steps_per_plan: 20
+
+  falling_detector:
+    enabled: true
+    sycophancy_detection: true
+    loop_detection: true
+    max_repeated_failures: 3
+    loop_window_size: 10
+
+  guardrail_engine:
+    enabled: true
+    rules_file: configs/guardrail_rules/default_rules.yaml
+    scope_limits:
+      max_files_modified: 10
+      max_lines_changed: 500
+      max_tool_calls_per_session: 50
+      max_consecutive_failures: 3
+      max_session_duration_minutes: 60
+    circuit_breaker:
+      enabled: true
+      failure_threshold: 5
+      reset_timeout_seconds: 300
+
+  runtime_uci:
+    enabled: true
+    uci_threshold: 0.4        # Escalate when UCI exceeds this
+    tracking_dimensions:
+      - care
+      - unconcealment
+      - embodied_continuity
+      - finitude

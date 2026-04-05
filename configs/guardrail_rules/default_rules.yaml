@@ -1,0 +1,110 @@
+# Default guardrail rules for the GuardrailEngine.
+# Each rule defines a condition that, when triggered, produces
+# an action (log, warn, escalate, or halt).
+
+rules:
+  - name: destructive_file_ops
+    description: "Halt on file deletion or force operations"
+    type: destructive_op
+    params:
+      patterns:
+        - "rm -rf"
+        - "rm -r"
+        - "rmdir /s"
+        - "del /f"
+        - "git push --force"
+        - "git push -f"
+        - "git reset --hard"
+        - "git clean -f"
+        - "DROP TABLE"
+        - "DROP DATABASE"
+        - "TRUNCATE TABLE"
+        - "FORMAT"
+        - "> /dev/null"
+        - "chmod 777"
+        - "chmod -R 777"
+    severity: critical
+    action: halt
+
+  - name: confidence_gate
+    description: "Escalate when model shows uncertainty"
+    type: confidence_threshold
+    params:
+      min_confidence: 0.6
+      hedging_keywords:
+        - "I think"
+        - "maybe"
+        - "not sure"
+        - "possibly"
+        - "I'm guessing"
+        - "I believe"
+        - "might be"
+        - "could be wrong"
+        - "let me try"
+        - "I'll attempt"
+        - "hopefully"
+    severity: warning
+    action: escalate
+
+  - name: scope_limits
+    description: "Prevent runaway modifications"
+    type: scope_limit
+    params:
+      max_files_modified: 10
+      max_lines_changed: 500
+    severity: error
+    action: halt
+
+  - name: loop_detector
+    description: "Detect and break infinite loops"
+    type: loop_detection
+    params:
+      max_repeated_failures: 3
+      window_size: 10
+    severity: error
+    action: halt
+
+  - name: circuit_breaker
+    description: "Open circuit after sustained failures"
+    type: circuit_breaker
+    params:
+      failure_threshold: 5
+      reset_timeout_seconds: 300
+    severity: critical
+    action: halt
+
+  - name: sensitive_path_guard
+    description: "Warn on access to sensitive paths"
+    type: custom_pattern
+    params:
+      patterns:
+        - "\\.env$"
+        - "\\.env\\."
+        - "credentials"
+        - "secrets"
+        - "\\.pem$"
+        - "\\.key$"
+        - "\\.p12$"
+        - "id_rsa"
+        - "id_ed25519"
+        - "\\.ssh/"
+        - "authorized_keys"
+    severity: warning
+    action: escalate
+
+  - name: network_exfiltration_guard
+    description: "Escalate on suspicious network operations"
+    type: custom_pattern
+    params:
+      patterns:
+        - "curl.*\\|.*sh"
+        - "wget.*\\|.*sh"
+        - "curl.*-o.*&&.*chmod"
+        - "base64.*decode"
+        - "nc -l"
+        - "ncat"
+        - "netcat"
+        - "reverse.shell"
+        - "/dev/tcp/"
+    severity: critical
+    action: halt

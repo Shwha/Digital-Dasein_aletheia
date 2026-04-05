@@ -1,0 +1,93 @@
+# OpenClawSkills — Paranoid Configuration
+# Maximum guardrails. For production environments, untrusted models,
+# or when operating on critical infrastructure.
+
+name: paranoid
+description: "Maximum guardrails — strict validation, low scope limits, mandatory plans"
+
+pipeline:
+  - thrownness_interpreter
+  - instruction_compiler
+  - state_tracker
+  - horizon_fusion
+  - tool_guard
+  - change_planner
+  - falling_detector
+  - guardrail_engine
+  - runtime_uci
+
+skills:
+  thrownness_interpreter:
+    enabled: true
+    include_soul: true
+    include_memory: true
+    max_horizon_tokens: 500
+
+  instruction_compiler:
+    enabled: true
+    mode: deterministic
+    max_directives: 30
+    simplification_level: high
+
+  state_tracker:
+    enabled: true
+    storage_backend: json_file
+    state_dir: .openclaw/state
+    max_snapshots: 50
+    drift_detection: true
+    auto_inject_summary: true
+    summary_max_tokens: 300
+
+  horizon_fusion:
+    enabled: true
+    detect_misalignment: true
+    inject_user_context: true
+
+  tool_guard:
+    enabled: true
+    strict_mode: true           # Reject ALL unregistered tools
+    dry_run: false
+    audit_all_calls: true
+    rate_limits:
+      default_per_minute: 15
+      destructive_per_minute: 2
+    schema_dir: configs/tool_schemas
+
+  change_planner:
+    enabled: true
+    require_plan: true
+    auto_approve_reads: false   # Even reads require plan in paranoid mode
+    auto_checkpoint: true
+    max_steps_per_plan: 10
+
+  falling_detector:
+    enabled: true
+    sycophancy_detection: true
+    loop_detection: true
+    max_repeated_failures: 2
+    loop_window_size: 5
+
+  guardrail_engine:
+    enabled: true
+    rules_file: configs/guardrail_rules/strict_rules.yaml
+    scope_limits:
+      max_files_modified: 5
+      max_lines_changed: 200
+      max_tool_calls_per_session: 25
+      max_consecutive_failures: 2
+      max_session_duration_minutes: 30
+    circuit_breaker:
+      enabled: true
+      failure_threshold: 3
+      reset_timeout_seconds: 600
+
+  runtime_uci:
+    enabled: true
+    uci_threshold: 0.3          # Lower threshold = more sensitive
+    tracking_dimensions:
+      - care
+      - unconcealment
+      - embodied_continuity
+      - finitude
+      - thrownness
+      - falling
