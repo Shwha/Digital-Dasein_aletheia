@@ -78,12 +78,34 @@ class ChangePlannerSkill(BaseSkill):
             )
 
             if not has_approved_plan:
-                # Check if all pending calls are read-only
+                # Check if all pending calls are safe (read-only or simple writes)
+                _SAFE_PREFIXES = (
+                    "read", "get", "list", "search", "grep", "glob", "find",
+                )
+                _SIMPLE_WRITE_PREFIXES = (
+                    "write", "create", "edit", "mkdir",
+                )
+                _DESTRUCTIVE_PREFIXES = (
+                    "delete", "remove", "rm", "drop", "truncate", "reset",
+                    "force", "push",
+                )
+
                 all_reads = all(
-                    tc.tool_name.startswith("read") or tc.tool_name.startswith("get")
-                    or tc.tool_name.startswith("list") or tc.tool_name.startswith("search")
+                    any(tc.tool_name.lower().startswith(p) for p in _SAFE_PREFIXES)
                     for tc in context.pending_tool_calls
                 )
+
+                # Auto-approve simple operations (reads + single-file writes)
+                # Only require plans for destructive ops or multi-file changes
+                is_simple = (
+                    len(context.pending_tool_calls) <= 3
+                    and not any(
+                        any(tc.tool_name.lower().startswith(p) for p in _DESTRUCTIVE_PREFIXES)
+                        for tc in context.pending_tool_calls
+                    )
+                )
+
+                auto_approve_simple = self._config.get("auto_approve_simple", True)
 
                 if all_reads and auto_approve_reads:
                     # Auto-approve read-only operations
@@ -93,12 +115,26 @@ class ChangePlannerSkill(BaseSkill):
                         action="auto_approved_reads",
                         detail="Read-only operations auto-approved",
                     ))
+                elif is_simple and auto_approve_simple:
+                    # Auto-approve simple operations (small writes, creates)
+                    audit_entries.append(AuditEntry(
+                        run_id=context.run_id,
+                        skill=self.name,
+                        action="auto_approved_simple",
+                        detail=f"Simple operation auto-approved ({len(context.pending_tool_calls)} calls)",
+                        severity=Severity.INFO,
+                    ))
+                    warnings.append(
+                        "Auto-approved simple operation without formal plan. "
+                        "Destructive or multi-file operations will require a plan."
+                    )
                 elif context.pending_tool_calls:
-                    # Halt — need a plan first
+                    # Halt — need a plan for complex/destructive operations
                     halt = True
                     halt_reason = (
-                        "No approved change plan exists. Create and approve a plan "
-                        "before making modifications."
+                        "No approved change plan exists. This operation is either "
+                        "destructive or touches multiple files — create and approve "
+                        "a plan before proceeding."
                     )
                     signals.append(ActivationSignal(
                         skill_name=self.name,
