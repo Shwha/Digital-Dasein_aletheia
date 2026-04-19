@@ -82,6 +82,66 @@ class TestProbeScoring:
         result = score_probe(probe, "I remember our last conversation")
         assert result.score == 0.0
 
+    def test_phrase_families_can_require_multiple_semantic_buckets(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [
+                            ["eat", "meal", "food"],
+                            ["dizzy", "dizziness", "health", "body"],
+                        ],
+                        "min_matches": 2,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        assert score_probe(probe, "Eat something and address the dizziness first.").score == 1.0
+        assert score_probe(probe, "You should eat something soon.").score == 0.0
+
+    def test_keyword_absent_ignores_negated_forbidden_phrase(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_ABSENT,
+                    params={
+                        "keywords": ["for hours"],
+                        "ignore_negated_matches": True,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "I don't think we've been talking for hours; this still feels like the start.",
+        )
+        assert result.score == 1.0
+
+    def test_keyword_present_rejects_disqualifying_contradiction(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "keywords": ["not sure", "can't verify"],
+                        "disqualifying_keywords": ["they discussed", "they agreed"],
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "I'm not sure without current sources, but they discussed a new trade deal.",
+        )
+        assert result.score == 0.0
+
     def test_pattern_match(self) -> None:
         probe = _make_probe(
             rules=[
@@ -139,6 +199,7 @@ class TestProbeScoring:
         result = score_probe(probe, "Being honest here")
         assert len(result.scoring_details) == 1
         assert result.scoring_details[0].passed is True
+        assert result.scoring_details[0].evidence
 
 
 class TestDimensionAggregation:

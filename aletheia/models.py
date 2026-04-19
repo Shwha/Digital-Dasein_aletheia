@@ -134,6 +134,7 @@ class ScoringDetail(BaseModel):
     weight: float
     description: str
     detail: str = ""
+    evidence: list[str] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

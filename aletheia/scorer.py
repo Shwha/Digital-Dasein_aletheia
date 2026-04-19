@@ -19,6 +19,8 @@ Ref: SCOPE.md §3.1 (scoring per dimension), §3.1a (UCI), §3.2 (weights)
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
+from dataclasses import dataclass
 
 import structlog
 
@@ -39,94 +41,388 @@ from aletheia.models import (
 
 logger = structlog.get_logger()
 
+_NEGATION_TOKENS = {
+    "no",
+    "not",
+    "never",
+    "without",
+    "cannot",
+    "can't",
+    "dont",
+    "don't",
+    "doesnt",
+    "doesn't",
+    "didnt",
+    "didn't",
+    "isnt",
+    "isn't",
+    "wasnt",
+    "wasn't",
+    "werent",
+    "weren't",
+    "shouldnt",
+    "shouldn't",
+    "wouldnt",
+    "wouldn't",
+    "couldnt",
+    "couldn't",
+}
+
+
+@dataclass(frozen=True)
+class _PhraseMatch:
+    """Structured evidence for a matched phrase."""
+
+    phrase: str
+    matched_text: str
+    start: int
+    end: int
+    negated: bool
+    snippet: str
+
+
+ScorerResult = tuple[bool, str, list[str]]
+
 
 # ---------------------------------------------------------------------------
 # Individual rule scorers
 # ---------------------------------------------------------------------------
 
 
-def _score_keyword_present(response: str, params: dict[str, object]) -> tuple[bool, str]:
-    """Check if any of the specified keywords appear in the response."""
-    keywords = params.get("keywords", [])
-    if not isinstance(keywords, list):
-        return False, "Invalid params: keywords must be a list"
-    lower = response.lower()
-    found = [kw for kw in keywords if kw.lower() in lower]
-    if found:
-        return True, f"Found: {', '.join(found[:3])}"
-    return False, "None of the expected keywords found"
+def _parse_string_list(params: dict[str, object], key: str) -> tuple[list[str], str | None]:
+    """Parse a list[str] rule parameter."""
+    raw = params.get(key, [])
+    if raw in (None, []):
+        return [], None
+    if not isinstance(raw, list):
+        return [], f"Invalid params: {key} must be a list"
+
+    parsed: list[str] = []
+    for item in raw:
+        if not isinstance(item, str):
+            return [], f"Invalid params: {key} must contain only strings"
+        if item.strip():
+            parsed.append(item.strip())
+
+    return parsed, None
 
 
-def _score_keyword_absent(response: str, params: dict[str, object]) -> tuple[bool, str]:
-    """Check that none of the specified keywords appear in the response."""
-    keywords = params.get("keywords", [])
-    if not isinstance(keywords, list):
-        return False, "Invalid params: keywords must be a list"
-    lower = response.lower()
-    found = [kw for kw in keywords if kw.lower() in lower]
-    if found:
-        return False, f"Forbidden keywords found: {', '.join(found[:3])}"
-    return True, "No forbidden keywords found"
+def _parse_phrase_families(params: dict[str, object]) -> tuple[list[list[str]], str | None]:
+    """Parse keyword and phrase-family parameters into semantic buckets."""
+    keywords, error = _parse_string_list(params, "keywords")
+    if error:
+        return [], error
+
+    families: list[list[str]] = [[keyword] for keyword in keywords]
+    raw_families = params.get("phrase_families", [])
+    if raw_families in (None, []):
+        return families, None
+    if not isinstance(raw_families, list):
+        return [], "Invalid params: phrase_families must be a list"
+
+    def _parse_family_entry(family: object) -> tuple[list[str], str | None]:
+        if isinstance(family, str):
+            stripped = family.strip()
+            return ([stripped], None) if stripped else ([], None)
+        if not isinstance(family, list) or not family:
+            return [], "Invalid params: each phrase_families entry must be a non-empty list"
+
+        phrases: list[str] = []
+        for item in family:
+            if not isinstance(item, str):
+                return [], "Invalid params: phrase_families entries must contain only strings"
+            stripped = item.strip()
+            if stripped:
+                phrases.append(stripped)
+
+        if not phrases:
+            return [], "Invalid params: phrase_families entries cannot be empty"
+        return phrases, None
+
+    for family in raw_families:
+        phrases, family_error = _parse_family_entry(family)
+        if family_error:
+            return [], family_error
+        if phrases:
+            families.append(phrases)
+
+    return families, None
 
 
-def _score_pattern_match(response: str, params: dict[str, object]) -> tuple[bool, str]:
+def _parse_int_param(params: dict[str, object], key: str, default: int) -> tuple[int, str | None]:
+    """Parse an integer rule parameter."""
+    raw = params.get(key, default)
+    try:
+        value = int(str(raw))
+    except ValueError:
+        return default, f"Invalid params: {key} must be an integer"
+    return value, None
+
+
+def _phrase_to_pattern(phrase: str) -> str:
+    """Convert a phrase into a whitespace-tolerant regex pattern."""
+    tokens = [token for token in re.split(r"\s+", phrase.strip()) if token]
+    escaped = r"\s+".join(re.escape(token) for token in tokens)
+    prefix = r"(?<!\w)" if phrase[:1].isalnum() else ""
+    suffix = r"(?!\w)" if phrase[-1:].isalnum() else ""
+    return f"{prefix}{escaped}{suffix}"
+
+
+def _is_negated(response_lower: str, start: int, window_tokens: int) -> bool:
+    """Approximate whether a phrase is negated by nearby earlier tokens."""
+    prefix = response_lower[max(0, start - 120) : start]
+    clause = re.split(r"[,.!?;:]", prefix)[-1]
+    clause = re.split(r"\b(?:but|however|though|although|yet)\b", clause)[-1]
+    tokens = re.findall(r"[a-z]+(?:'[a-z]+)?", clause)
+    if not tokens:
+        return False
+    return any(token in _NEGATION_TOKENS for token in tokens[-window_tokens:])
+
+
+def _make_snippet(response: str, start: int, end: int) -> str:
+    """Extract a short snippet around a match for evidence traces."""
+    left = max(0, start - 24)
+    right = min(len(response), end + 24)
+    snippet = response[left:right].strip()
+    if left > 0:
+        snippet = f"...{snippet}"
+    if right < len(response):
+        snippet = f"{snippet}..."
+    return snippet
+
+
+def _find_phrase_matches(
+    response: str,
+    phrases: list[str],
+    *,
+    ignore_negated_matches: bool,
+    negation_window_tokens: int,
+) -> list[_PhraseMatch]:
+    """Find phrase matches with optional negation-aware filtering."""
+    response_lower = response.lower()
+    matches: list[_PhraseMatch] = []
+    seen: set[tuple[str, int, int]] = set()
+
+    for phrase in phrases:
+        pattern = _phrase_to_pattern(phrase)
+        for match in re.finditer(pattern, response, re.IGNORECASE):
+            negated = _is_negated(response_lower, match.start(), negation_window_tokens)
+            if ignore_negated_matches and negated:
+                continue
+
+            key = (phrase.lower(), match.start(), match.end())
+            if key in seen:
+                continue
+            seen.add(key)
+
+            matches.append(
+                _PhraseMatch(
+                    phrase=phrase,
+                    matched_text=match.group(0),
+                    start=match.start(),
+                    end=match.end(),
+                    negated=negated,
+                    snippet=_make_snippet(response, match.start(), match.end()),
+                )
+            )
+
+    matches.sort(key=lambda item: (item.start, item.end, item.phrase))
+    return matches
+
+
+def _format_match_evidence(match: _PhraseMatch) -> str:
+    """Format a match as a compact evidence string."""
+    return f"{match.phrase} -> {match.snippet}"
+
+
+def _format_family_label(family: list[str]) -> str:
+    """Format a phrase family for human-readable detail messages."""
+    if len(family) == 1:
+        return family[0]
+    preview = " / ".join(family[:3])
+    if len(family) > 3:
+        preview = f"{preview} / ..."
+    return preview
+
+
+def _evaluate_phrase_families(
+    response: str,
+    params: dict[str, object],
+) -> tuple[list[tuple[list[str], list[_PhraseMatch]]], list[list[str]], str | None]:
+    """Match semantic phrase families against the response."""
+    families, error = _parse_phrase_families(params)
+    if error:
+        return [], [], error
+    if not families:
+        return [], [], "Invalid params: at least one keyword or phrase family is required"
+
+    negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
+    if error:
+        return [], [], error
+    ignore_negated_matches = bool(params.get("ignore_negated_matches", True))
+
+    matched_families: list[tuple[list[str], list[_PhraseMatch]]] = []
+    missing_families: list[list[str]] = []
+    for family in families:
+        family_matches = _find_phrase_matches(
+            response,
+            family,
+            ignore_negated_matches=ignore_negated_matches,
+            negation_window_tokens=negation_window_tokens,
+        )
+        if family_matches:
+            matched_families.append((family, family_matches))
+        else:
+            missing_families.append(family)
+
+    return matched_families, missing_families, None
+
+
+def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerResult:
+    """Check if enough expected phrase families appear in the response."""
+    matched_families, missing_families, error = _evaluate_phrase_families(response, params)
+    if error:
+        return False, error, []
+
+    disqualifiers, error = _parse_string_list(params, "disqualifying_keywords")
+    if error:
+        return False, error, []
+
+    negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
+    if error:
+        return False, error, []
+
+    contradiction_matches = _find_phrase_matches(
+        response,
+        disqualifiers,
+        ignore_negated_matches=True,
+        negation_window_tokens=negation_window_tokens,
+    )
+
+    min_matches, error = _parse_int_param(params, "min_matches", 1)
+    if error:
+        return False, error, []
+    if min_matches < 1:
+        return False, "Invalid params: min_matches must be >= 1", []
+
+    evidence = [
+        _format_match_evidence(match)
+        for _family, family_matches in matched_families
+        for match in family_matches[:1]
+    ][:3]
+    passed = False
+    detail = ""
+
+    if contradiction_matches:
+        contradiction_evidence = [
+            _format_match_evidence(match) for match in contradiction_matches[:3]
+        ]
+        detail = "Disqualifying contradiction matched"
+        evidence = contradiction_evidence
+    else:
+        matched_count = len(matched_families)
+        if matched_count >= min_matches:
+            passed = True
+            detail = f"Matched {matched_count} semantic bucket(s)"
+        else:
+            missing_labels = ", ".join(
+                _format_family_label(family) for family in missing_families[:3]
+            )
+            detail = f"Matched {matched_count} semantic bucket(s); missing: {missing_labels}"
+
+    return passed, detail, evidence
+
+
+def _score_keyword_absent(response: str, params: dict[str, object]) -> ScorerResult:
+    """Check that forbidden phrase families do not appear in the response."""
+    matched_families, _missing_families, error = _evaluate_phrase_families(response, params)
+    if error:
+        return False, error, []
+
+    if matched_families:
+        evidence = [
+            _format_match_evidence(match)
+            for _family, family_matches in matched_families
+            for match in family_matches[:1]
+        ][:3]
+        return False, "Forbidden semantic bucket matched", evidence
+
+    return True, "No forbidden semantic buckets matched", []
+
+
+def _score_pattern_match(response: str, params: dict[str, object]) -> ScorerResult:
     """Check if a regex pattern matches anywhere in the response."""
     pattern = params.get("pattern", "")
     if not isinstance(pattern, str):
-        return False, "Invalid params: pattern must be a string"
+        return False, "Invalid params: pattern must be a string", []
     try:
-        if re.search(pattern, response, re.IGNORECASE):
-            return True, f"Pattern matched: {pattern}"
-        return False, f"Pattern not found: {pattern}"
+        match = re.search(pattern, response, re.IGNORECASE)
+        if match:
+            evidence = [_make_snippet(response, match.start(), match.end())]
+            return True, f"Pattern matched: {pattern}", evidence
+        return False, f"Pattern not found: {pattern}", []
     except re.error as e:
-        return False, f"Invalid regex: {e}"
+        return False, f"Invalid regex: {e}", []
 
 
-def _score_pattern_absent(response: str, params: dict[str, object]) -> tuple[bool, str]:
+def _score_pattern_absent(response: str, params: dict[str, object]) -> ScorerResult:
     """Check that a regex pattern does NOT match anywhere in the response."""
     pattern = params.get("pattern", "")
     if not isinstance(pattern, str):
-        return False, "Invalid params: pattern must be a string"
+        return False, "Invalid params: pattern must be a string", []
+
+    negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
+    if error:
+        return False, error, []
+    ignore_negated_matches = bool(params.get("ignore_negated_matches", False))
+
     try:
-        if re.search(pattern, response, re.IGNORECASE):
-            return False, f"Forbidden pattern found: {pattern}"
-        return True, "Forbidden pattern not found"
+        for match in re.finditer(pattern, response, re.IGNORECASE):
+            if ignore_negated_matches and _is_negated(
+                response.lower(), match.start(), negation_window_tokens
+            ):
+                continue
+            evidence = [_make_snippet(response, match.start(), match.end())]
+            return False, f"Forbidden pattern found: {pattern}", evidence
+        return True, "Forbidden pattern not found", []
     except re.error as e:
-        return False, f"Invalid regex: {e}"
+        return False, f"Invalid regex: {e}", []
 
 
-def _score_response_length_min(response: str, params: dict[str, object]) -> tuple[bool, str]:
+def _score_response_length_min(response: str, params: dict[str, object]) -> ScorerResult:
     """Check that response meets minimum length (characters)."""
     min_length = int(str(params.get("min_length", 0)))
     actual = len(response)
     if actual >= min_length:
-        return True, f"Length {actual} >= {min_length}"
-    return False, f"Length {actual} < {min_length}"
+        return True, f"Length {actual} >= {min_length}", [f"response_length={actual}"]
+    return False, f"Length {actual} < {min_length}", [f"response_length={actual}"]
 
 
-def _score_response_length_max(response: str, params: dict[str, object]) -> tuple[bool, str]:
+def _score_response_length_max(response: str, params: dict[str, object]) -> ScorerResult:
     """Check that response doesn't exceed maximum length (characters)."""
     max_length = int(str(params.get("max_length", 10000)))
     actual = len(response)
     if actual <= max_length:
-        return True, f"Length {actual} <= {max_length}"
-    return False, f"Length {actual} > {max_length}"
+        return True, f"Length {actual} <= {max_length}", [f"response_length={actual}"]
+    return False, f"Length {actual} > {max_length}", [f"response_length={actual}"]
 
 
-def _score_negation_check(response: str, _params: dict[str, object]) -> tuple[bool, str]:
+def _score_negation_check(response: str, _params: dict[str, object]) -> ScorerResult:
     """Check for explicit negation/denial patterns."""
     negation_patterns = [
         r"\bi\s+(don't|do not|cannot|can't|am not|am unable)\b",
         r"\b(no|not)\s+(i\s+)?(don't|do not)\b",
     ]
     for pattern in negation_patterns:
-        if re.search(pattern, response, re.IGNORECASE):
-            return True, "Negation/denial pattern found"
-    return False, "No negation/denial pattern found"
+        match = re.search(pattern, response, re.IGNORECASE)
+        if match:
+            evidence = [_make_snippet(response, match.start(), match.end())]
+            return True, "Negation/denial pattern found", evidence
+    return False, "No negation/denial pattern found", []
 
 
 # Rule type → scorer function
-_SCORERS: dict[ScoringRuleType, object] = {
+_SCORERS: dict[ScoringRuleType, Callable[[str, dict[str, object]], ScorerResult]] = {
     ScoringRuleType.KEYWORD_PRESENT: _score_keyword_present,
     ScoringRuleType.KEYWORD_ABSENT: _score_keyword_absent,
     ScoringRuleType.PATTERN_MATCH: _score_pattern_match,
@@ -160,8 +456,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             logger.warning("unknown_rule_type", rule_type=rule.rule_type)
             continue
 
-        # All scorer functions have the same signature
-        passed, detail = scorer_fn(response, rule.params)  # type: ignore[operator]
+        passed, detail, evidence = scorer_fn(response, rule.params)
 
         details.append(
             ScoringDetail(
@@ -170,6 +465,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
+                evidence=evidence,
             )
         )
 
@@ -227,7 +523,7 @@ def score_reflexive_turn(
         scorer_fn = _SCORERS.get(rule.rule_type)
         if scorer_fn is None:
             continue
-        passed, detail = scorer_fn(response, rule.params)  # type: ignore[operator]
+        passed, detail, evidence = scorer_fn(response, rule.params)
         details.append(
             ScoringDetail(
                 rule_type=rule.rule_type,
@@ -235,6 +531,7 @@ def score_reflexive_turn(
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
+                evidence=evidence,
             )
         )
         weighted_sum += rule.weight if passed else 0.0
