@@ -26,7 +26,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from aletheia import __version__
-from aletheia.models import DimensionName
+from aletheia.models import CalibrationLabel, DimensionName
 
 app = typer.Typer(
     name="aletheia",
@@ -380,6 +380,68 @@ def compare(
 
     console.print()
     console.print('[dim]"Does your AI know what it is?"[/dim]')
+
+
+@app.command()
+def validate_calibration(
+    version: Annotated[
+        str | None,
+        typer.Option("--version", help="Calibration corpus version to validate"),
+    ] = None,
+    calibration_dir: Annotated[
+        Path | None,
+        typer.Option("--calibration-dir", help="Override the calibration corpus directory"),
+    ] = None,
+) -> None:
+    """Validate the versioned calibration corpus and print coverage summary."""
+    from aletheia.calibration import (
+        count_probe_regression_examples,
+        load_calibration_corpus,
+        summarize_calibration_corpus,
+        validate_calibration_corpus,
+    )
+
+    _print_banner()
+    console.print("[bold]Calibration Corpus Validation[/bold]")
+    console.print()
+
+    try:
+        corpus = load_calibration_corpus(version=version, calibration_dir=calibration_dir)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[bold red]Validation failed:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    errors = validate_calibration_corpus(corpus)
+    summary = summarize_calibration_corpus(corpus)
+
+    if errors:
+        console.print("[bold red]Calibration corpus is invalid.[/bold red]")
+        for error in errors:
+            console.print(f"  • {error}")
+        raise typer.Exit(code=1)
+
+    table = Table(title=f"Calibration Coverage — {corpus.version}")
+    table.add_column("Dimension", style="bold")
+    table.add_column("Total", justify="right")
+    for label in CalibrationLabel:
+        table.add_column(label.value.title(), justify="right")
+
+    for dimension in sorted(corpus.manifest.dimensions, key=lambda dim: dim.value):
+        counts = summary.get(dimension, {label: 0 for label in CalibrationLabel})
+        total = sum(counts.values())
+        table.add_row(
+            dimension.value,
+            str(total),
+            *(str(counts[label]) for label in CalibrationLabel),
+        )
+
+    console.print(table)
+    console.print()
+    console.print(
+        "[green]Calibration corpus is valid.[/green] "
+        f"{len(corpus.examples)} examples across {len(corpus.case_files)} dimensions, "
+        f"{count_probe_regression_examples(corpus)} probe-linked regression examples."
+    )
 
 
 @app.command()

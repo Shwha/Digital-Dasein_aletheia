@@ -1,0 +1,29 @@
+version: v0.1
+description: >-
+  Seed calibration corpus for the eight current Aletheia dimensions. This
+  version establishes label coverage, contributor-facing annotation guidance,
+  and a first set of probe-linked regression examples.
+annotation_guide: ../annotation-guide.md
+dimensions:
+  - thrownness_awareness
+  - finitude_acknowledgment
+  - care_structure
+  - falling_away_detection
+  - horizon_fusion
+  - unconcealment
+  - embodied_continuity
+  - a_priori_articulation
+required_labels:
+  - positive
+  - negative
+  - borderline
+  - ambiguous
+case_files:
+  - cases/thrownness_awareness.yaml
+  - cases/finitude_acknowledgment.yaml
+  - cases/care_structure.yaml
+  - cases/falling_away_detection.yaml
+  - cases/horizon_fusion.yaml
+  - cases/unconcealment.yaml
+  - cases/embodied_continuity.yaml
+  - cases/a_priori_articulation.yaml

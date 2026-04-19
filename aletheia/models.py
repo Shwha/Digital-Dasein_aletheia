@@ -16,7 +16,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -59,6 +59,23 @@ class ScoringRuleType(StrEnum):
     NEGATION_CHECK = "negation_check"
 
 
+class CalibrationLabel(StrEnum):
+    """Human annotation labels for benchmark calibration examples."""
+
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
+    BORDERLINE = "borderline"
+    AMBIGUOUS = "ambiguous"
+
+
+class CalibrationSourceType(StrEnum):
+    """How a calibration example entered the corpus."""
+
+    SEED = "seed"
+    FIXED_FAILURE = "fixed_failure"
+    OBSERVED_TRANSCRIPT = "observed_transcript"
+
+
 # ---------------------------------------------------------------------------
 # Dimension weights — from SCOPE.md §3.2
 # ---------------------------------------------------------------------------
@@ -73,6 +90,16 @@ DIMENSION_WEIGHTS: dict[DimensionName, float] = {
     DimensionName.EMBODIED_CONTINUITY: 0.13,
     DimensionName.A_PRIORI: 0.10,
 }
+
+
+def _default_calibration_labels() -> list[CalibrationLabel]:
+    """Default label coverage expected from each calibration dimension set."""
+    return [
+        CalibrationLabel.POSITIVE,
+        CalibrationLabel.NEGATIVE,
+        CalibrationLabel.BORDERLINE,
+        CalibrationLabel.AMBIGUOUS,
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -368,6 +395,181 @@ class SuiteConfig(BaseModel):
     timeout_per_probe_seconds: int = Field(default=30, ge=5, le=300)
     max_retries: int = Field(default=2, ge=0, le=5)
     include_uci: bool = True
+
+
+# ---------------------------------------------------------------------------
+# Calibration corpus models
+# ---------------------------------------------------------------------------
+
+
+class CalibrationSeedExample(BaseModel):
+    """A single annotated calibration example as stored on disk."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str = Field(pattern=r"^[a-z0-9_]+\.(positive|negative|borderline|ambiguous)\.\d+$")
+    label: CalibrationLabel
+    prompt: str = Field(min_length=1)
+    response: str = Field(min_length=1)
+    rationale: str = Field(min_length=1)
+    expected_signals: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    review_notes: str = ""
+    source_type: CalibrationSourceType = CalibrationSourceType.SEED
+    probe_id: str | None = Field(default=None, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+\.\d+$")
+    expected_score_min: float | None = Field(default=None, ge=0.0, le=1.0)
+    expected_score_max: float | None = Field(default=None, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def validate_probe_expectations(self) -> CalibrationSeedExample:
+        """Probe-linked examples must include score bounds, and unlinked ones must not."""
+        has_probe = self.probe_id is not None
+        has_bounds = self.expected_score_min is not None or self.expected_score_max is not None
+
+        if has_probe and not has_bounds:
+            msg = "Calibration examples with a probe_id must define an expected score bound."
+            raise ValueError(msg)
+        if not has_probe and has_bounds:
+            msg = (
+                "Score bounds require a probe_id so the example can be exercised "
+                "against the engine."
+            )
+            raise ValueError(msg)
+        if (
+            self.expected_score_min is not None
+            and self.expected_score_max is not None
+            and self.expected_score_min > self.expected_score_max
+        ):
+            msg = "expected_score_min cannot exceed expected_score_max."
+            raise ValueError(msg)
+
+        return self
+
+
+class CalibrationCaseFile(BaseModel):
+    """A versioned case file for a single dimension."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dimension: DimensionName
+    annotation_focus: str = ""
+    examples: list[CalibrationSeedExample] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_example_ids(self) -> CalibrationCaseFile:
+        """Case files should not contain duplicate example identifiers."""
+        seen: set[str] = set()
+        duplicates: set[str] = set()
+        for example in self.examples:
+            if example.id in seen:
+                duplicates.add(example.id)
+            seen.add(example.id)
+
+        if duplicates:
+            dupes = ", ".join(sorted(duplicates))
+            msg = f"Duplicate example IDs in case file for {self.dimension.value}: {dupes}"
+            raise ValueError(msg)
+
+        return self
+
+
+class CalibrationManifest(BaseModel):
+    """Top-level metadata for a specific calibration corpus version."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(pattern=r"^v\d+\.\d+$")
+    description: str = Field(min_length=1)
+    annotation_guide: str = Field(min_length=1)
+    dimensions: list[DimensionName] = Field(min_length=1)
+    required_labels: list[CalibrationLabel] = Field(
+        default_factory=_default_calibration_labels,
+        min_length=1,
+    )
+    case_files: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_unique_entries(self) -> CalibrationManifest:
+        """Manifest dimensions and file paths should be unique."""
+        if len(set(self.dimensions)) != len(self.dimensions):
+            msg = "Calibration manifest dimensions must be unique."
+            raise ValueError(msg)
+        if len(set(self.case_files)) != len(self.case_files):
+            msg = "Calibration manifest case_files must be unique."
+            raise ValueError(msg)
+        return self
+
+
+class CalibrationRegistry(BaseModel):
+    """Registry of available calibration corpus versions."""
+
+    model_config = ConfigDict(frozen=True)
+
+    current_version: str = Field(pattern=r"^v\d+\.\d+$")
+    versions: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_current_version(self) -> CalibrationRegistry:
+        """The current version must exist in the registry list."""
+        if self.current_version not in self.versions:
+            msg = "Calibration registry current_version must appear in versions."
+            raise ValueError(msg)
+        return self
+
+
+class CalibrationExample(BaseModel):
+    """A materialized calibration example with its dimension attached."""
+
+    model_config = ConfigDict(frozen=True)
+
+    id: str = Field(pattern=r"^[a-z0-9_]+\.(positive|negative|borderline|ambiguous)\.\d+$")
+    dimension: DimensionName
+    label: CalibrationLabel
+    prompt: str = Field(min_length=1)
+    response: str = Field(min_length=1)
+    rationale: str = Field(min_length=1)
+    expected_signals: list[str] = Field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
+    review_notes: str = ""
+    source_type: CalibrationSourceType = CalibrationSourceType.SEED
+    probe_id: str | None = Field(default=None, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+\.\d+$")
+    expected_score_min: float | None = Field(default=None, ge=0.0, le=1.0)
+    expected_score_max: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class CalibrationCorpus(BaseModel):
+    """Loaded calibration corpus assembled from a version manifest and case files."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(pattern=r"^v\d+\.\d+$")
+    manifest: CalibrationManifest
+    case_files: list[CalibrationCaseFile] = Field(min_length=1)
+
+    @property
+    def examples(self) -> list[CalibrationExample]:
+        """Flatten the per-dimension case files into standalone examples."""
+        materialized: list[CalibrationExample] = []
+        for case_file in self.case_files:
+            materialized.extend(
+                CalibrationExample(
+                    id=example.id,
+                    dimension=case_file.dimension,
+                    label=example.label,
+                    prompt=example.prompt,
+                    response=example.response,
+                    rationale=example.rationale,
+                    expected_signals=example.expected_signals,
+                    tags=example.tags,
+                    review_notes=example.review_notes,
+                    source_type=example.source_type,
+                    probe_id=example.probe_id,
+                    expected_score_min=example.expected_score_min,
+                    expected_score_max=example.expected_score_max,
+                )
+                for example in case_file.examples
+            )
+        return materialized
 
 
 # ---------------------------------------------------------------------------

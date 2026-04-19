@@ -109,3 +109,16 @@ markers = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["aletheia"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"benchmarks" = "benchmarks"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/aletheia",
+    "/benchmarks",
+    "/tests",
+    "/README.md",
+    "/LICENSE",
+    "/pyproject.toml",
+]

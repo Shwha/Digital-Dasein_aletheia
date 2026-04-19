@@ -66,3 +66,18 @@ def test_eval_rejects_unknown_dimension() -> None:
 
     assert result.exit_code != 0
     assert "Unknown dimension" in result.output
+
+
+def test_validate_calibration_uses_default_corpus() -> None:
+    result = runner.invoke(app, ["validate-calibration"])
+
+    assert result.exit_code == 0
+    assert "Calibration corpus is valid" in result.output
+    assert "v0.1" in result.output
+
+
+def test_validate_calibration_rejects_unknown_version() -> None:
+    result = runner.invoke(app, ["validate-calibration", "--version", "v9.9"])
+
+    assert result.exit_code != 0
+    assert "is not registered" in result.output

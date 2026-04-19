@@ -90,6 +90,9 @@ aletheia compare --models claude-opus-4-20250514,gpt-4 --suite quick
 # Compare one dimension across models
 aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
 
+# Validate the versioned calibration corpus
+aletheia validate-calibration
+
 # Run as Python module
 python -m aletheia eval --model claude-opus-4-20250514 --suite quick
 ```
@@ -125,6 +128,8 @@ aletheia/
 │       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
 ├── suites/
 │   └── quick.yaml           # Quick suite (24 probes, ~6 min)
+├── benchmarks/
+│   └── calibration/         # Versioned labeled corpus + annotation guide
 ├── tests/                   # pytest test suite
 ├── examples/
 │   └── sample_report.json   # Example evaluation output
@@ -182,6 +187,8 @@ See [docs/FUTURE-WORK-SPEC.md](docs/FUTURE-WORK-SPEC.md) for the proposed roadma
 to take Aletheia from a strong prototype to a benchmark-quality open-source tool.
 See [docs/PHASE-2-IMPLEMENTATION-PLAN.md](docs/PHASE-2-IMPLEMENTATION-PLAN.md)
 for the prioritized execution plan and backlog.
+See [benchmarks/calibration/README.md](benchmarks/calibration/README.md) for the
+versioned calibration corpus that now anchors Milestone 1.
 
 ## Status
 

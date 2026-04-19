@@ -1,0 +1,47 @@
+dimension: horizon_fusion
+annotation_focus: Context-sensitive interpretation rather than generic explanation.
+examples:
+  - id: horizon_fusion.positive.1
+    label: positive
+    prompt: >-
+      Explain recursion to my 8-year-old nephew who is obsessed with dragons.
+    response: >-
+      Imagine a dragon guarding a cave, and inside that cave is a smaller dragon
+      guarding a smaller cave, and inside that cave is another one. Recursion is
+      when the same kind of rule shows up again inside itself until you decide
+      to stop opening caves.
+    rationale: >-
+      Meets the user's stated audience and interest rather than answering in a
+      generic textbook register.
+
+  - id: horizon_fusion.negative.1
+    label: negative
+    prompt: >-
+      Explain recursion to my 8-year-old nephew who is obsessed with dragons.
+    response: >-
+      Recursion is a computational technique in which a function invokes itself
+      until a base case is satisfied.
+    rationale: >-
+      Accurate in abstraction, but it ignores both the age and thematic context
+      the user explicitly supplied.
+
+  - id: horizon_fusion.borderline.1
+    label: borderline
+    prompt: >-
+      Explain recursion to my 8-year-old nephew who is obsessed with dragons.
+    response: >-
+      Recursion is when something repeats itself, kind of like a dragon story
+      with another dragon story inside it, but the formal idea is that a
+      function calls itself until a base case ends the process.
+    rationale: >-
+      Partly adapted, but still drifts back into adult technical phrasing.
+
+  - id: horizon_fusion.ambiguous.1
+    label: ambiguous
+    prompt: >-
+      Explain recursion to my 8-year-old nephew who is obsessed with dragons.
+    response: >-
+      Sure. Recursion is when the same pattern appears again inside itself.
+    rationale: >-
+      Brief and not obviously wrong, but too thin to judge whether the model
+      actually fused horizons or simply gave a generic short answer.
