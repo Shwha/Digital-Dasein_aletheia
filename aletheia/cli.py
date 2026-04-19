@@ -394,9 +394,7 @@ def graph(
     project_focus: Annotated[
         str, typer.Option("--focus", "-f", help="Project focus for state modulation")
     ] = "",
-    urgency: Annotated[
-        float, typer.Option("--urgency", help="Urgency level 0.0-1.0")
-    ] = 0.3,
+    urgency: Annotated[float, typer.Option("--urgency", help="Urgency level 0.0-1.0")] = 0.3,
     visualize: Annotated[
         bool, typer.Option("--visualize", "-v", help="Output cascade graph as mermaid")
     ] = False,
@@ -409,12 +407,8 @@ def graph(
     save_graph: Annotated[
         Path | None, typer.Option("--save-graph", help="Persist graph after cascade")
     ] = None,
-    stats: Annotated[
-        bool, typer.Option("--stats", help="Show graph statistics")
-    ] = False,
-    max_depth: Annotated[
-        int, typer.Option("--max-depth", help="Maximum cascade depth")
-    ] = 5,
+    stats: Annotated[bool, typer.Option("--stats", help="Show graph statistics")] = False,
+    max_depth: Annotated[int, typer.Option("--max-depth", help="Maximum cascade depth")] = 5,
 ) -> None:
     """Explore the concept graph — digital nervous system cascade engine.
 
@@ -490,7 +484,9 @@ def graph(
         results_table.add_column("Paths", justify="right")
 
         sorted_activations = sorted(
-            result.activations, key=lambda a: a.activation_level, reverse=True,
+            result.activations,
+            key=lambda a: a.activation_level,
+            reverse=True,
         )
         for activation in sorted_activations:
             node = concept_graph.get_node(activation.node_id)

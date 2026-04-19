@@ -66,24 +66,19 @@ class TestPathway:
         initial = p.myelin_score
 
         for _ in range(100):
-            p.record_transmission(TransmissionRecord(
-                protocol=ProtocolType.WEBSOCKET, latency_ms=5.0, success=True
-            ))
+            p.record_transmission(
+                TransmissionRecord(protocol=ProtocolType.WEBSOCKET, latency_ms=5.0, success=True)
+            )
 
         assert p.myelin_score >= initial
 
     def test_failure_reduces_quality(self):
         p = Pathway(source="a", target="b", protocol=ProtocolType.HTTP)
         for _ in range(10):
-            p.record_transmission(TransmissionRecord(
-                protocol=ProtocolType.HTTP, success=True
-            ))
-
+            p.record_transmission(TransmissionRecord(protocol=ProtocolType.HTTP, success=True))
 
         for _ in range(10):
-            p.record_transmission(TransmissionRecord(
-                protocol=ProtocolType.HTTP, success=False
-            ))
+            p.record_transmission(TransmissionRecord(protocol=ProtocolType.HTTP, success=False))
         assert p.success_rate < 1.0
 
     def test_serialization_roundtrip(self):
@@ -340,9 +335,7 @@ class TestConceptGraph:
         result = g.cascade("a")
 
         # D should have convergence from two independent paths
-        d_activation = next(
-            (a for a in result.activations if a.node_id == "d"), None
-        )
+        d_activation = next((a for a in result.activations if a.node_id == "d"), None)
         assert d_activation is not None
         assert d_activation.convergence_count >= 2
         assert d_activation.fired  # Should exceed threshold with convergence
@@ -688,7 +681,11 @@ class TestMultiHopCascade:
         """A → B → C → D → E — activation should propagate with decay."""
         g = ConceptGraph()
         for letter in "abcde":
-            g.add_node(ConceptNode(id=letter, label=letter.upper(), domain="test", activation_threshold=0.1))  # noqa: E501
+            g.add_node(
+                ConceptNode(
+                    id=letter, label=letter.upper(), domain="test", activation_threshold=0.1
+                )
+            )
         for src, tgt in [("a", "b"), ("b", "c"), ("c", "d"), ("d", "e")]:
             g.add_edge(ConceptEdge(source=src, target=tgt, base_weight=0.9, domain="test"))
 
