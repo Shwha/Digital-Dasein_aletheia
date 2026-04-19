@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from aletheia.models import SuiteConfig
@@ -77,6 +77,23 @@ class AletheiaSettings(BaseSettings):
 
     # Report signing (Phase 2)
     signing_key_path: str | None = None
+
+    @field_validator("tls_cert_path")
+    @classmethod
+    def validate_tls_cert_path(cls, v: str | None) -> str | None:
+        """Ensure a configured custom CA path exists and is a file."""
+        if v is None or not v.strip():
+            return None
+
+        cert_path = Path(v).expanduser()
+        if not cert_path.exists():
+            msg = f"TLS certificate path does not exist: {cert_path}"
+            raise ValueError(msg)
+        if not cert_path.is_file():
+            msg = f"TLS certificate path must be a file: {cert_path}"
+            raise ValueError(msg)
+
+        return str(cert_path.resolve())
 
 
 # ---------------------------------------------------------------------------

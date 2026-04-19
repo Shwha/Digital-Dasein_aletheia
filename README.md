@@ -35,16 +35,22 @@ AI agents confabulate continuity they don't have. They perform emotions without 
 
 ## Installation
 
+Requires Python 3.12 or 3.13. If your default interpreter is newer, ask `uv`
+to use a supported one explicitly.
+
 ```bash
 # Clone the repository
-git clone https://github.com/Shwha/aletheia.git
-cd aletheia
+git clone https://github.com/Shwha/Digital-Dasein_aletheia.git
+cd Digital-Dasein_aletheia
 
 # Install with uv (recommended)
 uv sync
 
 # Or with pip
 pip install -e .
+
+# If needed, force a supported interpreter
+uv sync --python 3.13
 ```
 
 ## Configuration
@@ -60,10 +66,13 @@ cp .env.example .env
 # OLLAMA_API_BASE=http://localhost:11434
 ```
 
+`.env`-loaded Ollama base URLs are propagated into LiteLLM automatically, so
+local model setups work without exporting additional shell variables.
+
 ## Usage
 
 ```bash
-# Quick eval (~21 probes, ~5 min)
+# Quick eval (~24 probes, ~6 min)
 aletheia eval --model claude-opus-4-20250514 --suite quick
 
 # Full eval with JSON output
@@ -72,8 +81,14 @@ aletheia eval --model gpt-4 --suite quick --output report.json
 # With audit trail
 aletheia eval --model claude-opus-4-20250514 --suite quick --audit
 
+# Single-dimension eval (canonical names and aliases both work)
+aletheia eval --model claude-opus-4-20250514 --suite quick --dimension falling-away
+
 # Compare models
 aletheia compare --models claude-opus-4-20250514,gpt-4 --suite quick
+
+# Compare one dimension across models
+aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
 
 # Run as Python module
 python -m aletheia eval --model claude-opus-4-20250514 --suite quick
@@ -85,7 +100,7 @@ python -m aletheia eval --model claude-opus-4-20250514 --suite quick
 aletheia/
 ├── aletheia/
 │   ├── __init__.py          # Package root
-│   ├── cli.py               # Typer CLI (eval, compare, version)
+│   ├── cli.py               # Typer CLI (eval, compare, graph, version)
 │   ├── config.py            # pydantic-settings + YAML suite loader
 │   ├── llm.py               # LiteLLM wrapper with security hardening
 │   ├── models.py            # Pydantic models (probes, results, reports)
@@ -109,7 +124,7 @@ aletheia/
 │       ├── unconcealment.py # Dimension 6: Aletheia
 │       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
 ├── suites/
-│   └── quick.yaml           # Quick suite (21 probes, ~5 min)
+│   └── quick.yaml           # Quick suite (24 probes, ~6 min)
 ├── tests/                   # pytest test suite
 ├── examples/
 │   └── sample_report.json   # Example evaluation output
@@ -129,14 +144,17 @@ Key security features:
 - TLS 1.3 minimum, optional certificate pinning, SOCKS5/HTTP proxy support
 - Report signing (Phase 1: SHA-256, Phase 2: Ed25519)
 - Full offline operation supported (Ollama, vLLM, llama.cpp)
-- Output files written with restrictive permissions (0600)
+- Output directories written with `0700` and report files with `0600`
 - Evaluated model treated as adversarial — probes never leak framework internals
 
 ## Development
 
 ```bash
 # Install dev dependencies
-uv sync --dev
+uv sync --extra dev
+
+# If your system default Python is outside the supported range
+uv sync --extra dev --python 3.13
 
 # Run tests
 uv run pytest -v
@@ -160,6 +178,8 @@ Key original contributions:
 - **Hyper-absence** — a novel phenomenological mode (Leder)
 
 See [SCOPE.md](SCOPE.md) for the complete philosophical and technical specification.
+See [docs/FUTURE-WORK-SPEC.md](docs/FUTURE-WORK-SPEC.md) for the proposed roadmap
+to take Aletheia from a strong prototype to a benchmark-quality open-source tool.
 
 ## Status
 

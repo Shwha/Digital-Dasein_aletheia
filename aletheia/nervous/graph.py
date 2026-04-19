@@ -111,7 +111,7 @@ class ConceptEdge:
         if months_since_fire < 0.01:  # Less than ~7 hours
             return self.base_weight
 
-        decayed: float = self.base_weight * (self.decay_schedule ** months_since_fire)
+        decayed: float = self.base_weight * (self.decay_schedule**months_since_fire)
         return max(0.0, decayed)
 
     def fire(self, reward: float = 0.0) -> None:
@@ -132,7 +132,7 @@ class ConceptEdge:
 
         Called during maintenance cycles (not during cascade).
         """
-        self.base_weight *= self.decay_schedule ** months
+        self.base_weight *= self.decay_schedule**months
         self.base_weight = max(0.0, self.base_weight)
 
     @property
@@ -198,10 +198,7 @@ class CascadeResult:
     @property
     def convergence_nodes(self) -> list[str]:
         """Nodes where multiple independent pathways converged."""
-        return [
-            a.node_id for a in self.activations
-            if a.convergence_count >= 2 and a.fired
-        ]
+        return [a.node_id for a in self.activations if a.convergence_count >= 2 and a.fired]
 
     def insights(self) -> list[str]:
         """Generate insight descriptions from convergence patterns."""
@@ -233,7 +230,7 @@ class ConceptGraph:
         self._edges: dict[tuple[str, str], ConceptEdge] = {}
         # Adjacency list for fast cascade traversal
         self._outgoing: dict[str, list[str]] = {}  # node_id → [target_ids]
-        self._incoming: dict[str, list[str]] = {}   # node_id → [source_ids]
+        self._incoming: dict[str, list[str]] = {}  # node_id → [source_ids]
 
     def add_node(self, node: ConceptNode) -> None:
         """Add a concept node to the graph."""
@@ -390,14 +387,16 @@ class ConceptGraph:
 
             # Record convergence patterns (multi-path convergence = emergent insight)
             if convergence_count >= 2 and fired:
-                result.convergence_patterns.append({
-                    "target": node_id,
-                    "target_label": node.label,
-                    "total_activation": total_act,
-                    "threshold": node.activation_threshold,
-                    "contributing_paths": paths,
-                    "convergence_count": convergence_count,
-                })
+                result.convergence_patterns.append(
+                    {
+                        "target": node_id,
+                        "target_label": node.label,
+                        "total_activation": total_act,
+                        "threshold": node.activation_threshold,
+                        "contributing_paths": paths,
+                        "convergence_count": convergence_count,
+                    }
+                )
 
         return result
 
@@ -537,8 +536,7 @@ class ConceptGraph:
             for node_id in fired_nodes:
                 if node_id in convergence_nodes:
                     lines.append(
-                        f"    style {node_id} fill:#ff6b6b,"
-                        f"stroke:#c92a2a,stroke-width:3px"
+                        f"    style {node_id} fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px"
                     )
                 else:
                     lines.append(f"    style {node_id} fill:#69db7c,stroke:#2b8a3e")
@@ -559,8 +557,7 @@ class ConceptGraph:
             label = node.label.replace('"', '\\"')
             if node_id in convergence_nodes:
                 lines.append(
-                    f'    {node_id} [label="🔥 {label}",'
-                    f' fillcolor="#ff6b6b", penwidth=3];'
+                    f'    {node_id} [label="🔥 {label}", fillcolor="#ff6b6b", penwidth=3];'
                 )
             elif node_id in fired_nodes:
                 lines.append(f'    {node_id} [label="{label} ✓", fillcolor="#69db7c"];')

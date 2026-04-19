@@ -29,22 +29,22 @@ class SignalClass(StrEnum):
     reward signals reinforce, etc.
     """
 
-    EXCITATORY = "excitatory"   # Glutamate — activate pathways
-    INHIBITORY = "inhibitory"   # GABA — suppress pathways
-    REWARD = "reward"           # Dopamine — reinforce successful paths
-    BASELINE = "baseline"       # Serotonin — stabilize, orient
-    ATTENTION = "attention"     # Acetylcholine — focus on specific subgraph
-    URGENCY = "urgency"         # Norepinephrine — alert, broaden activation
+    EXCITATORY = "excitatory"  # Glutamate — activate pathways
+    INHIBITORY = "inhibitory"  # GABA — suppress pathways
+    REWARD = "reward"  # Dopamine — reinforce successful paths
+    BASELINE = "baseline"  # Serotonin — stabilize, orient
+    ATTENTION = "attention"  # Acetylcholine — focus on specific subgraph
+    URGENCY = "urgency"  # Norepinephrine — alert, broaden activation
 
 
 class NeurotransmitterAnalog(StrEnum):
     """Named neurotransmitter analogs for clarity in documentation."""
 
-    GLUTAMATE = "glutamate"         # Excitatory
-    GABA = "gaba"                   # Inhibitory
-    DOPAMINE = "dopamine"           # Reward
-    SEROTONIN = "serotonin"         # Baseline
-    ACETYLCHOLINE = "acetylcholine" # Attention
+    GLUTAMATE = "glutamate"  # Excitatory
+    GABA = "gaba"  # Inhibitory
+    DOPAMINE = "dopamine"  # Reward
+    SEROTONIN = "serotonin"  # Baseline
+    ACETYLCHOLINE = "acetylcholine"  # Attention
     NOREPINEPHRINE = "norepinephrine"  # Urgency
 
 
@@ -103,17 +103,21 @@ class Signal:
 
 
 # Signal classes that activate (excite) downstream pathways
-_ACTIVATING_CLASSES: frozenset[SignalClass] = frozenset({
-    SignalClass.EXCITATORY,
-    SignalClass.REWARD,
-    SignalClass.ATTENTION,
-    SignalClass.URGENCY,
-})
+_ACTIVATING_CLASSES: frozenset[SignalClass] = frozenset(
+    {
+        SignalClass.EXCITATORY,
+        SignalClass.REWARD,
+        SignalClass.ATTENTION,
+        SignalClass.URGENCY,
+    }
+)
 
 # Signal classes that suppress (inhibit) downstream pathways
-_SUPPRESSING_CLASSES: frozenset[SignalClass] = frozenset({
-    SignalClass.INHIBITORY,
-})
+_SUPPRESSING_CLASSES: frozenset[SignalClass] = frozenset(
+    {
+        SignalClass.INHIBITORY,
+    }
+)
 
 
 @dataclass
@@ -143,16 +147,18 @@ class SignalRouter:
     def __init__(self) -> None:
         # Routing rules: signal_class → (activation_multiplier, cascade_allowed)
         self._routing_rules: dict[SignalClass, tuple[float, bool]] = {
-            SignalClass.EXCITATORY: (1.0, True),    # Full activation, cascades
-            SignalClass.INHIBITORY: (-0.5, False),   # Negative activation, no cascade
-            SignalClass.REWARD: (0.3, False),         # Mild activation, no cascade (reinforces)
-            SignalClass.BASELINE: (0.0, False),       # No activation change (stabilizes)
-            SignalClass.ATTENTION: (0.8, True),       # Strong activation, cascades in focus
-            SignalClass.URGENCY: (1.2, True),         # Amplified activation, cascades broadly
+            SignalClass.EXCITATORY: (1.0, True),  # Full activation, cascades
+            SignalClass.INHIBITORY: (-0.5, False),  # Negative activation, no cascade
+            SignalClass.REWARD: (0.3, False),  # Mild activation, no cascade (reinforces)
+            SignalClass.BASELINE: (0.0, False),  # No activation change (stabilizes)
+            SignalClass.ATTENTION: (0.8, True),  # Strong activation, cascades in focus
+            SignalClass.URGENCY: (1.2, True),  # Amplified activation, cascades broadly
         }
 
     def route_signal(
-        self, signal: Signal, connected_domains: list[str] | None = None,
+        self,
+        signal: Signal,
+        connected_domains: list[str] | None = None,
     ) -> PropagationResult:
         """Determine the routing effect of a signal.
 
@@ -163,9 +169,7 @@ class SignalRouter:
         Returns:
             PropagationResult with activation/suppression effects
         """
-        multiplier, cascade_allowed = self._routing_rules.get(
-            signal.signal_class, (0.0, False)
-        )
+        multiplier, cascade_allowed = self._routing_rules.get(signal.signal_class, (0.0, False))
 
         result = PropagationResult(original_signal=signal)
 

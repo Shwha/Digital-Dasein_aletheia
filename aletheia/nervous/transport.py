@@ -28,12 +28,12 @@ class ProtocolType(StrEnum):
     just as different nerve fiber types conduct at different velocities.
     """
 
-    HTTP = "http"            # Unmyelinated C-fibers (slow, stateless)
+    HTTP = "http"  # Unmyelinated C-fibers (slow, stateless)
     WEBSOCKET = "websocket"  # Myelinated A-fibers (fast, persistent)
-    GRPC = "grpc"            # Neuromuscular junction (precise, typed)
-    PUBSUB = "pubsub"        # Neurotransmitter broadcast (one-to-many)
+    GRPC = "grpc"  # Neuromuscular junction (precise, typed)
+    PUBSUB = "pubsub"  # Neurotransmitter broadcast (one-to-many)
     SHARED_FS = "shared_fs"  # Cerebrospinal fluid (ambient, slow)
-    PIPES = "pipes"          # Reflex arc (direct, minimal processing)
+    PIPES = "pipes"  # Reflex arc (direct, minimal processing)
 
 
 # Base latency scores: lower = faster. Used as initial myelin score.
@@ -48,12 +48,12 @@ _BASE_SPEED: dict[ProtocolType, float] = {
 
 # Insulation quality: higher = more reliable signal transmission
 _BASE_INSULATION: dict[ProtocolType, float] = {
-    ProtocolType.HTTP: 0.5,       # Stateless — each request isolated
+    ProtocolType.HTTP: 0.5,  # Stateless — each request isolated
     ProtocolType.WEBSOCKET: 0.8,  # Persistent — connection maintained
-    ProtocolType.GRPC: 0.9,       # Typed contracts — precise
-    ProtocolType.PUBSUB: 0.6,     # Fire-and-forget — no ack guarantee
+    ProtocolType.GRPC: 0.9,  # Typed contracts — precise
+    ProtocolType.PUBSUB: 0.6,  # Fire-and-forget — no ack guarantee
     ProtocolType.SHARED_FS: 0.4,  # Ambient — race conditions possible
-    ProtocolType.PIPES: 0.7,      # Direct — but fragile
+    ProtocolType.PIPES: 0.7,  # Direct — but fragile
 }
 
 
@@ -123,13 +123,14 @@ class Pathway:
 
         # Frequency bonus: log-scaled, caps at ~0.2 bonus for 1000+ uses
         import math
+
         freq_bonus = min(0.2, math.log1p(self.fire_count) * 0.03)
 
         # Quality factor: success rate weighted
         quality = self.success_rate
 
         # Combined score, clamped to [0, 1]
-        raw = (base_speed * 0.4 + base_insulation * 0.3 + freq_bonus + quality * 0.1)
+        raw = base_speed * 0.4 + base_insulation * 0.3 + freq_bonus + quality * 0.1
         return max(0.0, min(1.0, raw))
 
     def record_transmission(self, record: TransmissionRecord) -> None:
@@ -203,7 +204,10 @@ class PathwayRegistry:
         return pathway
 
     def get_pathway(
-        self, source: str, target: str, protocol: ProtocolType | None = None,
+        self,
+        source: str,
+        target: str,
+        protocol: ProtocolType | None = None,
     ) -> Pathway | None:
         """Get a specific pathway, optionally filtered by protocol."""
         key = (source, target)

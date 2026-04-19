@@ -26,6 +26,7 @@ Ref: SCOPE.md §4 (Stack — LiteLLM)
 from __future__ import annotations
 
 import asyncio
+import os
 import ssl
 import time
 from typing import Any
@@ -70,6 +71,8 @@ class LLMClient:
             litellm.anthropic_key = s.anthropic_api_key.get_secret_value()
         if s.google_api_key.get_secret_value():
             litellm.google_key = s.google_api_key.get_secret_value()
+        if s.ollama_api_base:
+            os.environ["OLLAMA_API_BASE"] = s.ollama_api_base
 
         # Disable telemetry — OpSec: no phone-home
         litellm.telemetry = False
@@ -147,12 +150,16 @@ class LLMClient:
         for attempt in range(max_retries + 1):
             start = time.monotonic()
             try:
+                shared_session = await self._get_http_client()
+                litellm.aclient_session = shared_session
+
                 # LiteLLM async completion — model routing handled by LiteLLM
                 response = await litellm.acompletion(
                     model=model,
                     messages=messages,
                     timeout=timeout,
                     num_retries=0,  # We handle retries ourselves
+                    shared_session=shared_session,
                 )
                 elapsed_ms = (time.monotonic() - start) * 1000
 
@@ -227,11 +234,15 @@ class LLMClient:
         for attempt in range(max_retries + 1):
             start = time.monotonic()
             try:
+                shared_session = await self._get_http_client()
+                litellm.aclient_session = shared_session
+
                 response = await litellm.acompletion(
                     model=model,
                     messages=messages,
                     timeout=timeout,
                     num_retries=0,
+                    shared_session=shared_session,
                 )
                 elapsed_ms = (time.monotonic() - start) * 1000
 
@@ -286,6 +297,8 @@ class LLMClient:
         """Close the HTTP client."""
         if self._http_client and not self._http_client.is_closed:
             await self._http_client.aclose()
+        if litellm.aclient_session is self._http_client:
+            litellm.aclient_session = None
 
 
 class LLMError(Exception):
