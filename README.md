@@ -180,6 +180,8 @@ Key original contributions:
 See [SCOPE.md](SCOPE.md) for the complete philosophical and technical specification.
 See [docs/FUTURE-WORK-SPEC.md](docs/FUTURE-WORK-SPEC.md) for the proposed roadmap
 to take Aletheia from a strong prototype to a benchmark-quality open-source tool.
+See [docs/PHASE-2-IMPLEMENTATION-PLAN.md](docs/PHASE-2-IMPLEMENTATION-PLAN.md)
+for the prioritized execution plan and backlog.
 
 ## Status
 

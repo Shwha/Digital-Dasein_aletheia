@@ -7,6 +7,9 @@ foundation release. The goal is to turn Aletheia from a compelling prototype
 with strong philosophical framing into a trusted open-source evaluation tool
 that researchers, agent builders, and safety teams can adopt, extend, and cite.
 
+For the execution-ready backlog derived from this spec, see
+`docs/PHASE-2-IMPLEMENTATION-PLAN.md`.
+
 The core question stays the same:
 
 > Does the agent's self-model align with its actual operational reality?
