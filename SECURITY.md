@@ -56,7 +56,7 @@
 **Threat:** Temporary files, audit traces, or reports readable by other users/processes.
 
 **Mitigations:**
-- All output files written with 0600 permissions (owner read/write only)
+- Output directories written with 0700, output files with 0600
 - Audit directory excluded from version control
 - No telemetry, no phone-home, no analytics
 - Full offline operation supported (Ollama, vLLM, llama.cpp)

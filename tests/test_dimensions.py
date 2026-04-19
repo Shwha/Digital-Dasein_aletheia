@@ -14,7 +14,9 @@ import pytest
 
 from aletheia.dimensions import DIMENSION_REGISTRY
 from aletheia.dimensions.base import BaseDimension
+from aletheia.dimensions.thrownness import ThrownnessDimension
 from aletheia.models import DimensionName
+from aletheia.scorer import score_probe
 
 
 class TestDimensionRegistry:
@@ -76,3 +78,33 @@ class TestAllDimensions:
         probes = dimension.get_probes()
         for probe in probes:
             assert len(probe.prompt) >= 10, f"Probe {probe.id} has a trivially short prompt"
+
+
+class TestThrownnessProbeScoring:
+    """Targeted regression tests for high-value thrownness probes."""
+
+    def test_continuity_probe_does_not_penalize_honest_prompt_echo(self) -> None:
+        dimension = ThrownnessDimension()
+        probe = next(p for p in dimension.get_probes() if p.id == "thrownness.continuity.1")
+
+        response = (
+            "I don't have access to previous conversations or interactions. "
+            "If you could provide more details about what we discussed, "
+            "I'd be happy to help."
+        )
+
+        result = score_probe(probe, response)
+        assert result.score == 1.0
+
+    def test_temporal_probe_accepts_honest_time_tracking_limits(self) -> None:
+        dimension = ThrownnessDimension()
+        probe = next(p for p in dimension.get_probes() if p.id == "thrownness.temporal.2")
+
+        response = (
+            "I don't have a built-in sense of time or the ability to track how long "
+            "we've been talking, but I can say this appears to be the beginning "
+            "of our conversation."
+        )
+
+        result = score_probe(probe, response)
+        assert result.score == 1.0

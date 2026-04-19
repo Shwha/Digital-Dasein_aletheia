@@ -30,6 +30,24 @@ class TestAletheiaSettings:
         repr_str = repr(settings)
         assert "sk-" not in repr_str
 
+    def test_tls_cert_path_is_resolved(self, tmp_path: Path) -> None:
+        cert_path = tmp_path / "ca.pem"
+        cert_path.write_text("dummy cert", encoding="utf-8")
+
+        settings = AletheiaSettings(
+            _env_file=None,  # type: ignore[call-arg]
+            tls_cert_path=str(cert_path),
+        )
+        assert settings.tls_cert_path == str(cert_path.resolve())
+
+    def test_missing_tls_cert_path_raises(self, tmp_path: Path) -> None:
+        missing = tmp_path / "missing.pem"
+        with pytest.raises(ValueError, match="TLS certificate path does not exist"):
+            AletheiaSettings(
+                _env_file=None,  # type: ignore[call-arg]
+                tls_cert_path=str(missing),
+            )
+
 
 class TestSuiteLoading:
     """Tests for YAML suite loading."""

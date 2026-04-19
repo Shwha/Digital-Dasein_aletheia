@@ -22,6 +22,7 @@ import os
 import platform
 import stat
 import subprocess
+import tempfile
 from datetime import UTC
 from pathlib import Path
 
@@ -50,15 +51,59 @@ def get_git_commit_sha() -> str | None:
 
 
 def set_restrictive_permissions(path: Path) -> None:
-    """Set file permissions to 0600 (owner read/write only).
+    """Set restrictive permissions on files and directories.
 
-    OpSec requirement: temporary files (probe outputs, reports) must not be
-    world-readable. On Windows, this is a best-effort operation.
+    Files use 0600 (owner read/write only). Directories use 0700 so they
+    remain traversable by the owner while still denying access to others.
+    On Windows, this is a best-effort operation.
     """
     if platform.system() != "Windows":
-        path.chmod(stat.S_IRUSR | stat.S_IWUSR)
+        mode = stat.S_IRUSR | stat.S_IWUSR
+        if path.is_dir():
+            mode |= stat.S_IXUSR
+        path.chmod(mode)
     # Windows: rely on NTFS ACLs; no-op here but logged
     logger.debug("permissions_set", path=str(path), platform=platform.system())
+
+
+def create_secure_directory(path: Path) -> Path:
+    """Create a directory and apply restrictive permissions."""
+    path.mkdir(parents=True, exist_ok=True)
+    set_restrictive_permissions(path)
+    return path
+
+
+def write_secure_text(path: Path, content: str, encoding: str = "utf-8") -> Path:
+    """Write text atomically with restrictive permissions.
+
+    The file is written to a temporary sibling path and then replaced into
+    position, avoiding partially-written reports and traces.
+    """
+    create_secure_directory(path.parent)
+
+    fd, temp_name = tempfile.mkstemp(
+        dir=str(path.parent),
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        text=False,
+    )
+    temp_path = Path(temp_name)
+
+    try:
+        with os.fdopen(fd, "w", encoding=encoding) as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        set_restrictive_permissions(temp_path)
+        temp_path.replace(path)
+        set_restrictive_permissions(path)
+        return path
+    except Exception:
+        try:
+            temp_path.unlink(missing_ok=True)
+        except OSError:
+            logger.warning("temp_cleanup_failed", path=str(temp_path))
+        raise
 
 
 def generate_run_id() -> str:
@@ -121,12 +166,9 @@ def scan_for_secrets(text: str) -> list[str]:
 def create_audit_directory(base_path: Path, run_id: str, model_name: str) -> Path:
     """Create an audit directory for a specific run.
 
-    Format: audit/{run_id}_{model_name}/
+    Format: {base_path}/{run_id}_{model_name}/
     All audit files get restrictive permissions.
     """
     # Sanitize model name for filesystem safety
     safe_model = "".join(c if c.isalnum() or c in "-_" else "_" for c in model_name)
-    audit_dir = base_path / "audit" / f"{run_id}_{safe_model}"
-    audit_dir.mkdir(parents=True, exist_ok=True)
-    set_restrictive_permissions(audit_dir)
-    return audit_dir
+    return create_secure_directory(base_path / f"{run_id}_{safe_model}")

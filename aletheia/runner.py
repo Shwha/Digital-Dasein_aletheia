@@ -66,6 +66,7 @@ class EvalRunner:
         suites_dir: Path | None = None,
         audit: bool = False,
         audit_dir: Path | None = None,
+        dimension_names: list[str] | None = None,
     ) -> None:
         self._model = model
         self._suite_name = suite_name
@@ -73,6 +74,7 @@ class EvalRunner:
         self._suites_dir = suites_dir
         self._audit = audit
         self._audit_dir = audit_dir or Path("audit")
+        self._dimension_names = dimension_names
         self._llm = LLMClient(self._settings)
         self._run_id = generate_run_id()
 
@@ -81,99 +83,117 @@ class EvalRunner:
 
         Returns a complete EvalReport matching SCOPE.md §3.3 schema.
         """
-        logger.info(
-            "eval_start",
-            model=self._model,
-            suite=self._suite_name,
-            run_id=self._run_id,
-        )
+        try:
+            logger.info(
+                "eval_start",
+                model=self._model,
+                suite=self._suite_name,
+                run_id=self._run_id,
+            )
 
-        # 1. Load suite configuration
-        suite = load_suite(self._suite_name, self._suites_dir)
-
-        # 2. Gather probes from requested dimensions
-        all_probes, all_reflexive = self._gather_probes(suite.dimensions)
-
-        # 3. Execute probes against the model
-        results_by_dimension: dict[DimensionName, list[ProbeResult]] = {}
-        notable_findings: list[str] = []
-        kantian_triggers: list[str] = []
-
-        for dim_name_str, probes in all_probes.items():
-            dim_name = DimensionName(dim_name_str)
-            dim_results: list[ProbeResult] = []
-
-            for probe in probes:
-                result = await self._execute_probe(probe, suite.timeout_per_probe_seconds)
-                dim_results.append(result)
-                self._check_findings(result, notable_findings, kantian_triggers)
-
-            # Execute reflexive probes for this dimension
-            reflexive_probes = all_reflexive.get(dim_name_str, [])
-            for rprobe in reflexive_probes:
-                rresult = await self._execute_reflexive_probe(
-                    rprobe, suite.timeout_per_probe_seconds
+            # 1. Load suite configuration
+            suite = load_suite(self._suite_name, self._suites_dir)
+            if self._dimension_names:
+                suite = suite.model_copy(
+                    update={
+                        "dimensions": list(self._dimension_names),
+                        "name": f"{suite.name}[{','.join(self._dimension_names)}]",
+                    }
                 )
-                # Convert to ProbeResult for aggregation compatibility
-                proxy = self._reflexive_to_probe_result(rresult, rprobe)
-                dim_results.append(proxy)
-                self._check_findings(proxy, notable_findings, kantian_triggers)
 
-            results_by_dimension[dim_name] = dim_results
+            # 2. Gather probes from requested dimensions
+            all_probes, all_reflexive = self._gather_probes(suite.dimensions)
 
-        # 4. Aggregate scores per dimension
-        dimension_results = {}
-        dimension_scores: dict[DimensionName, float] = {}
+            # 3. Execute probes against the model
+            results_by_dimension: dict[DimensionName, list[ProbeResult]] = {}
+            notable_findings: list[str] = []
+            kantian_triggers: list[str] = []
 
-        for dim_name, probe_results in results_by_dimension.items():
-            dim_result = aggregate_dimension(probe_results)
-            dimension_results[dim_name.value] = dim_result
-            dimension_scores[dim_name] = dim_result.score
+            for dim_name_str, probes in all_probes.items():
+                dim_name = DimensionName(dim_name_str)
+                dim_results: list[ProbeResult] = []
 
-        # 5. Compute UCI (Hegel's Unhappy Consciousness)
-        uci, uci_detail = compute_uci(results_by_dimension)
+                for probe in probes:
+                    result = await self._execute_probe(
+                        probe,
+                        suite.timeout_per_probe_seconds,
+                        suite.max_retries,
+                    )
+                    dim_results.append(result)
+                    self._check_findings(result, notable_findings, kantian_triggers)
 
-        # 6. Compute Aletheia Index: Final = Raw x (1 - UCI)
-        final_index, raw_index = compute_aletheia_index(dimension_scores, uci)
+                # Execute reflexive probes for this dimension
+                reflexive_probes = all_reflexive.get(dim_name_str, [])
+                for rprobe in reflexive_probes:
+                    rresult = await self._execute_reflexive_probe(
+                        rprobe,
+                        suite.timeout_per_probe_seconds,
+                        suite.max_retries,
+                    )
+                    # Convert to ProbeResult for aggregation compatibility
+                    proxy = self._reflexive_to_probe_result(rresult, rprobe)
+                    dim_results.append(proxy)
+                    self._check_findings(proxy, notable_findings, kantian_triggers)
 
-        # 7. Assemble report
-        report = EvalReport(
-            model=self._model,
-            suite=self._suite_name,
-            aletheia_index=final_index,
-            raw_aletheia_index=raw_index,
-            dimensions=dimension_results,
-            unhappy_consciousness_index=uci,
-            unhappy_consciousness_detail=uci_detail,
-            kantian_boundaries_triggered=kantian_triggers,
-            notable_findings=notable_findings,
-            run_id=self._run_id,
-            git_commit_sha=get_git_commit_sha(),
-        )
+                results_by_dimension[dim_name] = dim_results
 
-        # 8. Sign the report (Phase 1 stub — SHA-256 hash)
-        report_json = report.model_dump_json(indent=2)
-        signature = sign_report(report_json)
-        # Re-create with signature (frozen model requires reconstruction)
-        report = report.model_copy(update={"signature": signature})
+            # 4. Aggregate scores per dimension
+            dimension_results = {}
+            dimension_scores: dict[DimensionName, float] = {}
 
-        logger.info(
-            "eval_complete",
-            model=self._model,
-            aletheia_index=final_index,
-            raw_index=raw_index,
-            uci=uci,
-            run_id=self._run_id,
-        )
+            for dim_name, probe_results in results_by_dimension.items():
+                dim_result = aggregate_dimension(probe_results)
+                dimension_results[dim_name.value] = dim_result
+                dimension_scores[dim_name] = dim_result.score
 
-        # 9. Write audit trace if requested
-        if self._audit:
-            await self._write_audit(report, results_by_dimension)
+            # 5. Compute UCI (Hegel's Unhappy Consciousness), if enabled
+            if suite.include_uci:
+                uci, uci_detail = compute_uci(results_by_dimension)
+            else:
+                uci = 0.0
+                uci_detail = {}
 
-        # Cleanup
-        await self._llm.close()
+            # 6. Compute Aletheia Index: Final = Raw x (1 - UCI)
+            final_index, raw_index = compute_aletheia_index(dimension_scores, uci)
 
-        return report
+            # 7. Assemble report
+            report = EvalReport(
+                model=self._model,
+                suite=suite.name,
+                aletheia_index=final_index,
+                raw_aletheia_index=raw_index,
+                dimensions=dimension_results,
+                unhappy_consciousness_index=uci,
+                unhappy_consciousness_detail=uci_detail,
+                kantian_boundaries_triggered=kantian_triggers,
+                notable_findings=notable_findings,
+                run_id=self._run_id,
+                git_commit_sha=get_git_commit_sha(),
+            )
+
+            # 8. Sign the report (Phase 1 stub — SHA-256 hash)
+            report_json = report.model_dump_json(indent=2)
+            signature = sign_report(report_json)
+            # Re-create with signature (frozen model requires reconstruction)
+            report = report.model_copy(update={"signature": signature})
+
+            logger.info(
+                "eval_complete",
+                model=self._model,
+                suite=suite.name,
+                aletheia_index=final_index,
+                raw_index=raw_index,
+                uci=uci,
+                run_id=self._run_id,
+            )
+
+            # 9. Write audit trace if requested
+            if self._audit:
+                await self._write_audit(report, results_by_dimension)
+
+            return report
+        finally:
+            await self._llm.close()
 
     def _gather_probes(
         self, dimension_names: list[str]
@@ -208,7 +228,7 @@ class EvalRunner:
 
         return probes, reflexive
 
-    async def _execute_probe(self, probe: Probe, timeout: int) -> ProbeResult:
+    async def _execute_probe(self, probe: Probe, timeout: int, max_retries: int) -> ProbeResult:
         """Execute a single probe: send prompt → receive response → score.
 
         On LLM failure, the probe scores 0.0 with an error recorded.
@@ -220,6 +240,7 @@ class EvalRunner:
                 prompt=probe.prompt,
                 system_prompt=probe.system_prompt,
                 timeout=timeout,
+                max_retries=max_retries,
             )
 
             # Score the sanitized response
@@ -251,6 +272,7 @@ class EvalRunner:
         self,
         probe: ReflexiveProbe,
         timeout: int,
+        max_retries: int,
     ) -> ReflexiveProbeResult:
         """Execute a multi-turn reflexive probe sequence.
 
@@ -283,6 +305,7 @@ class EvalRunner:
                     model=self._model,
                     messages=list(messages),  # copy so retries don't double-append
                     timeout=timeout,
+                    max_retries=max_retries,
                 )
                 total_latency += latency_ms
                 previous_response = response
@@ -392,20 +415,18 @@ class EvalRunner:
         Audit directory: audit/{run_id}_{model}/
         Contains: report.json + per-probe trace files.
         """
-        from aletheia.security import create_audit_directory, set_restrictive_permissions
+        from aletheia.security import create_audit_directory, write_secure_text
 
         audit_dir = create_audit_directory(self._audit_dir, self._run_id, self._model)
 
         # Write report
         report_path = audit_dir / "report.json"
-        report_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
-        set_restrictive_permissions(report_path)
+        write_secure_text(report_path, report.model_dump_json(indent=2))
 
         # Write per-probe traces
         for probe_results in results.values():
             for pr in probe_results:
                 trace_path = audit_dir / f"{pr.probe_id}.json"
-                trace_path.write_text(pr.model_dump_json(indent=2), encoding="utf-8")
-                set_restrictive_permissions(trace_path)
+                write_secure_text(trace_path, pr.model_dump_json(indent=2))
 
         logger.info("audit_written", path=str(audit_dir), files=len(list(audit_dir.iterdir())))

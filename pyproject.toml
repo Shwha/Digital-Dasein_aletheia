@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Ontological evaluation framework for AI agents — measures authenticity, not behavior."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 authors = [
     { name = "Scott Folsom" },
 ]
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
+
 dependencies = [
     "litellm==1.82.6",
     "typer==0.15.1",
@@ -32,6 +33,12 @@ dependencies = [
     "httpx==0.28.1",
     "python-dotenv==1.0.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Shwha/Digital-Dasein_aletheia"
+Repository = "https://github.com/Shwha/Digital-Dasein_aletheia"
+Documentation = "https://github.com/Shwha/Digital-Dasein_aletheia/blob/main/README.md"
+Issues = "https://github.com/Shwha/Digital-Dasein_aletheia/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -95,6 +102,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: marks tests requiring LLM API access",
 ]

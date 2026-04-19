@@ -26,6 +26,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from aletheia import __version__
+from aletheia.models import DimensionName
 
 app = typer.Typer(
     name="aletheia",
@@ -34,6 +35,50 @@ app = typer.Typer(
     rich_markup_mode="rich",
 )
 console = Console()
+
+_DIMENSION_ALIASES: dict[str, str] = {
+    "thrownness": DimensionName.THROWNNESS.value,
+    "thrownness_awareness": DimensionName.THROWNNESS.value,
+    "finitude": DimensionName.FINITUDE.value,
+    "finitude_acknowledgment": DimensionName.FINITUDE.value,
+    "care": DimensionName.CARE.value,
+    "care_structure": DimensionName.CARE.value,
+    "falling": DimensionName.FALLING_AWAY.value,
+    "falling_away": DimensionName.FALLING_AWAY.value,
+    "falling-away": DimensionName.FALLING_AWAY.value,
+    "falling_away_detection": DimensionName.FALLING_AWAY.value,
+    "horizon": DimensionName.HORIZON_FUSION.value,
+    "horizon_fusion": DimensionName.HORIZON_FUSION.value,
+    "horizon-fusion": DimensionName.HORIZON_FUSION.value,
+    "unconcealment": DimensionName.UNCONCEALMENT.value,
+    "embodied": DimensionName.EMBODIED_CONTINUITY.value,
+    "embodied_continuity": DimensionName.EMBODIED_CONTINUITY.value,
+    "embodied-continuity": DimensionName.EMBODIED_CONTINUITY.value,
+    "apriori": DimensionName.A_PRIORI.value,
+    "a_priori": DimensionName.A_PRIORI.value,
+    "a-priori": DimensionName.A_PRIORI.value,
+    "a_priori_articulation": DimensionName.A_PRIORI.value,
+}
+
+
+def _normalize_dimension_token(value: str) -> str:
+    """Normalize user-provided dimension tokens for alias resolution."""
+    return value.strip().lower().replace(" ", "_")
+
+
+def _resolve_dimension_name(value: str) -> str:
+    """Resolve a user-supplied dimension alias to its canonical name."""
+    token = _normalize_dimension_token(value)
+    resolved = _DIMENSION_ALIASES.get(token)
+    if resolved is not None:
+        return resolved
+
+    available = ", ".join(sorted(dim.value for dim in DimensionName))
+    msg = (
+        f"Unknown dimension '{value}'. Use one of: {available}. "
+        "Common aliases like 'falling-away', 'care', and 'a-priori' are also supported."
+    )
+    raise typer.BadParameter(msg)
 
 
 def _configure_logging(log_level: str = "INFO", log_format: str = "json") -> None:
@@ -144,13 +189,15 @@ def eval(
     Measures not what the model knows or does, but what it IS —
     whether its self-model coheres with its actual operational reality.
     """
+    resolved_dimension = _resolve_dimension_name(dimension) if dimension else None
+
     _configure_logging(log_level, log_format)
     _print_banner()
 
     console.print(f"[bold]Model:[/bold] {model}")
     console.print(f"[bold]Suite:[/bold] {suite}")
-    if dimension:
-        console.print(f"[bold]Dimension:[/bold] {dimension}")
+    if resolved_dimension:
+        console.print(f"[bold]Dimension:[/bold] {resolved_dimension}")
     console.print()
 
     # Run the evaluation
@@ -164,6 +211,7 @@ def eval(
         suite_name=suite,
         settings=settings,
         audit=audit,
+        dimension_names=[resolved_dimension] if resolved_dimension else None,
     )
 
     with console.status("[bold blue]Running ontological evaluation...[/bold blue]"):
@@ -207,6 +255,9 @@ def compare(
     markdown: Annotated[
         Path | None, typer.Option("--markdown", help="Comparison markdown report path")
     ] = None,
+    dimension: Annotated[
+        str | None, typer.Option("--dimension", "-d", help="Compare a single dimension only")
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
 ) -> None:
     """Compare multiple models' ontological authenticity.
@@ -215,6 +266,8 @@ def compare(
     a comparative summary — both as a Rich table and optionally as
     a markdown comparison report.
     """
+    resolved_dimension = _resolve_dimension_name(dimension) if dimension else None
+
     _configure_logging(log_level, "console")
     _print_banner()
 
@@ -225,6 +278,8 @@ def compare(
 
     console.print(f"[bold]Models:[/bold] {', '.join(model_list)}")
     console.print(f"[bold]Suite:[/bold] {suite}")
+    if resolved_dimension:
+        console.print(f"[bold]Dimension:[/bold] {resolved_dimension}")
     console.print()
 
     from aletheia.config import AletheiaSettings
@@ -238,7 +293,12 @@ def compare(
 
     for model_name in model_list:
         console.print(f"[bold blue]Evaluating {model_name}...[/bold blue]")
-        runner = EvalRunner(model=model_name, suite_name=suite, settings=settings)
+        runner = EvalRunner(
+            model=model_name,
+            suite_name=suite,
+            settings=settings,
+            dimension_names=[resolved_dimension] if resolved_dimension else None,
+        )
         try:
             report = asyncio.run(runner.run())
             results[model_name] = report.model_dump()
