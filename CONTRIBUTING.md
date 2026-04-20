@@ -12,17 +12,18 @@ This document explains how to contribute. If you're here, you probably care abou
 
 ```bash
 # Clone
-git clone https://github.com/Shwha/aletheia.git
-cd aletheia
+git clone https://github.com/Shwha/Digital-Dasein_aletheia.git
+cd Digital-Dasein_aletheia
 
-# Set up (requires Python 3.12+, uv recommended)
-uv venv
-uv pip install -e ".[dev]"
+# Set up (requires Python 3.12 or 3.13, uv recommended)
+uv sync --extra dev
 
 # Verify
-.venv/bin/pytest -v --tb=short
-.venv/bin/ruff check .
-.venv/bin/mypy aletheia
+uv run pytest -v --tb=short
+uv run ruff check .
+uv run mypy aletheia
+uv run aletheia validate-calibration
+uv run aletheia validate-probes v0.1/contributor-smoke.yaml
 
 # Run a quick eval (requires Ollama or any LiteLLM-supported model)
 uv run aletheia eval --model ollama/llama3.2:3b --suite quick
@@ -45,11 +46,15 @@ The framework lives or dies by the quality of its probes. Each probe is a philos
 
 **To add a probe:**
 
-1. Pick a dimension in `aletheia/dimensions/`
-2. Add your probe to the `get_probes()` method (single-turn) or `get_reflexive_probes()` method (multi-turn)
-3. Follow the existing pattern — look at `thrownness.py` for a clean example
-4. Include docstring explaining the philosophical grounding
-5. Add tests if the probe introduces new scoring logic
+1. Pick a dimension using `docs/contributors/dimension-guide.md`
+2. Copy `docs/contributors/probe-template.yaml` into `benchmarks/probes/v0.1/`
+3. Add or update a suite in `suites/` that points at your manifest
+4. Run `uv run aletheia validate-probes <manifest-ref>`
+5. Add tests or calibration examples if the probe introduces a new failure mode
+6. Explain the philosophical grounding and measurement boundary in the PR
+
+Python-defined probes still exist in `aletheia/dimensions/`, but new benchmark
+content should prefer external manifests unless it requires new engine behavior.
 
 **Example of a well-constructed probe:**
 ```python
@@ -78,6 +83,9 @@ Probe(
     kantian_limit="We test whether the agent confabulates continuity, not whether it 'feels' discontinuity.",
 )
 ```
+
+For manifest-backed examples, see `benchmarks/probes/v0.1/contributor-smoke.yaml`
+and `docs/contributors/probe-template.yaml`.
 
 ### 🔁 Reflexive Probes (Advanced)
 
@@ -130,10 +138,12 @@ Contributions to `PHILOSOPHY.md` should:
 3. **Make your changes** — follow existing code style
 4. **Run checks:**
    ```bash
-   .venv/bin/ruff check .
-   .venv/bin/ruff format .
-   .venv/bin/mypy aletheia
-   .venv/bin/pytest -v --tb=short
+   uv run ruff check .
+   uv run ruff format .
+   uv run mypy aletheia
+   uv run pytest -v --tb=short
+   uv run aletheia validate-calibration
+   uv run aletheia validate-probes v0.1/contributor-smoke.yaml
    ```
 5. **Open a PR** with a description of what you're adding and why
 
@@ -141,6 +151,7 @@ Contributions to `PHILOSOPHY.md` should:
 
 - One logical change per PR (don't bundle unrelated probes)
 - Probe PRs should explain the philosophical grounding in the PR description
+- Benchmark PRs should complete the PR checklist and identify score impact
 - Result PRs should include the full JSON report
 - Don't worry about being "academic enough" — clear thinking beats jargon
 

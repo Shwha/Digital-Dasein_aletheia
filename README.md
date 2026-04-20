@@ -93,6 +93,12 @@ aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
 # Validate the versioned calibration corpus
 aletheia validate-calibration
 
+# Run a manifest-backed contributor smoke suite
+aletheia eval --model claude-opus-4-20250514 --suite manifest-smoke
+
+# Validate an external probe manifest
+aletheia validate-probes v0.1/contributor-smoke.yaml
+
 # Generate an Ed25519 signing keypair
 aletheia keygen --private-key .aletheia/signing-key.pem
 
@@ -116,6 +122,7 @@ aletheia/
 │   ├── cli.py               # Typer CLI (eval, compare, graph, version)
 │   ├── config.py            # pydantic-settings + YAML suite loader
 │   ├── llm.py               # LiteLLM wrapper with security hardening
+│   ├── manifests.py         # External probe manifest loading + validation
 │   ├── models.py            # Pydantic models (probes, results, reports)
 │   ├── reporter.py          # JSON + markdown report generation
 │   ├── runner.py            # Evaluation pipeline orchestration
@@ -137,11 +144,16 @@ aletheia/
 │       ├── unconcealment.py # Dimension 6: Aletheia
 │       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
 ├── suites/
-│   └── quick.yaml           # Quick suite (24 probes, ~6 min)
+│   ├── quick.yaml           # Quick suite (24 probes, ~6 min)
+│   └── manifest-smoke.yaml  # Manifest-backed contributor smoke suite
 ├── benchmarks/
-│   └── calibration/         # Versioned labeled corpus + annotation guide
+│   ├── calibration/         # Versioned labeled corpus + annotation guide
+│   └── probes/              # Versioned external probe manifests
+├── docs/
+│   └── contributors/        # Contributor templates, guides, quality bar
 ├── tests/                   # pytest test suite
 ├── examples/
+│   ├── providers/           # OpenAI, Anthropic, Ollama run examples
 │   └── sample_report.json   # Example evaluation output
 ├── SCOPE.md                 # Full philosophical + technical specification
 ├── SECURITY.md              # Threat model and mitigations
@@ -179,6 +191,10 @@ uv run ruff check .
 
 # Type check
 uv run mypy aletheia
+
+# Validate benchmark assets
+uv run aletheia validate-calibration
+uv run aletheia validate-probes v0.1/contributor-smoke.yaml
 ```
 
 ## Philosophical Foundations
@@ -199,6 +215,15 @@ See [docs/PHASE-2-IMPLEMENTATION-PLAN.md](docs/PHASE-2-IMPLEMENTATION-PLAN.md)
 for the prioritized execution plan and backlog.
 See [benchmarks/calibration/README.md](benchmarks/calibration/README.md) for the
 versioned calibration corpus that now anchors Milestone 1.
+See [benchmarks/probes/README.md](benchmarks/probes/README.md) and
+[docs/contributors/probe-manifest-migration.md](docs/contributors/probe-manifest-migration.md)
+for the Milestone 2 path to externalized benchmark content.
+See [docs/contributors/README.md](docs/contributors/README.md) for contributor
+templates, dimension guidance, suite manifests, and the benchmark quality bar.
+See [docs/providers.md](docs/providers.md) for OpenAI, Anthropic, and Ollama
+provider setup examples.
+See [docs/RELEASES.md](docs/RELEASES.md) and [docs/VERSIONING.md](docs/VERSIONING.md)
+for release discipline, artifact policy, and benchmark versioning rules.
 See [docs/benchmark-cards/README.md](docs/benchmark-cards/README.md) for suite
 benchmark cards, calibration posture, and known limitations.
 
@@ -227,6 +252,10 @@ fully separated by the runner's probe-selection behavior.
 - Reflexive probes — multi-turn self-confrontation (replaces LLM-as-judge)
 - Markdown reports + model comparison mode ✅
 - Ed25519 report signing ✅
+- Milestone 1 Credibility Release ✅
+- Milestone 2 Contributor Release ✅
+- External probe manifests + manifest-backed suites ✅
+- Contributor templates, provider examples, and release/versioning docs ✅
 - **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
   - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
   - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide

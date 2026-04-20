@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aletheia"
-version = "0.1.0"
+version = "0.2.0"
 description = "Ontological evaluation framework for AI agents — measures authenticity, not behavior."
 readme = "README.md"
 license = "MIT"
@@ -113,11 +113,16 @@ packages = ["aletheia"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "benchmarks" = "benchmarks"
+"suites" = "suites"
+"docs/benchmark-cards" = "docs/benchmark-cards"
 
 [tool.hatch.build.targets.sdist]
 include = [
     "/aletheia",
     "/benchmarks",
+    "/suites",
+    "/docs",
+    "/examples",
     "/tests",
     "/README.md",
     "/LICENSE",

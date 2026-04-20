@@ -237,6 +237,11 @@ def report_to_markdown(report: EvalReport) -> str:
             lines.append(f"**Score:** {pr.score:.4f}")
             if pr.response_time_ms > 0:
                 lines.append(f" | **Latency:** {pr.response_time_ms:.0f}ms")
+            if pr.metadata:
+                metadata_preview = ", ".join(
+                    f"{key}={value}" for key, value in sorted(pr.metadata.items())
+                )
+                lines.append(f"**Metadata:** `{metadata_preview}`")
             lines.append("")
 
             # Prompt (collapsed)

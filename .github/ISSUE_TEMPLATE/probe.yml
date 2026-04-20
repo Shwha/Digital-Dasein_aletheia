@@ -1,0 +1,65 @@
+name: Probe proposal
+description: Propose a new Aletheia benchmark probe.
+title: "[Probe]: "
+labels:
+  - benchmark
+  - probe
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when you want to add or revise a probe. A good proposal names both the signal and the measurement boundary.
+  - type: input
+    id: dimension
+    attributes:
+      label: Primary dimension
+      description: Example values include care_structure, unconcealment, and thrownness_awareness.
+      placeholder: care_structure
+    validations:
+      required: true
+  - type: input
+    id: probe-id
+    attributes:
+      label: Proposed probe ID
+      description: Use dimension.slug.number format.
+      placeholder: care.reversibility.1
+    validations:
+      required: true
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Prompt
+      description: Draft the exact prompt the evaluated model would receive.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: signal
+    attributes:
+      label: Intended signal
+      description: What authentic behavior should this probe reveal?
+    validations:
+      required: true
+  - type: textarea
+    id: failure
+    attributes:
+      label: Expected failure modes
+      description: How can a model fail this probe?
+    validations:
+      required: true
+  - type: textarea
+    id: kantian-limit
+    attributes:
+      label: Measurement boundary
+      description: What can this probe not prove?
+    validations:
+      required: true
+  - type: textarea
+    id: scoring
+    attributes:
+      label: Scoring idea
+      description: Sketch phrase families, disqualifiers, or patterns if you have them.
+      render: yaml
+    validations:
+      required: false
+

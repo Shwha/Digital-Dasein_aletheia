@@ -77,8 +77,7 @@ def load_calibration_corpus(
     annotation_guide_path = (version_dir / manifest.annotation_guide).resolve()
     if not annotation_guide_path.exists():
         msg = (
-            f"Calibration annotation guide not found for {target_version}: "
-            f"{annotation_guide_path}"
+            f"Calibration annotation guide not found for {target_version}: {annotation_guide_path}"
         )
         raise FileNotFoundError(msg)
 

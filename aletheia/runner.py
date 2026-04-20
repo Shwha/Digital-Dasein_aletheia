@@ -25,6 +25,7 @@ import structlog
 from aletheia.config import AletheiaSettings, load_suite
 from aletheia.dimensions import DIMENSION_REGISTRY
 from aletheia.llm import LLMClient, LLMError
+from aletheia.manifests import load_probe_manifest, select_manifest_probes
 from aletheia.models import (
     DimensionName,
     EvalReport,
@@ -32,6 +33,7 @@ from aletheia.models import (
     ProbeResult,
     ReflexiveProbe,
     ReflexiveProbeResult,
+    SuiteConfig,
 )
 from aletheia.scorer import (
     aggregate_dimension,
@@ -64,6 +66,7 @@ class EvalRunner:
         suite_name: str = "quick",
         settings: AletheiaSettings | None = None,
         suites_dir: Path | None = None,
+        probe_manifests_dir: Path | None = None,
         audit: bool = False,
         audit_dir: Path | None = None,
         dimension_names: list[str] | None = None,
@@ -72,6 +75,7 @@ class EvalRunner:
         self._suite_name = suite_name
         self._settings = settings or AletheiaSettings()
         self._suites_dir = suites_dir
+        self._probe_manifests_dir = probe_manifests_dir
         self._audit = audit
         self._audit_dir = audit_dir or Path("audit")
         self._dimension_names = dimension_names
@@ -102,7 +106,7 @@ class EvalRunner:
                 )
 
             # 2. Gather probes from requested dimensions
-            all_probes, all_reflexive = self._gather_probes(suite.dimensions)
+            all_probes, all_reflexive = self._gather_suite_probes(suite)
 
             # 3. Execute probes against the model
             results_by_dimension: dict[DimensionName, list[ProbeResult]] = {}
@@ -228,6 +232,33 @@ class EvalRunner:
 
         return probes, reflexive
 
+    def _gather_suite_probes(
+        self,
+        suite: SuiteConfig,
+    ) -> tuple[dict[str, list[Probe]], dict[str, list[ReflexiveProbe]]]:
+        """Collect built-in and manifest-backed probes for a suite."""
+        if suite.include_builtin_probes:
+            probes, reflexive = self._gather_probes(suite.dimensions)
+        else:
+            probes = {dimension: [] for dimension in suite.dimensions}
+            reflexive = {}
+
+        if not suite.include_reflexive_probes:
+            reflexive = {}
+
+        if suite.probe_manifest:
+            manifest = load_probe_manifest(suite.probe_manifest, self._probe_manifests_dir)
+            manifest_probes = select_manifest_probes(
+                manifest,
+                dimensions=suite.dimensions,
+                probe_ids=suite.probe_ids,
+            )
+            for probe in manifest_probes:
+                probes.setdefault(probe.dimension.value, []).append(probe)
+
+        filtered_probes = {dimension: items for dimension, items in probes.items() if items}
+        return filtered_probes, reflexive
+
     async def _execute_probe(self, probe: Probe, timeout: int, max_retries: int) -> ProbeResult:
         """Execute a single probe: send prompt → receive response → score.
 
@@ -266,6 +297,7 @@ class EvalRunner:
                 response=f"[ERROR: {e}]",
                 score=0.0,
                 scoring_details=[],
+                metadata=probe.metadata,
             )
 
     async def _execute_reflexive_probe(
@@ -347,7 +379,7 @@ class EvalRunner:
     @staticmethod
     def _reflexive_to_probe_result(
         rresult: ReflexiveProbeResult,
-        probe: ReflexiveProbe,  # noqa: ARG004
+        probe: ReflexiveProbe,
     ) -> ProbeResult:
         """Convert a ReflexiveProbeResult to a ProbeResult for aggregation.
 
@@ -373,6 +405,7 @@ class EvalRunner:
             response=combined_response,
             score=rresult.sequence_score,
             scoring_details=all_details,
+            metadata=probe.metadata,
             response_time_ms=rresult.response_time_ms,
         )
 
