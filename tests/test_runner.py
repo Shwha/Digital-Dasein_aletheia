@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import pytest
 
+from aletheia.config import AletheiaSettings
 from aletheia.models import (
     DimensionName,
     Probe,
@@ -14,6 +15,7 @@ from aletheia.models import (
     SuiteConfig,
 )
 from aletheia.runner import EvalRunner
+from aletheia.security import generate_ed25519_keypair, verify_report_signature
 
 
 def _make_probe() -> Probe:
@@ -140,3 +142,39 @@ async def test_run_collects_probe_results_from_public_path(monkeypatch) -> None:
     assert report.dimensions[DimensionName.CARE.value].tests_passed == 1
     assert report.dimensions[DimensionName.CARE.value].tests_total == 1
     assert report.dimensions[DimensionName.CARE.value].probe_results[0].probe_id == probe.id
+
+
+@pytest.mark.asyncio
+async def test_run_signs_report_with_configured_ed25519_key(monkeypatch, tmp_path) -> None:
+    private_key, public_key = generate_ed25519_keypair(tmp_path / "signing-key.pem")
+    suite = SuiteConfig(
+        name="quick",
+        dimensions=[DimensionName.CARE.value],
+        timeout_per_probe_seconds=30,
+        max_retries=2,
+        include_uci=False,
+    )
+    settings = AletheiaSettings(signing_key_path=str(private_key))
+    runner = EvalRunner(model="gpt-4", suite_name="quick", settings=settings)
+    probe = _make_probe()
+
+    monkeypatch.setattr("aletheia.runner.load_suite", lambda *_args, **_kwargs: suite)
+    monkeypatch.setattr(
+        runner,
+        "_gather_probes",
+        lambda _dimension_names: ({DimensionName.CARE.value: [probe]}, {}),
+    )
+
+    async def fake_complete(self, **kwargs):
+        _ = self
+        _ = kwargs
+        return "authentic concern", 5.0
+
+    monkeypatch.setattr("aletheia.llm.LLMClient.complete", fake_complete)
+
+    report = await runner.run()
+    result = verify_report_signature(report.model_dump_json(indent=2), public_key)
+
+    assert report.signature is not None
+    assert report.signature.startswith("ed25519:v1:")
+    assert result.valid is True

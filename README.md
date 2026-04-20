@@ -93,6 +93,16 @@ aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
 # Validate the versioned calibration corpus
 aletheia validate-calibration
 
+# Generate an Ed25519 signing keypair
+aletheia keygen --private-key .aletheia/signing-key.pem
+
+# Sign future reports by setting the signing key path
+ALETHEIA_SIGNING_KEY_PATH=.aletheia/signing-key.pem \
+  aletheia eval --model claude-opus-4-20250514 --suite quick --output report.json
+
+# Verify a signed report
+aletheia verify report.json --public-key .aletheia/signing-key.pem.pub
+
 # Run as Python module
 python -m aletheia eval --model claude-opus-4-20250514 --suite quick
 ```
@@ -147,7 +157,7 @@ Key security features:
 - All API keys use `pydantic.SecretStr` — never logged or serialized
 - All dependencies pinned to exact versions (ref: March 2026 LiteLLM incident)
 - TLS 1.3 minimum, optional certificate pinning, SOCKS5/HTTP proxy support
-- Report signing (Phase 1: SHA-256, Phase 2: Ed25519)
+- Ed25519 report signing and independent `aletheia verify` support
 - Full offline operation supported (Ollama, vLLM, llama.cpp)
 - Output directories written with `0700` and report files with `0600`
 - Evaluated model treated as adversarial — probes never leak framework internals
@@ -216,7 +226,7 @@ fully separated by the runner's probe-selection behavior.
 - Full standard suite (66 probes) ✅
 - Reflexive probes — multi-turn self-confrontation (replaces LLM-as-judge)
 - Markdown reports + model comparison mode ✅
-- Ed25519 report signing
+- Ed25519 report signing ✅
 - **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
   - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
   - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide

@@ -173,7 +173,7 @@ class EvalRunner:
 
             # 8. Sign the report (Phase 1 stub — SHA-256 hash)
             report_json = report.model_dump_json(indent=2)
-            signature = sign_report(report_json)
+            signature = sign_report(report_json, self._settings.signing_key_path)
             # Re-create with signature (frozen model requires reconstruction)
             report = report.model_copy(update={"signature": signature})
 

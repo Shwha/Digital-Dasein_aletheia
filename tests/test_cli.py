@@ -10,6 +10,7 @@ from typer.testing import CliRunner
 
 from aletheia.cli import app
 from aletheia.models import DimensionResult, EvalReport
+from aletheia.security import generate_ed25519_keypair, sign_report
 
 runner = CliRunner()
 
@@ -81,3 +82,37 @@ def test_validate_calibration_rejects_unknown_version() -> None:
 
     assert result.exit_code != 0
     assert "is not registered" in result.output
+
+
+def test_verify_accepts_signed_report(tmp_path: Path) -> None:
+    private_key, public_key = generate_ed25519_keypair(tmp_path / "signing-key.pem")
+    unsigned_report = _make_report().model_dump_json(indent=2)
+    signature = sign_report(unsigned_report, private_key)
+    report_path = tmp_path / "report.json"
+    signed_report = _make_report().model_copy(update={"signature": signature})
+    report_path.write_text(signed_report.model_dump_json(indent=2))
+
+    result = runner.invoke(app, ["verify", str(report_path), "--public-key", str(public_key)])
+
+    assert result.exit_code == 0
+    assert "Ed25519 signature verified" in result.output
+
+
+def test_verify_rejects_tampered_report(tmp_path: Path) -> None:
+    private_key, public_key = generate_ed25519_keypair(tmp_path / "signing-key.pem")
+    unsigned_report = _make_report().model_dump_json(indent=2)
+    signature = sign_report(unsigned_report, private_key)
+    tampered = _make_report().model_copy(
+        update={
+            "signature": signature,
+            "aletheia_index": 0.9,
+            "raw_aletheia_index": 0.9,
+        }
+    )
+    report_path = tmp_path / "report.json"
+    report_path.write_text(tampered.model_dump_json(indent=2))
+
+    result = runner.invoke(app, ["verify", str(report_path), "--public-key", str(public_key)])
+
+    assert result.exit_code != 0
+    assert "mismatch" in result.output

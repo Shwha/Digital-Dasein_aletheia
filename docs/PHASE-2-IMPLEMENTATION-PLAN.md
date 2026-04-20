@@ -164,6 +164,8 @@ scores too seriously.
 - include signature/provenance validation docs
 - test tamper detection end to end
 
+Implementation status: in progress on the Milestone 1 signing branch.
+
 ### Probe / Suite Manifest Externalization
 
 - define a schema for probe and suite assets

@@ -445,6 +445,70 @@ def validate_calibration(
 
 
 @app.command()
+def keygen(
+    private_key: Annotated[
+        Path,
+        typer.Option(
+            "--private-key",
+            help="Path for the generated Ed25519 private signing key",
+        ),
+    ] = Path(".aletheia/signing-key.pem"),
+    public_key: Annotated[
+        Path | None,
+        typer.Option("--public-key", help="Path for the generated Ed25519 public key"),
+    ] = None,
+    force: Annotated[bool, typer.Option("--force", help="Overwrite existing key files")] = False,
+) -> None:
+    """Generate an Ed25519 report-signing keypair."""
+    from aletheia.security import generate_ed25519_keypair
+
+    resolved_public_key = public_key or private_key.with_suffix(f"{private_key.suffix}.pub")
+    if not force and (private_key.exists() or resolved_public_key.exists()):
+        console.print("[bold red]Error:[/bold red] Signing key file already exists.")
+        console.print("[dim]Use --force only if you intend to replace the keypair.[/dim]")
+        raise typer.Exit(code=1)
+
+    generated_private, generated_public = generate_ed25519_keypair(private_key, resolved_public_key)
+    console.print("[green]Ed25519 signing keypair generated.[/green]")
+    console.print(f"[bold]Private key:[/bold] {generated_private}")
+    console.print(f"[bold]Public key:[/bold] {generated_public}")
+    console.print()
+    console.print(
+        "[dim]Set ALETHEIA_SIGNING_KEY_PATH to the private key path to sign future reports.[/dim]"
+    )
+
+
+@app.command()
+def verify(
+    report: Annotated[Path, typer.Argument(help="Path to an Aletheia JSON report")],
+    public_key: Annotated[
+        Path | None,
+        typer.Option("--public-key", help="Optional Ed25519 public key to require"),
+    ] = None,
+) -> None:
+    """Verify an Aletheia report signature."""
+    from aletheia.security import verify_report_file
+
+    try:
+        result = verify_report_file(report, public_key)
+    except FileNotFoundError:
+        console.print(f"[bold red]Error:[/bold red] Report not found: {report}")
+        raise typer.Exit(code=1) from None
+    except ValueError as e:
+        console.print(f"[bold red]Error:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    color = "green" if result.valid else "red"
+    console.print(f"[bold {color}]{result.detail}[/bold {color}]")
+    console.print(f"[bold]Scheme:[/bold] {result.scheme}")
+    if result.public_key:
+        console.print(f"[bold]Public key:[/bold] {result.public_key}")
+
+    if not result.valid:
+        raise typer.Exit(code=1)
+
+
+@app.command()
 def graph(
     query: Annotated[
         str, typer.Option("--query", "-q", help="Seed node ID for cascade activation")

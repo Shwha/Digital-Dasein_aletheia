@@ -38,10 +38,34 @@
 **Threat:** Evaluation reports modified after generation to misrepresent model performance.
 
 **Mitigations:**
-- Phase 1: SHA-256 hash signature on all reports (integrity check)
-- Phase 2: Ed25519 cryptographic signing
+- Ed25519 cryptographic signing when `ALETHEIA_SIGNING_KEY_PATH` is configured
+- Independent report verification via `aletheia verify`
+- Legacy SHA-256 integrity marker when no signing key is configured
 - Git commit SHA included in every report for provenance
 - Unique run ID with timestamp for audit trail
+
+Generate a local signing keypair:
+
+```bash
+aletheia keygen --private-key .aletheia/signing-key.pem
+```
+
+Sign future reports by setting the signing key path:
+
+```bash
+ALETHEIA_SIGNING_KEY_PATH=.aletheia/signing-key.pem \
+  aletheia eval --model claude-opus-4-20250514 --suite quick --output report.json
+```
+
+Verify a report:
+
+```bash
+aletheia verify report.json --public-key .aletheia/signing-key.pem.pub
+```
+
+Signed report verification canonicalizes JSON and sets the report's own
+`signature` field to `null` before verification, so harmless pretty-printing
+does not break signatures while score/content tampering still fails.
 
 ### 5. Network Interception
 **Threat:** API calls intercepted, keys extracted, or responses modified in transit.
@@ -88,3 +112,4 @@ If you discover a security vulnerability, please report it responsibly:
 | pyyaml | Config loading | Medium | `safe_load` only, never `load` |
 | python-dotenv | Env loading | Low | Read-only |
 | rich | Terminal output | Low | Display only |
+| cryptography | Ed25519 signing | Medium | Narrow use for local report signatures |
