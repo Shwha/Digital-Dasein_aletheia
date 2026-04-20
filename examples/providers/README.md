@@ -15,8 +15,8 @@ model defaults.
 
 - `run-openai.sh`: hosted OpenAI-compatible run.
 - `run-anthropic.sh`: hosted Anthropic-compatible run.
+- `run-xai.sh`: hosted xAI/Grok-compatible run.
 - `run-ollama.sh`: local Ollama run.
 - `run-comparison.sh`: comma-separated multi-model comparison.
 
 Outputs are written under `results/` unless `ALETHEIA_RESULTS_DIR` is set.
-

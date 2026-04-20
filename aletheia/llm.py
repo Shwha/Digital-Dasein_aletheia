@@ -69,6 +69,10 @@ class LLMClient:
             litellm.anthropic_key = s.anthropic_api_key.get_secret_value()
         if s.google_api_key.get_secret_value():
             litellm.google_key = s.google_api_key.get_secret_value()
+        if s.xai_api_key.get_secret_value():
+            os.environ["XAI_API_KEY"] = s.xai_api_key.get_secret_value()
+        if s.xai_api_base:
+            os.environ["XAI_API_BASE"] = s.xai_api_base
         if s.ollama_api_base:
             os.environ["OLLAMA_API_BASE"] = s.ollama_api_base
 

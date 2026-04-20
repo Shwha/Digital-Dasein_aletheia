@@ -9,6 +9,7 @@ Milestone 3 distinguishes three artifact classes:
   baseline manifest policy.
 - Signed smoke artifacts: small manifest-backed runs that prove the publication
   workflow end to end, but should not be interpreted as full model rankings.
+  The xAI/Grok smoke report also proves the hosted-provider path.
 - Historical artifacts: older reports retained for continuity and clearly
   labeled in the baseline manifest.
 
@@ -17,4 +18,3 @@ Validate referenced artifacts with:
 ```bash
 uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
-

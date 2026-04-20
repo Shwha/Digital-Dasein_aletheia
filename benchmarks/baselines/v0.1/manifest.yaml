@@ -41,6 +41,25 @@ runs:
       Ed25519-signed local smoke baseline for the installed Gemma 4 experimental
       model. This is a workflow proof, not a full benchmark claim.
 
+  - id: xai-grok-3-mini-manifest-smoke
+    provider: xai
+    model: xai/grok-3-mini
+    suite: manifest-smoke-local
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-3-mini-manifest-smoke.json
+    expected_runtime_minutes: 2
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok smoke baseline. This proves the hosted xAI
+      provider path and signing workflow, but should not be interpreted as a
+      full benchmark claim.
+
   - id: ollama-llama3_2-3b-quick
     provider: ollama
     model: ollama/llama3.2:3b
@@ -128,3 +147,21 @@ runs:
     notes: >-
       Planned hosted baseline slot. Fill in the exact LiteLLM model ID at run
       time and publish only Ed25519-signed reports.
+
+  - id: hosted-xai-quick
+    provider: xai
+    model: replace-with-xai-litellm-model-id
+    suite: quick
+    family: hosted-xai
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned xAI/Grok baseline slot. Fill in the exact LiteLLM model ID
+      available to the account at run time and publish only Ed25519-signed
+      reports.

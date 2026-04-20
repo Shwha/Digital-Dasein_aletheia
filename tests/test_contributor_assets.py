@@ -31,6 +31,7 @@ def test_required_contributor_assets_exist() -> None:
         _REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "benchmark-change.yml",
         _REPO_ROOT / "examples" / "providers" / "run-openai.sh",
         _REPO_ROOT / "examples" / "providers" / "run-anthropic.sh",
+        _REPO_ROOT / "examples" / "providers" / "run-xai.sh",
         _REPO_ROOT / "examples" / "providers" / "run-ollama.sh",
         _REPO_ROOT / "examples" / "providers" / "run-comparison.sh",
     ]

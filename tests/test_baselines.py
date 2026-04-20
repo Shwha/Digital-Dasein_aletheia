@@ -30,8 +30,13 @@ def test_load_default_baseline_manifest() -> None:
     manifest = load_baseline_manifest()
 
     assert manifest.version == "v0.1"
-    assert len(manifest.runs) == 8
-    assert {run.provider.value for run in manifest.runs} == {"anthropic", "ollama", "openai"}
+    assert len(manifest.runs) == 10
+    assert {run.provider.value for run in manifest.runs} == {
+        "anthropic",
+        "ollama",
+        "openai",
+        "xai",
+    }
 
 
 def test_baseline_manifest_summarizes_coverage() -> None:
@@ -39,11 +44,12 @@ def test_baseline_manifest_summarizes_coverage() -> None:
     summary = summarize_baseline_manifest(manifest)
 
     assert summary["providers"]["ollama"] == 6
+    assert summary["providers"]["xai"] == 2
     assert summary["statuses"]["historical"] == 4
-    assert summary["statuses"]["planned"] == 2
-    assert summary["statuses"]["published"] == 2
+    assert summary["statuses"]["planned"] == 3
+    assert summary["statuses"]["published"] == 3
     assert summary["signature_policies"]["none"] == 4
-    assert summary["signature_policies"]["ed25519"] == 4
+    assert summary["signature_policies"]["ed25519"] == 6
 
 
 def test_baseline_manifest_validates_existing_historical_reports() -> None:
@@ -63,7 +69,7 @@ def test_baseline_manifest_validates_existing_historical_reports() -> None:
     assert len(historical_checks) == 4
     assert all(check.signature_valid is None for check in historical_checks)
     assert all(check.policy_satisfied is True for check in historical_checks)
-    assert len(published_checks) == 2
+    assert len(published_checks) == 3
     assert all(check.signature_valid is True for check in published_checks)
     assert all(check.policy_satisfied is True for check in published_checks)
 
@@ -76,6 +82,7 @@ def test_baseline_commands_include_signing_for_ed25519_runs() -> None:
     assert len(commands) == len(manifest.runs)
     assert any("ALETHEIA_SIGNING_KEY_PATH" in command for command in commands)
     assert any("--model ollama/llama3.2:3b" in command for command in commands)
+    assert any("--model replace-with-xai-litellm-model-id" in command for command in commands)
     assert all("uv run aletheia eval" in command for command in commands)
 
 

@@ -86,8 +86,9 @@ large articulation-performance gap.
 - The calibration corpus is intentionally small.
 - Existing local reports are historical and should be rerun under Ed25519
   signing before release-grade comparison.
-- Hosted-model baselines are planned slots until a maintainer runs and signs
-  them under the release bundle.
+- The hosted xAI/Grok smoke artifact proves provider transport and signing, but
+  full hosted quick-suite baselines remain planned slots until a maintainer runs
+  and signs them under the release bundle.
 
 ## Responsible Claims
 

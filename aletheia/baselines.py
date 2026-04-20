@@ -43,6 +43,7 @@ class BaselineProvider(StrEnum):
     OLLAMA = "ollama"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    XAI = "xai"
     OTHER = "other"
 
 
