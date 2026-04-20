@@ -115,6 +115,7 @@ packages = ["aletheia"]
 "benchmarks" = "benchmarks"
 "suites" = "suites"
 "docs/benchmark-cards" = "docs/benchmark-cards"
+"docs/methodology" = "docs/methodology"
 
 [tool.hatch.build.targets.sdist]
 include = [

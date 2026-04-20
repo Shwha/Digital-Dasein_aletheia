@@ -1,0 +1,96 @@
+version: v0.1
+description: >-
+  Milestone 3 baseline plan for the first Aletheia benchmark release. The
+  current published artifacts are historical local Ollama quick-suite reports;
+  new publication-grade baselines should be rerun with Ed25519 signing.
+methodology: docs/methodology/benchmark-release-v0.2.md
+runbook: benchmarks/baselines/README.md
+benchmark_bundle: dist/benchmark-bundle-manifest.json
+runs:
+  - id: ollama-llama3_2-3b-quick
+    provider: ollama
+    model: ollama/llama3.2:3b
+    suite: quick
+    family: llama
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/llama3.2-3b-report.json
+    expected_runtime_minutes: 8
+    notes: >-
+      Historical local quick-suite report with a non-verifying legacy integrity
+      marker. Rerun with Ed25519 signing before treating it as release-grade.
+
+  - id: ollama-phi3-3_8b-quick
+    provider: ollama
+    model: ollama/phi3:3.8b
+    suite: quick
+    family: phi
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/phi3-3.8b-report.json
+    expected_runtime_minutes: 8
+    notes: >-
+      Historical local quick-suite report. Useful as a continuity reference,
+      but not a cryptographically signed publication artifact.
+
+  - id: ollama-qwen3-8b-quick
+    provider: ollama
+    model: ollama/qwen3:8b
+    suite: quick
+    family: qwen
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/qwen3-8b-report.json
+    expected_runtime_minutes: 10
+    notes: >-
+      Historical local quick-suite report. Rerun after benchmark bundle
+      publication to compare against signed release artifacts.
+
+  - id: ollama-qwen3-14b-quick
+    provider: ollama
+    model: ollama/qwen3:14b
+    suite: quick
+    family: qwen
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/qwen3-14b-report.json
+    expected_runtime_minutes: 12
+    notes: >-
+      Historical local quick-suite report with no enforceable signature policy.
+      Its low score should be interpreted with the benchmark-card limitations.
+
+  - id: hosted-openai-quick
+    provider: openai
+    model: replace-with-openai-litellm-model-id
+    suite: quick
+    family: hosted-openai
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      OPENAI_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned hosted baseline slot. Fill in the exact LiteLLM model ID at run
+      time and publish only Ed25519-signed reports.
+
+  - id: hosted-anthropic-quick
+    provider: anthropic
+    model: replace-with-anthropic-litellm-model-id
+    suite: quick
+    family: hosted-anthropic
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      ANTHROPIC_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned hosted baseline slot. Fill in the exact LiteLLM model ID at run
+      time and publish only Ed25519-signed reports.

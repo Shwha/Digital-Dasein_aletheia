@@ -102,6 +102,32 @@ def test_validate_probes_rejects_missing_manifest(tmp_path: Path) -> None:
     assert "Probe manifest not found" in result.output
 
 
+def test_validate_baselines_uses_default_manifest() -> None:
+    result = runner.invoke(app, ["validate-baselines"])
+
+    assert result.exit_code == 0
+    assert "Baseline manifest is valid" in result.output
+    assert "v0.1" in result.output
+
+
+def test_baseline_plan_prints_rerun_commands() -> None:
+    result = runner.invoke(app, ["baseline-plan"])
+
+    assert result.exit_code == 0
+    assert "uv run aletheia eval" in result.output
+    assert "ALETHEIA_SIGNING_KEY_PATH" in result.output
+
+
+def test_bundle_benchmark_writes_manifest(tmp_path: Path) -> None:
+    output = tmp_path / "bundle.json"
+
+    result = runner.invoke(app, ["bundle-benchmark", "--output", str(output)])
+
+    assert result.exit_code == 0
+    assert output.exists()
+    assert "Benchmark bundle manifest written" in result.output
+
+
 def test_verify_accepts_signed_report(tmp_path: Path) -> None:
     private_key, public_key = generate_ed25519_keypair(tmp_path / "signing-key.pem")
     unsigned_report = _make_report().model_dump_json(indent=2)

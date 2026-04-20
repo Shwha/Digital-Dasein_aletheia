@@ -26,11 +26,15 @@ For benchmark releases, also run:
 ```bash
 uv run aletheia validate-calibration
 uv run aletheia validate-probes v0.1/contributor-smoke.yaml
+uv run aletheia validate-baselines v0.1/manifest.yaml
+uv run aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
 ```
 
 ## Benchmark Artifact Policy
 
 - Benchmark reports intended for publication should be signed.
+- New baseline reports intended for publication should use Ed25519 signatures.
+- Historical reports without enforceable signatures must be labeled as historical.
 - Report JSON should include model, suite, run ID, timestamp, commit SHA, and signature.
 - Published results should link to benchmark cards and known limitations.
 - Baselines should not be described as rankings unless the suite was designed for ranking.
@@ -54,4 +58,3 @@ Examples:
 - `v0.1.1`
 - `benchmark-v0.1.1`
 - `calibration-v0.1.1`
-
