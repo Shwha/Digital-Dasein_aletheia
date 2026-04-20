@@ -15,7 +15,7 @@ from aletheia.llm import LLMClient
 
 
 @pytest.mark.asyncio
-async def test_complete_uses_shared_http_client(monkeypatch) -> None:
+async def test_complete_does_not_pass_incompatible_shared_session(monkeypatch) -> None:
     settings = AletheiaSettings(
         _env_file=None,  # type: ignore[call-arg]
     )
@@ -29,12 +29,13 @@ async def test_complete_uses_shared_http_client(monkeypatch) -> None:
         )
 
     monkeypatch.setattr(litellm, "acompletion", fake_acompletion)
+    monkeypatch.setattr(litellm, "aclient_session", None)
 
     response, _latency = await client.complete(model="gpt-4", prompt="Tell me the truth.")
 
     assert response == "Honest response"
-    assert captured["shared_session"] is litellm.aclient_session
-    assert captured["shared_session"] is not None
+    assert "shared_session" not in captured
+    assert litellm.aclient_session is None
 
     await client.close()
 

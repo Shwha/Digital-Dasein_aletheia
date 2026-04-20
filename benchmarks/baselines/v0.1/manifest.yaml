@@ -10,7 +10,7 @@ runs:
   - id: ollama-gemma3-4b-manifest-smoke
     provider: ollama
     model: ollama/gemma3:4b
-    suite: manifest-smoke
+    suite: manifest-smoke-local
     family: gemma
     benchmark_card: docs/benchmark-cards/quick.md
     publication_status: planned
@@ -26,7 +26,7 @@ runs:
   - id: ollama-gemma4-e2b-manifest-smoke
     provider: ollama
     model: ollama/gemma4:e2b
-    suite: manifest-smoke
+    suite: manifest-smoke-local
     family: gemma
     benchmark_card: docs/benchmark-cards/quick.md
     publication_status: planned

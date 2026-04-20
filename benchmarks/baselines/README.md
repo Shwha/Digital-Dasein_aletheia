@@ -17,6 +17,9 @@ uv run aletheia validate-baselines v0.1/manifest.yaml
 uv run aletheia baseline-plan v0.1/manifest.yaml
 ```
 
+Small local models may use `manifest-smoke-local`, which runs the same external
+probe manifest as `manifest-smoke` with a longer timeout appropriate for Ollama.
+
 For Ed25519-signed publication runs, create or select a signing key first:
 
 ```bash

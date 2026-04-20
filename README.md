@@ -103,6 +103,9 @@ aletheia validate-probes v0.1/contributor-smoke.yaml
 aletheia validate-baselines v0.1/manifest.yaml
 aletheia baseline-plan v0.1/manifest.yaml
 
+# Slower local models can use the local smoke suite
+aletheia eval --model ollama/gemma3:4b --suite manifest-smoke-local
+
 # Generate a checksum manifest for benchmark release assets
 aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
 
@@ -152,7 +155,8 @@ aletheia/
 │       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
 ├── suites/
 │   ├── quick.yaml           # Quick suite (24 probes, ~6 min)
-│   └── manifest-smoke.yaml  # Manifest-backed contributor smoke suite
+│   ├── manifest-smoke.yaml       # Manifest-backed contributor smoke suite
+│   └── manifest-smoke-local.yaml # Longer-timeout local-model smoke suite
 ├── benchmarks/
 │   ├── calibration/         # Versioned labeled corpus + annotation guide
 │   ├── probes/              # Versioned external probe manifests
