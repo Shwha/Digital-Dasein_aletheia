@@ -19,6 +19,8 @@ uv run aletheia baseline-plan v0.1/manifest.yaml
 
 Small local models may use `manifest-smoke-local`, which runs the same external
 probe manifest as `manifest-smoke` with a longer timeout appropriate for Ollama.
+Full local quick-suite baselines may also declare per-run timeout and retry
+overrides in the manifest; `baseline-plan` renders those flags explicitly.
 
 For Ed25519-signed publication runs, create or select a signing key first:
 

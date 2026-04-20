@@ -30,6 +30,10 @@ Run the commands for the models available in your environment. For planned
 hosted slots, replace placeholder model IDs with exact LiteLLM model IDs before
 publication.
 
+Some local Ollama baselines require longer per-probe timeouts than the default
+suite setting. Use the exact command emitted by `baseline-plan`; those runtime
+overrides are recorded in signed reports.
+
 ## 4. Verify Reports
 
 ```bash
@@ -45,4 +49,3 @@ uv run aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
 
 The bundle manifest records the files that define the benchmark release and
 their SHA-256 hashes.
-

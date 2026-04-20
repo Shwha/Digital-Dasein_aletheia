@@ -79,6 +79,8 @@ class BaselineRun(BaseModel):
     signature_policy: BaselineSignaturePolicy = BaselineSignaturePolicy.ED25519
     result_path: str | None = None
     expected_runtime_minutes: int | None = Field(default=None, ge=1, le=1440)
+    timeout_per_probe_seconds: int | None = Field(default=None, ge=5, le=300)
+    max_retries: int | None = Field(default=None, ge=0, le=5)
     audit: bool = False
     environment: dict[str, str] = Field(default_factory=dict)
     notes: str = ""
@@ -329,11 +331,19 @@ def render_baseline_commands(
             run.model,
             "--suite",
             run.suite,
-            "--output",
-            str(output_path),
-            "--markdown",
-            str(markdown_path),
         ]
+        if run.timeout_per_probe_seconds is not None:
+            command_parts.extend(["--timeout-per-probe", str(run.timeout_per_probe_seconds)])
+        if run.max_retries is not None:
+            command_parts.extend(["--max-retries", str(run.max_retries)])
+        command_parts.extend(
+            [
+                "--output",
+                str(output_path),
+                "--markdown",
+                str(markdown_path),
+            ]
+        )
         if run.audit:
             command_parts.append("--audit")
 

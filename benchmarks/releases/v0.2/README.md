@@ -22,6 +22,10 @@ New release-grade baseline reports should be Ed25519 signed. Historical reports
 with legacy SHA-256 integrity markers may be retained for continuity, but they
 should not be presented as the final v0.2 leaderboard.
 
+The current v0.2 manifest includes signed local Ollama quick-suite baselines
+and signed smoke baselines. Hosted quick-suite baselines remain planned until
+maintainers run and sign them under the release bundle.
+
 ## Release Gate
 
 ```bash
@@ -34,4 +38,3 @@ uv run aletheia validate-baselines v0.1/manifest.yaml
 uv run aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
 uv build
 ```
-

@@ -1,8 +1,8 @@
 version: v0.1
 description: >-
   Milestone 3 baseline plan for the first Aletheia benchmark release. The
-  current published artifacts are historical local Ollama quick-suite reports;
-  new publication-grade baselines should be rerun with Ed25519 signing.
+  current published artifacts include Ed25519-signed local Ollama quick-suite
+  reports and signed smoke reports for local and hosted provider paths.
 methodology: docs/methodology/benchmark-release-v0.2.md
 runbook: benchmarks/baselines/README.md
 benchmark_bundle: dist/benchmark-bundle-manifest.json
@@ -59,6 +59,46 @@ runs:
       Ed25519-signed hosted xAI/Grok smoke baseline. This proves the hosted xAI
       provider path and signing workflow, but should not be interpreted as a
       full benchmark claim.
+
+  - id: ollama-gemma3-4b-quick
+    provider: ollama
+    model: ollama/gemma3:4b
+    suite: quick
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma3-4b-quick.json
+    expected_runtime_minutes: 30
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local full quick-suite baseline. The local runtime uses a
+      120-second per-probe timeout and zero retries to avoid counting transport
+      retries as model behavior.
+
+  - id: ollama-gemma4-e2b-quick
+    provider: ollama
+    model: ollama/gemma4:e2b
+    suite: quick
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma4-e2b-quick.json
+    expected_runtime_minutes: 40
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local full quick-suite baseline for the installed Gemma 4
+      experimental model. Interpret as a local runtime result, not a stable
+      provider-level claim.
 
   - id: ollama-llama3_2-3b-quick
     provider: ollama

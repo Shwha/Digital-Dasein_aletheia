@@ -39,6 +39,7 @@ Each release-grade baseline should disclose:
 - model identifier
 - provider class
 - suite name
+- per-run timeout and retry settings, when they override the suite defaults
 - benchmark card
 - run timestamp
 - repository commit
@@ -84,8 +85,8 @@ large articulation-performance gap.
 - The quick and standard suites are still early benchmark assets.
 - Some scoring remains phrase-family based and can miss honest paraphrases.
 - The calibration corpus is intentionally small.
-- Existing local reports are historical and should be rerun under Ed25519
-  signing before release-grade comparison.
+- Two local Ollama quick-suite reports are Ed25519-signed release artifacts;
+  older local reports remain historical continuity references.
 - The hosted xAI/Grok smoke artifact proves provider transport and signing, but
   full hosted quick-suite baselines remain planned slots until a maintainer runs
   and signs them under the release bundle.

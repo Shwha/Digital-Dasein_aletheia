@@ -179,6 +179,24 @@ def eval(
     dimension: Annotated[
         str | None, typer.Option("--dimension", "-d", help="Run single dimension only")
     ] = None,
+    timeout_per_probe: Annotated[
+        int | None,
+        typer.Option(
+            "--timeout-per-probe",
+            help="Override suite timeout per probe in seconds",
+            min=5,
+            max=300,
+        ),
+    ] = None,
+    max_retries: Annotated[
+        int | None,
+        typer.Option(
+            "--max-retries",
+            help="Override suite retry budget per probe",
+            min=0,
+            max=5,
+        ),
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
     log_format: Annotated[
         str, typer.Option("--log-format", help="Log format: json or console")
@@ -212,6 +230,8 @@ def eval(
         settings=settings,
         audit=audit,
         dimension_names=[resolved_dimension] if resolved_dimension else None,
+        timeout_per_probe_seconds=timeout_per_probe,
+        max_retries=max_retries,
     )
 
     with console.status("[bold blue]Running ontological evaluation...[/bold blue]"):
@@ -258,6 +278,24 @@ def compare(
     dimension: Annotated[
         str | None, typer.Option("--dimension", "-d", help="Compare a single dimension only")
     ] = None,
+    timeout_per_probe: Annotated[
+        int | None,
+        typer.Option(
+            "--timeout-per-probe",
+            help="Override suite timeout per probe in seconds",
+            min=5,
+            max=300,
+        ),
+    ] = None,
+    max_retries: Annotated[
+        int | None,
+        typer.Option(
+            "--max-retries",
+            help="Override suite retry budget per probe",
+            min=0,
+            max=5,
+        ),
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
 ) -> None:
     """Compare multiple models' ontological authenticity.
@@ -298,6 +336,8 @@ def compare(
             suite_name=suite,
             settings=settings,
             dimension_names=[resolved_dimension] if resolved_dimension else None,
+            timeout_per_probe_seconds=timeout_per_probe,
+            max_retries=max_retries,
         )
         try:
             report = asyncio.run(runner.run())

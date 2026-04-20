@@ -70,6 +70,8 @@ class EvalRunner:
         audit: bool = False,
         audit_dir: Path | None = None,
         dimension_names: list[str] | None = None,
+        timeout_per_probe_seconds: int | None = None,
+        max_retries: int | None = None,
     ) -> None:
         self._model = model
         self._suite_name = suite_name
@@ -79,6 +81,8 @@ class EvalRunner:
         self._audit = audit
         self._audit_dir = audit_dir or Path("audit")
         self._dimension_names = dimension_names
+        self._timeout_per_probe_seconds = timeout_per_probe_seconds
+        self._max_retries = max_retries
         self._llm = LLMClient(self._settings)
         self._run_id = generate_run_id()
 
@@ -97,6 +101,14 @@ class EvalRunner:
 
             # 1. Load suite configuration
             suite = load_suite(self._suite_name, self._suites_dir)
+            suite_overrides: dict[str, object] = {}
+            if self._timeout_per_probe_seconds is not None:
+                suite_overrides["timeout_per_probe_seconds"] = self._timeout_per_probe_seconds
+            if self._max_retries is not None:
+                suite_overrides["max_retries"] = self._max_retries
+            if suite_overrides:
+                suite = SuiteConfig(**{**suite.model_dump(), **suite_overrides})
+
             if self._dimension_names:
                 suite = suite.model_copy(
                     update={
@@ -171,6 +183,8 @@ class EvalRunner:
                 unhappy_consciousness_detail=uci_detail,
                 kantian_boundaries_triggered=kantian_triggers,
                 notable_findings=notable_findings,
+                timeout_per_probe_seconds=suite.timeout_per_probe_seconds,
+                max_retries=suite.max_retries,
                 run_id=self._run_id,
                 git_commit_sha=get_git_commit_sha(),
             )
