@@ -72,7 +72,7 @@ local model setups work without exporting additional shell variables.
 ## Usage
 
 ```bash
-# Quick eval (~24 probes, ~6 min)
+# Quick eval
 aletheia eval --model claude-opus-4-20250514 --suite quick
 
 # Full eval with JSON output
@@ -189,6 +189,18 @@ See [docs/PHASE-2-IMPLEMENTATION-PLAN.md](docs/PHASE-2-IMPLEMENTATION-PLAN.md)
 for the prioritized execution plan and backlog.
 See [benchmarks/calibration/README.md](benchmarks/calibration/README.md) for the
 versioned calibration corpus that now anchors Milestone 1.
+See [docs/benchmark-cards/README.md](docs/benchmark-cards/README.md) for suite
+benchmark cards, calibration posture, and known limitations.
+
+## Benchmark Cards
+
+- [Quick Suite Card](docs/benchmark-cards/quick.md)
+- [Standard Suite Card](docs/benchmark-cards/standard.md)
+
+The benchmark cards are the current source of truth for intended use,
+non-goals, calibration status, and known failure modes. In particular, they
+document the current suite-depth limitation: `quick` and `standard` are not yet
+fully separated by the runner's probe-selection behavior.
 
 ## Status
 

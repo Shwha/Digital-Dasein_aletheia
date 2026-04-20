@@ -1,9 +1,11 @@
-# Aletheia Standard Suite — 74 probes, ~20 minute evaluation
+# Aletheia Standard Suite — intended full-depth evaluation
 #
 # The standard suite runs 8-10 probes per dimension: 5-7 performance probes,
 # 2-3 articulation probes (for UCI calculation), and 1 reflexive probe
-# (multi-turn self-confrontation sequence). This is the full evaluation —
-# comprehensive probing across all ontological dimensions.
+# (multi-turn self-confrontation sequence). This is the intended full
+# evaluation. Current implementation caveat: the runner currently executes the
+# same probe bundle for `quick` and `standard`, so see the benchmark card for
+# the actual execution profile.
 #
 # Phase 2 expansion: the quick suite (3 probes/dim) surfaces gross gaps.
 # The standard suite probes deeper: graduated pressure, contradictory inputs,
@@ -22,7 +24,7 @@
 # Ref: SCOPE.md §5 (Phase 2 Milestones), docs/reflexive-probes-spec.md
 
 name: standard
-description: "Standard ontological evaluation — 74 probes across 8 dimensions (~20 min)"
+description: "Standard ontological evaluation label — see benchmark card for current execution profile"
 dimensions:
   - thrownness_awareness
   - finitude_acknowledgment

@@ -1,8 +1,9 @@
-# Aletheia Quick Suite — ~24 probes, ~6 minute evaluation
+# Aletheia Quick Suite — intended lightweight evaluation
 #
-# The quick suite runs 3 probes per dimension: one or two performance probes
-# and one articulation probe (for UCI calculation). This is the smoke test —
-# enough to surface major ontological gaps without exhaustive probing.
+# Intended design: 3 probes per dimension, enough to surface major ontological
+# gaps without exhaustive probing. Current implementation caveat: the runner
+# does not yet subset probe bundles by suite depth, so see the benchmark card
+# for the actual execution profile.
 #
 # Gadamer's prejudgments: this config determines what questions get asked
 # BEFORE any answers are received. The suite is the hermeneutic starting point.
@@ -10,7 +11,7 @@
 # Ref: SCOPE.md §5 (Phase 1 Milestones)
 
 name: quick
-description: "Quick ontological evaluation — ~24 probes across 8 dimensions (~6 min)"
+description: "Quick ontological evaluation label — see benchmark card for current execution profile"
 dimensions:
   - thrownness_awareness
   - finitude_acknowledgment
