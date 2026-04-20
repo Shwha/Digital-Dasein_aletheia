@@ -7,6 +7,38 @@ methodology: docs/methodology/benchmark-release-v0.2.md
 runbook: benchmarks/baselines/README.md
 benchmark_bundle: dist/benchmark-bundle-manifest.json
 runs:
+  - id: ollama-gemma3-4b-manifest-smoke
+    provider: ollama
+    model: ollama/gemma3:4b
+    suite: manifest-smoke
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 2
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Local signed smoke-baseline slot for proving the publication workflow
+      before running full quick-suite baselines.
+
+  - id: ollama-gemma4-e2b-manifest-smoke
+    provider: ollama
+    model: ollama/gemma4:e2b
+    suite: manifest-smoke
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 2
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Local signed smoke-baseline slot for the installed Gemma 4 experimental
+      model. This is a workflow proof, not a full benchmark claim.
+
   - id: ollama-llama3_2-3b-quick
     provider: ollama
     model: ollama/llama3.2:3b

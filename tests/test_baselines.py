@@ -30,7 +30,7 @@ def test_load_default_baseline_manifest() -> None:
     manifest = load_baseline_manifest()
 
     assert manifest.version == "v0.1"
-    assert len(manifest.runs) == 6
+    assert len(manifest.runs) == 8
     assert {run.provider.value for run in manifest.runs} == {"anthropic", "ollama", "openai"}
 
 
@@ -38,11 +38,11 @@ def test_baseline_manifest_summarizes_coverage() -> None:
     manifest = load_baseline_manifest()
     summary = summarize_baseline_manifest(manifest)
 
-    assert summary["providers"]["ollama"] == 4
+    assert summary["providers"]["ollama"] == 6
     assert summary["statuses"]["historical"] == 4
-    assert summary["statuses"]["planned"] == 2
+    assert summary["statuses"]["planned"] == 4
     assert summary["signature_policies"]["none"] == 4
-    assert summary["signature_policies"]["ed25519"] == 2
+    assert summary["signature_policies"]["ed25519"] == 4
 
 
 def test_baseline_manifest_validates_existing_historical_reports() -> None:

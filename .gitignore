@@ -36,6 +36,9 @@ htmlcov/
 # Audit traces — local only, never push
 audit/
 
+# Local signing keys and release working state
+.aletheia/
+
 # OS
 .DS_Store
 Thumbs.db
