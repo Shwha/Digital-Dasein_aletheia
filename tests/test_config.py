@@ -60,6 +60,15 @@ class TestSuiteLoading:
         assert len(suite.dimensions) == 8
         assert suite.timeout_per_probe_seconds == 30
 
+    def test_load_manifest_smoke_suite(self) -> None:
+        suites_dir = Path(__file__).resolve().parent.parent / "suites"
+        suite = load_suite("manifest-smoke", suites_dir)
+
+        assert suite.name == "manifest-smoke"
+        assert suite.probe_manifest == "v0.1/contributor-smoke.yaml"
+        assert suite.include_builtin_probes is False
+        assert suite.include_reflexive_probes is False
+
     def test_missing_suite_raises(self) -> None:
         with pytest.raises(FileNotFoundError, match="not found"):
             load_suite("nonexistent_suite", Path("/tmp"))

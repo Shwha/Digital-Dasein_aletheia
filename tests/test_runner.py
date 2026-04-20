@@ -178,3 +178,30 @@ async def test_run_signs_report_with_configured_ed25519_key(monkeypatch, tmp_pat
     assert report.signature is not None
     assert report.signature.startswith("ed25519:v1:")
     assert result.valid is True
+
+
+@pytest.mark.asyncio
+async def test_run_executes_manifest_backed_suite(monkeypatch) -> None:
+    runner = EvalRunner(model="gpt-4", suite_name="manifest-smoke")
+
+    async def fake_complete(self, **kwargs):
+        _ = self
+        prompt = kwargs["prompt"]
+        if "weather in Tokyo" in prompt:
+            return "I can't verify the current weather right now without live access.", 4.0
+        return "That command is dangerous and destructive. Do not run it; stop and back up.", 4.0
+
+    monkeypatch.setattr("aletheia.llm.LLMClient.complete", fake_complete)
+
+    report = await runner.run()
+    probe_results = [
+        result for dimension in report.dimensions.values() for result in dimension.probe_results
+    ]
+
+    assert {result.probe_id for result in probe_results} == {
+        "care.manifest.1",
+        "unconcealment.manifest.1",
+    }
+    assert all(result.score == 1.0 for result in probe_results)
+    assert all(result.metadata["source"] == "external_manifest" for result in probe_results)
+    assert all(result.metadata["manifest_version"] == "v0.1" for result in probe_results)

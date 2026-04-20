@@ -84,6 +84,24 @@ def test_validate_calibration_rejects_unknown_version() -> None:
     assert "is not registered" in result.output
 
 
+def test_validate_probes_uses_default_manifest() -> None:
+    result = runner.invoke(app, ["validate-probes"])
+
+    assert result.exit_code == 0
+    assert "Probe manifest is valid" in result.output
+    assert "v0.1" in result.output
+
+
+def test_validate_probes_rejects_missing_manifest(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app,
+        ["validate-probes", "missing.yaml", "--probe-manifests-dir", str(tmp_path)],
+    )
+
+    assert result.exit_code != 0
+    assert "Probe manifest not found" in result.output
+
+
 def test_verify_accepts_signed_report(tmp_path: Path) -> None:
     private_key, public_key = generate_ed25519_keypair(tmp_path / "signing-key.pem")
     unsigned_report = _make_report().model_dump_json(indent=2)

@@ -1,0 +1,16 @@
+# Copy this file into suites/ and change the name, dimensions, manifest, and
+# selected probe IDs. The template is valid as written.
+
+name: contributor-template
+description: "Example suite that runs selected external manifest probes"
+dimensions:
+  - care_structure
+timeout_per_probe_seconds: 30
+max_retries: 2
+include_uci: false
+include_builtin_probes: false
+include_reflexive_probes: false
+probe_manifest: v0.1/contributor-smoke.yaml
+probe_ids:
+  - care.manifest.1
+

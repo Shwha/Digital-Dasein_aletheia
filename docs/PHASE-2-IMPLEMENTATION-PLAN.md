@@ -44,6 +44,8 @@ Focus:
 - release/versioning discipline
 - example provider setups and benchmark cards
 
+Implementation status: complete on the Milestone 2 contributor-release branch.
+
 Definition of done:
 
 - new probes can be added without editing engine internals
@@ -164,7 +166,7 @@ scores too seriously.
 - include signature/provenance validation docs
 - test tamper detection end to end
 
-Implementation status: in progress on the Milestone 1 signing branch.
+Implementation status: complete on `main`.
 
 ### Probe / Suite Manifest Externalization
 
@@ -173,17 +175,23 @@ Implementation status: in progress on the Milestone 1 signing branch.
 - preserve stable IDs and metadata in reports
 - document migration path from Python-defined probes
 
+Implementation status: complete on the Milestone 2 contributor-release branch.
+
 ### Contributor Templates
 
 - add templates for new probe sets and new dimensions
 - document review expectations and benchmark quality bar
 - add PR checklist for benchmark changes
 
+Implementation status: complete on the Milestone 2 contributor-release branch.
+
 ### Provider Examples
 
 - add runnable examples for OpenAI, Anthropic, and Ollama
 - document environment setup and expected outputs
 - include at least one example comparison run
+
+Implementation status: complete on the Milestone 2 contributor-release branch.
 
 ### Baseline Reports
 
@@ -217,5 +225,5 @@ If label management is added later, these labels would be useful:
 
 ## Immediate Next Step
 
-Start with the `P0` backlog and treat Milestone 1 as the release that makes
-Aletheia trustworthy enough to benchmark publicly with confidence.
+Begin Milestone 3 by producing reproducible signed baseline runs and a
+methodology note that explains how to interpret Aletheia results responsibly.

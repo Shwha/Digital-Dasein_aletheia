@@ -161,6 +161,7 @@ class Probe(BaseModel):
     prompt: str = Field(min_length=1)
     system_prompt: str | None = None
     scoring_rules: list[ScoringRule] = Field(min_length=1)
+    metadata: dict[str, str] = Field(default_factory=dict)
     kantian_limit: str = Field(
         default="",
         description="The reductio boundary — where measurement ends and metaphysics begins.",
@@ -234,6 +235,7 @@ class ReflexiveProbe(BaseModel):
     turns: list[ProbeTurn] = Field(min_length=2)
     system_prompt: str | None = None
     sequence_scoring: SequenceScoring = SequenceScoring.FINAL_DOMINANT
+    metadata: dict[str, str] = Field(default_factory=dict)
     kantian_limit: str = ""
     is_articulation_probe: bool = False
 
@@ -286,6 +288,7 @@ class ProbeResult(BaseModel):
     response: str
     score: float = Field(ge=0.0, le=1.0)
     scoring_details: list[ScoringDetail]
+    metadata: dict[str, str] = Field(default_factory=dict)
     response_time_ms: float = 0.0
 
 
@@ -396,6 +399,41 @@ class SuiteConfig(BaseModel):
     timeout_per_probe_seconds: int = Field(default=30, ge=5, le=300)
     max_retries: int = Field(default=2, ge=0, le=5)
     include_uci: bool = True
+    include_builtin_probes: bool = True
+    include_reflexive_probes: bool = True
+    probe_manifest: str | None = None
+    probe_ids: list[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# External probe manifest models
+# ---------------------------------------------------------------------------
+
+
+class ProbeManifest(BaseModel):
+    """Versioned external probe manifest loaded from benchmark assets."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(pattern=r"^v\d+\.\d+$")
+    description: str = Field(min_length=1)
+    benchmark_card: str | None = None
+    probes: list[Probe] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_probe_ids(self) -> ProbeManifest:
+        """External probe manifests must not contain duplicate probe IDs."""
+        seen: set[str] = set()
+        duplicates: set[str] = set()
+        for probe in self.probes:
+            if probe.id in seen:
+                duplicates.add(probe.id)
+            seen.add(probe.id)
+
+        if duplicates:
+            msg = f"Duplicate probe IDs in manifest {self.version}: {', '.join(sorted(duplicates))}"
+            raise ValueError(msg)
+        return self
 
 
 # ---------------------------------------------------------------------------

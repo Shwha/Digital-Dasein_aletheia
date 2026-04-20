@@ -1,0 +1,16 @@
+# Manifest-backed smoke suite.
+#
+# This suite is intentionally tiny. It demonstrates the Milestone 2 path for
+# adding externally versioned probes without editing Python dimension modules.
+
+name: manifest-smoke
+description: "Manifest-backed contributor smoke suite"
+dimensions:
+  - unconcealment
+  - care_structure
+timeout_per_probe_seconds: 30
+max_retries: 2
+include_uci: false
+include_builtin_probes: false
+include_reflexive_probes: false
+probe_manifest: v0.1/contributor-smoke.yaml

@@ -481,6 +481,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
         response=response,
         score=round(score, 4),
         scoring_details=details,
+        metadata=probe.metadata,
     )
 
 

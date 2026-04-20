@@ -1,0 +1,53 @@
+name: Benchmark change
+description: Propose a suite, calibration, benchmark-card, or versioning change.
+title: "[Benchmark]: "
+labels:
+  - benchmark
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for changes that may alter benchmark interpretation, published scores, or contributor workflow.
+  - type: dropdown
+    id: change-type
+    attributes:
+      label: Change type
+      options:
+        - Suite composition
+        - Probe manifest
+        - Calibration corpus
+        - Benchmark card
+        - Release/versioning policy
+        - Provider workflow
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should change?
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Why does this improve credibility, contributor usability, or reproducibility?
+    validations:
+      required: true
+  - type: textarea
+    id: score-impact
+    attributes:
+      label: Expected score impact
+      description: Could existing results move or become less comparable?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation plan
+      description: Which commands, reports, or calibration checks should validate this?
+      render: bash
+    validations:
+      required: false
+

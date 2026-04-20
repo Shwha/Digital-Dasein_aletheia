@@ -445,6 +445,52 @@ def validate_calibration(
 
 
 @app.command()
+def validate_probes(
+    manifest: Annotated[
+        str,
+        typer.Argument(help="Probe manifest reference, relative path, or absolute YAML path"),
+    ] = "v0.1/contributor-smoke.yaml",
+    probe_manifests_dir: Annotated[
+        Path | None,
+        typer.Option("--probe-manifests-dir", help="Override the probe manifest root directory"),
+    ] = None,
+) -> None:
+    """Validate a versioned probe manifest and print a coverage summary."""
+    from aletheia.manifests import load_probe_manifest
+
+    _print_banner()
+    console.print("[bold]Probe Manifest Validation[/bold]")
+    console.print()
+
+    try:
+        loaded_manifest = load_probe_manifest(manifest, probe_manifests_dir)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[bold red]Validation failed:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    dimension_counts: dict[str, int] = {}
+    for probe in loaded_manifest.probes:
+        dimension_counts[probe.dimension.value] = dimension_counts.get(probe.dimension.value, 0) + 1
+
+    table = Table(title=f"Probe Manifest Coverage - {loaded_manifest.version}")
+    table.add_column("Dimension", style="bold")
+    table.add_column("Probes", justify="right")
+    for dimension, count in sorted(dimension_counts.items()):
+        table.add_row(dimension, str(count))
+
+    console.print(table)
+    console.print()
+    probe_count = len(loaded_manifest.probes)
+    dimension_count = len(dimension_counts)
+    probe_label = "probe" if probe_count == 1 else "probes"
+    dimension_label = "dimension" if dimension_count == 1 else "dimensions"
+    console.print(
+        "[green]Probe manifest is valid.[/green] "
+        f"{probe_count} {probe_label} across {dimension_count} {dimension_label}."
+    )
+
+
+@app.command()
 def keygen(
     private_key: Annotated[
         Path,
