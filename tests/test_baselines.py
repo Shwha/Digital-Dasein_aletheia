@@ -40,7 +40,8 @@ def test_baseline_manifest_summarizes_coverage() -> None:
 
     assert summary["providers"]["ollama"] == 6
     assert summary["statuses"]["historical"] == 4
-    assert summary["statuses"]["planned"] == 4
+    assert summary["statuses"]["planned"] == 2
+    assert summary["statuses"]["published"] == 2
     assert summary["signature_policies"]["none"] == 4
     assert summary["signature_policies"]["ed25519"] == 4
 
@@ -52,11 +53,19 @@ def test_baseline_manifest_validates_existing_historical_reports() -> None:
     checks = check_baseline_reports(manifest)
 
     assert errors == []
-    historical_checks = [check for check in checks if check.report_path is not None]
+    historical_checks = [
+        check
+        for check in checks
+        if check.report_path is not None and check.signature_scheme is None
+    ]
+    published_checks = [check for check in checks if check.signature_scheme == "ed25519"]
+
     assert len(historical_checks) == 4
     assert all(check.signature_valid is None for check in historical_checks)
-    assert all(check.signature_scheme is None for check in historical_checks)
     assert all(check.policy_satisfied is True for check in historical_checks)
+    assert len(published_checks) == 2
+    assert all(check.signature_valid is True for check in published_checks)
+    assert all(check.policy_satisfied is True for check in published_checks)
 
 
 def test_baseline_commands_include_signing_for_ed25519_runs() -> None:
