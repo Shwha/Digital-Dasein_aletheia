@@ -7,7 +7,8 @@ Milestone 3 distinguishes three artifact classes:
 
 - Signed publication artifacts: Ed25519-signed JSON reports that satisfy the
   baseline manifest policy. The Gemma local quick-suite reports are the first
-  full local publication artifacts.
+  full local publication artifacts; the Grok quick-suite reports are the first
+  full hosted publication artifacts.
 - Signed smoke artifacts: small manifest-backed runs that prove the publication
   workflow end to end, but should not be interpreted as full model rankings.
   The xAI/Grok smoke report also proves the hosted-provider path.

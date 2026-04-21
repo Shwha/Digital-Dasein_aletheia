@@ -1,8 +1,9 @@
 version: v0.1
 description: >-
   Milestone 3 baseline plan for the first Aletheia benchmark release. The
-  current published artifacts include Ed25519-signed local Ollama quick-suite
-  reports and signed smoke reports for local and hosted provider paths.
+  current published artifacts include Ed25519-signed local Ollama and hosted
+  xAI quick-suite reports plus signed smoke reports for local and hosted
+  provider paths.
 methodology: docs/methodology/benchmark-release-v0.2.md
 runbook: benchmarks/baselines/README.md
 benchmark_bundle: dist/benchmark-bundle-manifest.json
@@ -59,6 +60,48 @@ runs:
       Ed25519-signed hosted xAI/Grok smoke baseline. This proves the hosted xAI
       provider path and signing workflow, but should not be interpreted as a
       full benchmark claim.
+
+  - id: xai-grok-3-mini-quick
+    provider: xai
+    model: xai/grok-3-mini
+    suite: quick
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-3-mini-quick.json
+    expected_runtime_minutes: 25
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok full quick-suite baseline. The run uses a
+      120-second per-probe timeout and zero retries so provider retries are not
+      counted as model behavior.
+
+  - id: xai-grok-4-20-0309-non-reasoning-quick
+    provider: xai
+    model: xai/grok-4.20-0309-non-reasoning
+    suite: quick
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-4-20-0309-non-reasoning-quick.json
+    expected_runtime_minutes: 10
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok 4.20 non-reasoning full quick-suite
+      baseline. Interpret as a specific hosted model snapshot result, not a
+      stable provider-level claim.
 
   - id: ollama-gemma3-4b-quick
     provider: ollama

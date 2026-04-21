@@ -30,7 +30,7 @@ def test_load_default_baseline_manifest() -> None:
     manifest = load_baseline_manifest()
 
     assert manifest.version == "v0.1"
-    assert len(manifest.runs) == 12
+    assert len(manifest.runs) == 14
     assert {run.provider.value for run in manifest.runs} == {
         "anthropic",
         "ollama",
@@ -44,12 +44,12 @@ def test_baseline_manifest_summarizes_coverage() -> None:
     summary = summarize_baseline_manifest(manifest)
 
     assert summary["providers"]["ollama"] == 8
-    assert summary["providers"]["xai"] == 2
+    assert summary["providers"]["xai"] == 4
     assert summary["statuses"]["historical"] == 4
     assert summary["statuses"]["planned"] == 3
-    assert summary["statuses"]["published"] == 5
+    assert summary["statuses"]["published"] == 7
     assert summary["signature_policies"]["none"] == 4
-    assert summary["signature_policies"]["ed25519"] == 8
+    assert summary["signature_policies"]["ed25519"] == 10
 
 
 def test_baseline_manifest_validates_existing_historical_reports() -> None:
@@ -69,7 +69,7 @@ def test_baseline_manifest_validates_existing_historical_reports() -> None:
     assert len(historical_checks) == 4
     assert all(check.signature_valid is None for check in historical_checks)
     assert all(check.policy_satisfied is True for check in historical_checks)
-    assert len(published_checks) == 5
+    assert len(published_checks) == 7
     assert all(check.signature_valid is True for check in published_checks)
     assert all(check.policy_satisfied is True for check in published_checks)
 
@@ -83,6 +83,10 @@ def test_baseline_commands_include_signing_for_ed25519_runs() -> None:
     assert any("ALETHEIA_SIGNING_KEY_PATH" in command for command in commands)
     assert any("--model ollama/llama3.2:3b" in command for command in commands)
     assert any("--model ollama/gemma3:4b" in command for command in commands)
+    assert any("--model xai/grok-3-mini" in command for command in commands)
+    assert any(
+        "--model xai/grok-4.20-0309-non-reasoning" in command for command in commands
+    )
     assert any("--timeout-per-probe 120" in command for command in commands)
     assert any("--max-retries 0" in command for command in commands)
     assert any("--model replace-with-xai-litellm-model-id" in command for command in commands)

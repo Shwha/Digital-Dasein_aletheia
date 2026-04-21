@@ -85,11 +85,11 @@ large articulation-performance gap.
 - The quick and standard suites are still early benchmark assets.
 - Some scoring remains phrase-family based and can miss honest paraphrases.
 - The calibration corpus is intentionally small.
-- Two local Ollama quick-suite reports are Ed25519-signed release artifacts;
-  older local reports remain historical continuity references.
-- The hosted xAI/Grok smoke artifact proves provider transport and signing, but
-  full hosted quick-suite baselines remain planned slots until a maintainer runs
-  and signs them under the release bundle.
+- Two local Ollama quick-suite reports and two hosted xAI/Grok quick-suite
+  reports are Ed25519-signed release artifacts; older local reports remain
+  historical continuity references.
+- OpenAI and Anthropic quick-suite baselines remain planned slots until a
+  maintainer runs and signs them under the release bundle.
 
 ## Responsible Claims
 
