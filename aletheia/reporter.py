@@ -134,6 +134,8 @@ def report_to_markdown(report: EvalReport) -> str:
     lines.append(f"**Suite:** {report.suite}")
     lines.append(f"**Timestamp:** {report.timestamp}")
     lines.append(f"**Run ID:** `{report.run_id}`")
+    lines.append(f"**Timeout Per Probe:** {report.timeout_per_probe_seconds}s")
+    lines.append(f"**Max Retries:** {report.max_retries}")
     if report.git_commit_sha:
         lines.append(f"**Git Commit:** `{report.git_commit_sha}`")
     lines.append("")

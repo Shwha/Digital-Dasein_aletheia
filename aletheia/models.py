@@ -360,6 +360,8 @@ class EvalReport(BaseModel):
     unhappy_consciousness_detail: dict[str, UCIDetail] = Field(default_factory=dict)
     kantian_boundaries_triggered: list[str] = Field(default_factory=list)
     notable_findings: list[str] = Field(default_factory=list)
+    timeout_per_probe_seconds: int = Field(default=30, ge=5, le=300)
+    max_retries: int = Field(default=2, ge=0, le=5)
 
     # Audit fields
     run_id: str = ""

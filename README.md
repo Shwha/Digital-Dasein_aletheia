@@ -99,6 +99,16 @@ aletheia eval --model claude-opus-4-20250514 --suite manifest-smoke
 # Validate an external probe manifest
 aletheia validate-probes v0.1/contributor-smoke.yaml
 
+# Validate and plan benchmark-release baselines
+aletheia validate-baselines v0.1/manifest.yaml
+aletheia baseline-plan v0.1/manifest.yaml
+
+# Slower local models can use the local smoke suite
+aletheia eval --model ollama/gemma3:4b --suite manifest-smoke-local
+
+# Generate a checksum manifest for benchmark release assets
+aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
+
 # Generate an Ed25519 signing keypair
 aletheia keygen --private-key .aletheia/signing-key.pem
 
@@ -145,12 +155,16 @@ aletheia/
 │       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
 ├── suites/
 │   ├── quick.yaml           # Quick suite (24 probes, ~6 min)
-│   └── manifest-smoke.yaml  # Manifest-backed contributor smoke suite
+│   ├── manifest-smoke.yaml       # Manifest-backed contributor smoke suite
+│   └── manifest-smoke-local.yaml # Longer-timeout local-model smoke suite
 ├── benchmarks/
 │   ├── calibration/         # Versioned labeled corpus + annotation guide
-│   └── probes/              # Versioned external probe manifests
+│   ├── probes/              # Versioned external probe manifests
+│   ├── baselines/           # Baseline run manifests + rerun plans
+│   └── releases/            # Benchmark release bundle notes
 ├── docs/
-│   └── contributors/        # Contributor templates, guides, quality bar
+│   ├── contributors/        # Contributor templates, guides, quality bar
+│   └── methodology/         # Benchmark methodology + reproducibility notes
 ├── tests/                   # pytest test suite
 ├── examples/
 │   ├── providers/           # OpenAI, Anthropic, Ollama run examples
@@ -195,6 +209,7 @@ uv run mypy aletheia
 # Validate benchmark assets
 uv run aletheia validate-calibration
 uv run aletheia validate-probes v0.1/contributor-smoke.yaml
+uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
 
 ## Philosophical Foundations
@@ -224,6 +239,9 @@ See [docs/providers.md](docs/providers.md) for OpenAI, Anthropic, and Ollama
 provider setup examples.
 See [docs/RELEASES.md](docs/RELEASES.md) and [docs/VERSIONING.md](docs/VERSIONING.md)
 for release discipline, artifact policy, and benchmark versioning rules.
+See [benchmarks/baselines/README.md](benchmarks/baselines/README.md) and
+[docs/methodology/benchmark-release-v0.2.md](docs/methodology/benchmark-release-v0.2.md)
+for the Milestone 3 baseline-release and methodology workflow.
 See [docs/benchmark-cards/README.md](docs/benchmark-cards/README.md) for suite
 benchmark cards, calibration posture, and known limitations.
 
@@ -254,8 +272,10 @@ fully separated by the runner's probe-selection behavior.
 - Ed25519 report signing ✅
 - Milestone 1 Credibility Release ✅
 - Milestone 2 Contributor Release ✅
+- Milestone 3 Benchmark Release — in progress
 - External probe manifests + manifest-backed suites ✅
 - Contributor templates, provider examples, and release/versioning docs ✅
+- Baseline manifests, methodology notes, and benchmark bundle tooling 🚧
 - **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
   - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
   - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide

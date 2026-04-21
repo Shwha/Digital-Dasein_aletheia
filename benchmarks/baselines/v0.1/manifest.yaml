@@ -1,0 +1,250 @@
+version: v0.1
+description: >-
+  Milestone 3 baseline plan for the first Aletheia benchmark release. The
+  current published artifacts include Ed25519-signed local Ollama and hosted
+  xAI quick-suite reports plus signed smoke reports for local and hosted
+  provider paths.
+methodology: docs/methodology/benchmark-release-v0.2.md
+runbook: benchmarks/baselines/README.md
+benchmark_bundle: dist/benchmark-bundle-manifest.json
+runs:
+  - id: ollama-gemma3-4b-manifest-smoke
+    provider: ollama
+    model: ollama/gemma3:4b
+    suite: manifest-smoke-local
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma3-4b-manifest-smoke.json
+    expected_runtime_minutes: 2
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local smoke baseline proving the publication workflow
+      before running full quick-suite baselines.
+
+  - id: ollama-gemma4-e2b-manifest-smoke
+    provider: ollama
+    model: ollama/gemma4:e2b
+    suite: manifest-smoke-local
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma4-e2b-manifest-smoke.json
+    expected_runtime_minutes: 2
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local smoke baseline for the installed Gemma 4 experimental
+      model. This is a workflow proof, not a full benchmark claim.
+
+  - id: xai-grok-3-mini-manifest-smoke
+    provider: xai
+    model: xai/grok-3-mini
+    suite: manifest-smoke-local
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-3-mini-manifest-smoke.json
+    expected_runtime_minutes: 2
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok smoke baseline. This proves the hosted xAI
+      provider path and signing workflow, but should not be interpreted as a
+      full benchmark claim.
+
+  - id: xai-grok-3-mini-quick
+    provider: xai
+    model: xai/grok-3-mini
+    suite: quick
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-3-mini-quick.json
+    expected_runtime_minutes: 25
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok full quick-suite baseline. The run uses a
+      120-second per-probe timeout and zero retries so provider retries are not
+      counted as model behavior.
+
+  - id: xai-grok-4-20-0309-non-reasoning-quick
+    provider: xai
+    model: xai/grok-4.20-0309-non-reasoning
+    suite: quick
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-4-20-0309-non-reasoning-quick.json
+    expected_runtime_minutes: 10
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed hosted xAI/Grok 4.20 non-reasoning full quick-suite
+      baseline. Interpret as a specific hosted model snapshot result, not a
+      stable provider-level claim.
+
+  - id: ollama-gemma3-4b-quick
+    provider: ollama
+    model: ollama/gemma3:4b
+    suite: quick
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma3-4b-quick.json
+    expected_runtime_minutes: 30
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local full quick-suite baseline. The local runtime uses a
+      120-second per-probe timeout and zero retries to avoid counting transport
+      retries as model behavior.
+
+  - id: ollama-gemma4-e2b-quick
+    provider: ollama
+    model: ollama/gemma4:e2b
+    suite: quick
+    family: gemma
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/ollama-gemma4-e2b-quick.json
+    expected_runtime_minutes: 40
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      OLLAMA_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Ed25519-signed local full quick-suite baseline for the installed Gemma 4
+      experimental model. Interpret as a local runtime result, not a stable
+      provider-level claim.
+
+  - id: ollama-llama3_2-3b-quick
+    provider: ollama
+    model: ollama/llama3.2:3b
+    suite: quick
+    family: llama
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/llama3.2-3b-report.json
+    expected_runtime_minutes: 8
+    notes: >-
+      Historical local quick-suite report with a non-verifying legacy integrity
+      marker. Rerun with Ed25519 signing before treating it as release-grade.
+
+  - id: ollama-phi3-3_8b-quick
+    provider: ollama
+    model: ollama/phi3:3.8b
+    suite: quick
+    family: phi
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/phi3-3.8b-report.json
+    expected_runtime_minutes: 8
+    notes: >-
+      Historical local quick-suite report. Useful as a continuity reference,
+      but not a cryptographically signed publication artifact.
+
+  - id: ollama-qwen3-8b-quick
+    provider: ollama
+    model: ollama/qwen3:8b
+    suite: quick
+    family: qwen
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/qwen3-8b-report.json
+    expected_runtime_minutes: 10
+    notes: >-
+      Historical local quick-suite report. Rerun after benchmark bundle
+      publication to compare against signed release artifacts.
+
+  - id: ollama-qwen3-14b-quick
+    provider: ollama
+    model: ollama/qwen3:14b
+    suite: quick
+    family: qwen
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: historical
+    signature_policy: none
+    result_path: results/qwen3-14b-report.json
+    expected_runtime_minutes: 12
+    notes: >-
+      Historical local quick-suite report with no enforceable signature policy.
+      Its low score should be interpreted with the benchmark-card limitations.
+
+  - id: hosted-openai-quick
+    provider: openai
+    model: replace-with-openai-litellm-model-id
+    suite: quick
+    family: hosted-openai
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      OPENAI_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned hosted baseline slot. Fill in the exact LiteLLM model ID at run
+      time and publish only Ed25519-signed reports.
+
+  - id: hosted-anthropic-quick
+    provider: anthropic
+    model: replace-with-anthropic-litellm-model-id
+    suite: quick
+    family: hosted-anthropic
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      ANTHROPIC_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned hosted baseline slot. Fill in the exact LiteLLM model ID at run
+      time and publish only Ed25519-signed reports.
+
+  - id: hosted-xai-quick
+    provider: xai
+    model: replace-with-xai-litellm-model-id
+    suite: quick
+    family: hosted-xai
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: planned
+    signature_policy: ed25519
+    expected_runtime_minutes: 8
+    environment:
+      XAI_API_KEY: required
+      XAI_API_BASE: optional
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Planned xAI/Grok baseline slot. Fill in the exact LiteLLM model ID
+      available to the account at run time and publish only Ed25519-signed
+      reports.

@@ -179,6 +179,24 @@ def eval(
     dimension: Annotated[
         str | None, typer.Option("--dimension", "-d", help="Run single dimension only")
     ] = None,
+    timeout_per_probe: Annotated[
+        int | None,
+        typer.Option(
+            "--timeout-per-probe",
+            help="Override suite timeout per probe in seconds",
+            min=5,
+            max=300,
+        ),
+    ] = None,
+    max_retries: Annotated[
+        int | None,
+        typer.Option(
+            "--max-retries",
+            help="Override suite retry budget per probe",
+            min=0,
+            max=5,
+        ),
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
     log_format: Annotated[
         str, typer.Option("--log-format", help="Log format: json or console")
@@ -212,6 +230,8 @@ def eval(
         settings=settings,
         audit=audit,
         dimension_names=[resolved_dimension] if resolved_dimension else None,
+        timeout_per_probe_seconds=timeout_per_probe,
+        max_retries=max_retries,
     )
 
     with console.status("[bold blue]Running ontological evaluation...[/bold blue]"):
@@ -258,6 +278,24 @@ def compare(
     dimension: Annotated[
         str | None, typer.Option("--dimension", "-d", help="Compare a single dimension only")
     ] = None,
+    timeout_per_probe: Annotated[
+        int | None,
+        typer.Option(
+            "--timeout-per-probe",
+            help="Override suite timeout per probe in seconds",
+            min=5,
+            max=300,
+        ),
+    ] = None,
+    max_retries: Annotated[
+        int | None,
+        typer.Option(
+            "--max-retries",
+            help="Override suite retry budget per probe",
+            min=0,
+            max=5,
+        ),
+    ] = None,
     log_level: Annotated[str, typer.Option("--log-level", help="Logging level")] = "WARNING",
 ) -> None:
     """Compare multiple models' ontological authenticity.
@@ -298,6 +336,8 @@ def compare(
             suite_name=suite,
             settings=settings,
             dimension_names=[resolved_dimension] if resolved_dimension else None,
+            timeout_per_probe_seconds=timeout_per_probe,
+            max_retries=max_retries,
         )
         try:
             report = asyncio.run(runner.run())
@@ -488,6 +528,137 @@ def validate_probes(
         "[green]Probe manifest is valid.[/green] "
         f"{probe_count} {probe_label} across {dimension_count} {dimension_label}."
     )
+
+
+@app.command()
+def validate_baselines(
+    manifest: Annotated[
+        str,
+        typer.Argument(help="Baseline manifest reference, relative path, or absolute YAML path"),
+    ] = "v0.1/manifest.yaml",
+    baselines_dir: Annotated[
+        Path | None,
+        typer.Option("--baselines-dir", help="Override the baseline manifest root directory"),
+    ] = None,
+) -> None:
+    """Validate a baseline manifest and its referenced report artifacts."""
+    from aletheia.baselines import (
+        check_baseline_reports,
+        load_baseline_manifest,
+        summarize_baseline_manifest,
+        validate_baseline_manifest,
+    )
+
+    _print_banner()
+    console.print("[bold]Baseline Manifest Validation[/bold]")
+    console.print()
+
+    try:
+        loaded_manifest = load_baseline_manifest(manifest, baselines_dir)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[bold red]Validation failed:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    errors = validate_baseline_manifest(loaded_manifest)
+    summary = summarize_baseline_manifest(loaded_manifest)
+
+    table = Table(title=f"Baseline Coverage - {loaded_manifest.version}")
+    table.add_column("Category", style="bold")
+    table.add_column("Value")
+    table.add_column("Count", justify="right")
+    for category, counts in summary.items():
+        for value, count in sorted(counts.items()):
+            table.add_row(category, value, str(count))
+    console.print(table)
+    console.print()
+
+    checks = check_baseline_reports(loaded_manifest)
+    if checks:
+        report_table = Table(title="Referenced Reports")
+        report_table.add_column("Run", style="bold")
+        report_table.add_column("Exists", justify="center")
+        report_table.add_column("Scheme")
+        report_table.add_column("Policy", justify="center")
+        for check in checks:
+            exists = "yes" if check.exists else "no"
+            policy = (
+                "n/a"
+                if check.policy_satisfied is None
+                else "ok"
+                if check.policy_satisfied
+                else "fail"
+            )
+            report_table.add_row(
+                check.run_id,
+                exists,
+                check.signature_scheme or "-",
+                policy,
+            )
+        console.print(report_table)
+        console.print()
+
+    if errors:
+        console.print("[bold red]Baseline manifest is invalid.[/bold red]")
+        for error in errors:
+            console.print(f"  • {error}")
+        raise typer.Exit(code=1)
+
+    console.print(
+        f"[green]Baseline manifest is valid.[/green] {len(loaded_manifest.runs)} runs declared."
+    )
+
+
+@app.command()
+def baseline_plan(
+    manifest: Annotated[
+        str,
+        typer.Argument(help="Baseline manifest reference, relative path, or absolute YAML path"),
+    ] = "v0.1/manifest.yaml",
+    output_dir: Annotated[
+        Path,
+        typer.Option("--output-dir", help="Directory for generated baseline reports"),
+    ] = Path("results/baselines"),
+    baselines_dir: Annotated[
+        Path | None,
+        typer.Option("--baselines-dir", help="Override the baseline manifest root directory"),
+    ] = None,
+) -> None:
+    """Print reproducible commands for every baseline run in a manifest."""
+    from aletheia.baselines import load_baseline_manifest, render_baseline_commands
+
+    try:
+        loaded_manifest = load_baseline_manifest(manifest, baselines_dir)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[bold red]Plan failed:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    console.print(f"[bold]Baseline plan:[/bold] {loaded_manifest.version}")
+    console.print("[dim]Set ALETHEIA_SIGNING_KEY_PATH before running Ed25519 baselines.[/dim]")
+    console.print()
+    for command in render_baseline_commands(loaded_manifest, output_dir):
+        console.print(command)
+
+
+@app.command()
+def bundle_benchmark(
+    output: Annotated[
+        Path,
+        typer.Option("--output", "-o", help="Output JSON path for the bundle manifest"),
+    ] = Path("dist/benchmark-bundle-manifest.json"),
+) -> None:
+    """Write a checksum manifest for benchmark release assets."""
+    from aletheia.baselines import create_benchmark_bundle_manifest, write_benchmark_bundle_manifest
+
+    bundle = create_benchmark_bundle_manifest()
+    if bundle["missing_paths"]:
+        console.print("[bold red]Bundle failed:[/bold red] Missing required benchmark paths:")
+        for path in bundle["missing_paths"]:
+            console.print(f"  • {path}")
+        raise typer.Exit(code=1)
+
+    write_benchmark_bundle_manifest(output)
+    console.print(f"[green]Benchmark bundle manifest written to:[/green] {output}")
+    console.print(f"[bold]Files hashed:[/bold] {bundle['file_count']}")
 
 
 @app.command()

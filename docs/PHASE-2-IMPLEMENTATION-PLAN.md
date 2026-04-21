@@ -61,6 +61,8 @@ Focus:
 - benchmark bundle publication
 - methodology note / whitepaper draft
 
+Implementation status: started on the Milestone 3 benchmark-release branch.
+
 Definition of done:
 
 - published baselines can be rerun
@@ -198,10 +200,16 @@ Implementation status: complete on the Milestone 2 contributor-release branch.
 - publish signed reports for a representative open model, hosted model, and local model
 - include run metadata, suite version, and benchmark card references
 
+Implementation status: baseline manifest, validation CLI, rerun plan CLI, and
+historical local-report verification are implemented on the Milestone 3 branch.
+
 ### Methodology Note
 
 - explain benchmark philosophy, measurement boundaries, scoring design,
   failure modes, and reproducibility expectations
+
+Implementation status: v0.2 methodology and reproducibility runbook drafted on
+the Milestone 3 branch.
 
 ## Recommended Contributor Labels
 

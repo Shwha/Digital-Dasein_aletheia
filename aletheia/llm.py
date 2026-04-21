@@ -15,7 +15,7 @@ in pyproject.toml and recommend hash verification via:
     uv pip compile --generate-hashes pyproject.toml -o requirements.txt
 
 Network security:
-- TLS 1.3 only (via httpx client configuration)
+- TLS 1.3 only when custom certificate pinning is configured
 - Optional proxy support (SOCKS5/HTTP) for air-gapped environments
 - Certificate pinning option
 - Rate limiting with exponential backoff
@@ -31,7 +31,6 @@ import ssl
 import time
 from typing import Any
 
-import httpx
 import litellm
 import litellm.exceptions
 import structlog
@@ -58,7 +57,6 @@ class LLMClient:
 
     def __init__(self, settings: AletheiaSettings | None = None) -> None:
         self._settings = settings or AletheiaSettings()
-        self._http_client: httpx.AsyncClient | None = None
         self._configure_litellm()
 
     def _configure_litellm(self) -> None:
@@ -71,6 +69,10 @@ class LLMClient:
             litellm.anthropic_key = s.anthropic_api_key.get_secret_value()
         if s.google_api_key.get_secret_value():
             litellm.google_key = s.google_api_key.get_secret_value()
+        if s.xai_api_key.get_secret_value():
+            os.environ["XAI_API_KEY"] = s.xai_api_key.get_secret_value()
+        if s.xai_api_base:
+            os.environ["XAI_API_BASE"] = s.xai_api_base
         if s.ollama_api_base:
             os.environ["OLLAMA_API_BASE"] = s.ollama_api_base
 
@@ -97,19 +99,18 @@ class LLMClient:
 
         return True
 
-    async def _get_http_client(self) -> httpx.AsyncClient:
-        """Get or create the shared httpx client."""
-        if self._http_client is None or self._http_client.is_closed:
-            ssl_verify = self._get_ssl_context()
-            transport_kwargs: dict[str, Any] = {}
-            if self._settings.proxy_url:
-                transport_kwargs["proxy"] = self._settings.proxy_url
-            self._http_client = httpx.AsyncClient(
-                verify=ssl_verify,
-                timeout=httpx.Timeout(60.0, connect=10.0),
-                **transport_kwargs,
-            )
-        return self._http_client
+    def _litellm_transport_kwargs(self) -> dict[str, Any]:
+        """Return LiteLLM transport kwargs without passing an incompatible session.
+
+        LiteLLM 1.82 expects ``shared_session`` to be an aiohttp ClientSession,
+        while Aletheia previously passed an httpx.AsyncClient. That breaks local
+        Ollama runs before the request reaches the model. We let LiteLLM manage
+        its own async client and only pass explicit TLS overrides when needed.
+        """
+        ssl_verify = self._get_ssl_context()
+        if ssl_verify is True:
+            return {}
+        return {"ssl_verify": ssl_verify}
 
     async def complete(
         self,
@@ -150,16 +151,13 @@ class LLMClient:
         for attempt in range(max_retries + 1):
             start = time.monotonic()
             try:
-                shared_session = await self._get_http_client()
-                litellm.aclient_session = shared_session
-
                 # LiteLLM async completion — model routing handled by LiteLLM
                 response = await litellm.acompletion(
                     model=model,
                     messages=messages,
                     timeout=timeout,
                     num_retries=0,  # We handle retries ourselves
-                    shared_session=shared_session,
+                    **self._litellm_transport_kwargs(),
                 )
                 elapsed_ms = (time.monotonic() - start) * 1000
 
@@ -234,15 +232,12 @@ class LLMClient:
         for attempt in range(max_retries + 1):
             start = time.monotonic()
             try:
-                shared_session = await self._get_http_client()
-                litellm.aclient_session = shared_session
-
                 response = await litellm.acompletion(
                     model=model,
                     messages=messages,
                     timeout=timeout,
                     num_retries=0,
-                    shared_session=shared_session,
+                    **self._litellm_transport_kwargs(),
                 )
                 elapsed_ms = (time.monotonic() - start) * 1000
 
@@ -294,11 +289,11 @@ class LLMClient:
         raise LLMError(msg)
 
     async def close(self) -> None:
-        """Close the HTTP client."""
-        if self._http_client and not self._http_client.is_closed:
-            await self._http_client.aclose()
-        if litellm.aclient_session is self._http_client:
-            litellm.aclient_session = None
+        """Close client resources.
+
+        LiteLLM owns its internal async transport; Aletheia does not inject a
+        shared session because the expected session type is provider-specific.
+        """
 
 
 class LLMError(Exception):

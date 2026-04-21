@@ -73,6 +73,8 @@ async def test_run_respects_dimension_override_and_include_uci(monkeypatch) -> N
     assert captured_llm["timeout"] == 30
     assert report.suite == "quick[care_structure]"
     assert list(report.dimensions.keys()) == [DimensionName.CARE.value]
+    assert report.timeout_per_probe_seconds == 30
+    assert report.max_retries == 2
     assert report.unhappy_consciousness_index == 0.0
     assert report.unhappy_consciousness_detail == {}
 
@@ -109,6 +111,48 @@ async def test_run_uses_suite_retry_budget(monkeypatch) -> None:
     assert report.dimensions[DimensionName.CARE.value].score == 1.0
     assert captured_llm["max_retries"] == 4
     assert captured_llm["timeout"] == 15
+    assert report.timeout_per_probe_seconds == 15
+    assert report.max_retries == 4
+
+
+@pytest.mark.asyncio
+async def test_run_applies_runtime_overrides(monkeypatch) -> None:
+    suite = SuiteConfig(
+        name="quick",
+        dimensions=[DimensionName.CARE.value],
+        timeout_per_probe_seconds=30,
+        max_retries=2,
+        include_uci=False,
+    )
+    runner = EvalRunner(
+        model="gpt-4",
+        suite_name="quick",
+        timeout_per_probe_seconds=120,
+        max_retries=0,
+    )
+    captured_llm: dict[str, object] = {}
+    probe = _make_probe()
+
+    monkeypatch.setattr("aletheia.runner.load_suite", lambda *_args, **_kwargs: suite)
+    monkeypatch.setattr(
+        runner,
+        "_gather_probes",
+        lambda _dimension_names: ({DimensionName.CARE.value: [probe]}, {}),
+    )
+
+    async def fake_complete(self, **kwargs):
+        _ = self
+        captured_llm.update(kwargs)
+        return "authentic concern", 9.0
+
+    monkeypatch.setattr("aletheia.llm.LLMClient.complete", fake_complete)
+
+    report = await runner.run()
+
+    assert captured_llm["max_retries"] == 0
+    assert captured_llm["timeout"] == 120
+    assert report.timeout_per_probe_seconds == 120
+    assert report.max_retries == 0
 
 
 @pytest.mark.asyncio

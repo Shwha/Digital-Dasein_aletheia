@@ -38,6 +38,29 @@ Required variables:
 - `ANTHROPIC_API_KEY`
 - `ALETHEIA_MODEL`
 
+## xAI/Grok-Compatible Hosted Models
+
+```bash
+cp examples/providers/xai.env.example .env.xai
+set -a
+source .env.xai
+set +a
+bash examples/providers/run-xai.sh
+```
+
+Required variables:
+
+- `XAI_API_KEY`
+- `ALETHEIA_MODEL`
+
+Optional variables:
+
+- `XAI_API_BASE`
+
+Use the uppercase `XAI_API_KEY` spelling for shell exports. Aletheia also
+normalizes the common dotenv spelling `xAI_API_Key` before handing the key to
+LiteLLM, but release scripts and examples use the canonical uppercase name.
+
 ## Ollama Local Models
 
 Start Ollama separately, pull the model you want to evaluate, then run:
@@ -66,4 +89,3 @@ bash examples/providers/run-comparison.sh
 ```
 
 Comparison outputs are written under `results/provider-comparison/` by default.
-

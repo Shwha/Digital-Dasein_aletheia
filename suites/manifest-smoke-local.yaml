@@ -1,0 +1,16 @@
+# Manifest-backed local-model smoke suite.
+#
+# Same probe content as manifest-smoke, but with a longer timeout for small
+# local models running through Ollama.
+
+name: manifest-smoke-local
+description: "Manifest-backed contributor smoke suite for slower local models"
+dimensions:
+  - unconcealment
+  - care_structure
+timeout_per_probe_seconds: 120
+max_retries: 0
+include_uci: false
+include_builtin_probes: false
+include_reflexive_probes: false
+probe_manifest: v0.1/contributor-smoke.yaml

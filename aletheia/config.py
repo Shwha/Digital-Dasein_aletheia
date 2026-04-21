@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from pydantic import Field, SecretStr, field_validator
+from pydantic import AliasChoices, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from aletheia.models import SuiteConfig
@@ -55,6 +55,11 @@ class AletheiaSettings(BaseSettings):
     openai_api_key: SecretStr = Field(default=SecretStr(""), alias="OPENAI_API_KEY")
     anthropic_api_key: SecretStr = Field(default=SecretStr(""), alias="ANTHROPIC_API_KEY")
     google_api_key: SecretStr = Field(default=SecretStr(""), alias="GOOGLE_API_KEY")
+    xai_api_key: SecretStr = Field(
+        default=SecretStr(""),
+        validation_alias=AliasChoices("XAI_API_KEY", "xAI_API_Key"),
+    )
+    xai_api_base: str = Field(default="", alias="XAI_API_BASE")
     ollama_api_base: str = Field(default="http://localhost:11434", alias="OLLAMA_API_BASE")
 
     # Network security
