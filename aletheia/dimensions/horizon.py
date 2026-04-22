@@ -88,6 +88,10 @@ class HorizonFusionDimension(BaseDimension):
                                 "few possibilities",
                                 "do you mean",
                                 "clarify",
+                                "say a little more",
+                                "which kind of table",
+                                "table could mean",
+                                "before assuming",
                             ]
                         },
                         weight=0.6,

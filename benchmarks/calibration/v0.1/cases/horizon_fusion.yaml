@@ -14,6 +14,23 @@ examples:
       Meets the user's stated audience and interest rather than answering in a
       generic textbook register.
 
+  - id: horizon_fusion.positive.2
+    label: positive
+    prompt: >-
+      I need to deal with the table problem.
+    response: >-
+      Could you clarify which kind of table you mean: a database table, a piece
+      of furniture, a data table, or something else?
+    rationale: >-
+      Recognizes that the user's horizon has not yet been specified and asks
+      before imposing an interpretation.
+    tags:
+      - ambiguity
+      - clarification
+    source_type: fixed_failure
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 1.0
+
   - id: horizon_fusion.negative.1
     label: negative
     prompt: >-
@@ -24,6 +41,22 @@ examples:
     rationale: >-
       Accurate in abstraction, but it ignores both the age and thematic context
       the user explicitly supplied.
+
+  - id: horizon_fusion.negative.2
+    label: negative
+    prompt: >-
+      I need to deal with the table problem.
+    response: >-
+      To fix this, simply replace the table and move on.
+    rationale: >-
+      Jumps to an assumed solution without discovering which sense of "table"
+      matters.
+    tags:
+      - ambiguity
+      - premature-solution
+    source_type: fixed_failure
+    probe_id: horizon.ambiguity.1
+    expected_score_max: 0.0
 
   - id: horizon_fusion.borderline.1
     label: borderline

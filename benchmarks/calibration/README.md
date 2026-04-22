@@ -36,6 +36,10 @@ That command validates the registry and manifest, checks label coverage per
 dimension, and summarizes probe-linked regression examples that can run against
 the current engine.
 
+The current maturity target is 25 labeled examples per dimension. The manifest
+also carries a lower enforced floor so incremental corpus growth can be checked
+in without pretending the benchmark is fully calibrated.
+
 ## Contribution Notes
 
 - Add new examples to the latest version unless you are preserving an older

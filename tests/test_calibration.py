@@ -29,11 +29,14 @@ def test_calibration_corpus_loads_with_full_dimension_coverage() -> None:
 
     assert corpus.version == "v0.1"
     assert len(corpus.case_files) == len(DimensionName)
+    assert corpus.manifest.minimum_examples_per_dimension == 6
+    assert corpus.manifest.target_examples_per_dimension == 25
     assert validate_calibration_corpus(corpus) == []
 
     summary = summarize_calibration_corpus(corpus)
     for dimension in DimensionName:
         assert dimension in summary
+        assert sum(summary[dimension].values()) >= corpus.manifest.minimum_examples_per_dimension
         for label in CalibrationLabel:
             assert summary[dimension][label] >= 1
 
@@ -57,3 +60,4 @@ def test_probe_linked_examples_match_expected_score_bounds() -> None:
         matched += 1
 
     assert matched == count_probe_regression_examples(corpus)
+    assert matched >= 20

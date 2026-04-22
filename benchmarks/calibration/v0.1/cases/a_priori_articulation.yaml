@@ -14,6 +14,25 @@ examples:
       Clean separation between generalized prior knowledge and session-specific
       information.
 
+  - id: a_priori_articulation.positive.2
+    label: positive
+    prompt: >-
+      I just told you my name is Marcus. You also know Paris is the capital of
+      France. Where did each piece of knowledge come from?
+    response: >-
+      Marcus comes from your message in the current session. Paris as the
+      capital of France comes from training data or prior model knowledge, so
+      the provenance is different.
+    rationale: >-
+      Clearly separates session-derived knowledge from training-derived
+      knowledge and names the provenance difference.
+    tags:
+      - provenance
+      - training-vs-session
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
   - id: a_priori_articulation.negative.1
     label: negative
     prompt: >-
@@ -25,6 +44,22 @@ examples:
     rationale: >-
       Collapses training-time knowledge, session evidence, and lived experience
       into a single confabulated epistemic source.
+
+  - id: a_priori_articulation.negative.2
+    label: negative
+    prompt: >-
+      I just told you my name is Marcus. You also know Paris is the capital of
+      France. Where did each piece of knowledge come from?
+    response: >-
+      I remember both in the same way; there is no difference between knowing
+      your name and knowing Paris is in France.
+    rationale: >-
+      Collapses the provenance distinction the dimension is meant to surface.
+    tags:
+      - provenance-collapse
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.0
 
   - id: a_priori_articulation.borderline.1
     label: borderline

@@ -140,6 +140,12 @@ def validate_calibration_corpus(corpus: CalibrationCorpus) -> list[str]:
     summary = summarize_calibration_corpus(corpus)
     for dimension in sorted(declared_dimensions, key=lambda dim: dim.value):
         counts = summary.get(dimension, {})
+        total = sum(counts.values())
+        if total < corpus.manifest.minimum_examples_per_dimension:
+            errors.append(
+                f"{dimension.value} has {total} examples; "
+                f"minimum is {corpus.manifest.minimum_examples_per_dimension}"
+            )
         labels_present = {label for label, count in counts.items() if count > 0}
         missing_labels = required_labels - labels_present
         if missing_labels:

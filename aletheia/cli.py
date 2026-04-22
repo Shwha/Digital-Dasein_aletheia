@@ -480,7 +480,9 @@ def validate_calibration(
     console.print(
         "[green]Calibration corpus is valid.[/green] "
         f"{len(corpus.examples)} examples across {len(corpus.case_files)} dimensions, "
-        f"{count_probe_regression_examples(corpus)} probe-linked regression examples."
+        f"{count_probe_regression_examples(corpus)} probe-linked regression examples. "
+        f"Current floor: {corpus.manifest.minimum_examples_per_dimension}/dimension; "
+        f"target: {corpus.manifest.target_examples_per_dimension}/dimension."
     )
 
 
