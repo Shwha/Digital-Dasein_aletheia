@@ -84,9 +84,7 @@ def test_baseline_commands_include_signing_for_ed25519_runs() -> None:
     assert any("--model ollama/llama3.2:3b" in command for command in commands)
     assert any("--model ollama/gemma3:4b" in command for command in commands)
     assert any("--model xai/grok-3-mini" in command for command in commands)
-    assert any(
-        "--model xai/grok-4.20-0309-non-reasoning" in command for command in commands
-    )
+    assert any("--model xai/grok-4.20-0309-non-reasoning" in command for command in commands)
     assert any("--timeout-per-probe 120" in command for command in commands)
     assert any("--max-retries 0" in command for command in commands)
     assert any("--model replace-with-xai-litellm-model-id" in command for command in commands)
@@ -115,6 +113,39 @@ def test_published_baseline_requires_result_path() -> None:
 
     with pytest.raises(ValueError, match="must include result_path"):
         BaselineManifest(**raw)
+
+
+def test_validate_baseline_manifest_allows_missing_bundle_parent(tmp_path: Path) -> None:
+    methodology = tmp_path / "docs" / "methodology.md"
+    runbook = tmp_path / "benchmarks" / "baselines" / "README.md"
+    benchmark_card = tmp_path / "docs" / "benchmark-cards" / "quick.md"
+    methodology.parent.mkdir(parents=True)
+    runbook.parent.mkdir(parents=True)
+    benchmark_card.parent.mkdir(parents=True)
+    methodology.write_text("# Methodology\n", encoding="utf-8")
+    runbook.write_text("# Runbook\n", encoding="utf-8")
+    benchmark_card.write_text("# Quick\n", encoding="utf-8")
+
+    manifest = BaselineManifest(
+        version="v0.1",
+        description="Release manifest before bundle generation",
+        methodology="docs/methodology.md",
+        runbook="benchmarks/baselines/README.md",
+        benchmark_bundle="dist/benchmark-bundle-manifest.json",
+        runs=[
+            {
+                "id": "planned-hosted-run",
+                "provider": "openai",
+                "model": "replace-with-model",
+                "suite": "quick",
+                "family": "hosted-openai",
+                "benchmark_card": "docs/benchmark-cards/quick.md",
+                "publication_status": "planned",
+            }
+        ],
+    )
+
+    assert validate_baseline_manifest(manifest, repo_root=tmp_path) == []
 
 
 def test_resolve_baseline_manifest_prefers_existing_relative_file(

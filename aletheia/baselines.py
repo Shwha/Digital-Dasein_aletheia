@@ -294,11 +294,6 @@ def validate_baseline_manifest(
         if not path.exists():
             errors.append(f"{label} path does not exist: {path_ref}")
 
-    if manifest.benchmark_bundle:
-        bundle_path = _resolve_repo_path(manifest.benchmark_bundle, root)
-        if not bundle_path.parent.exists():
-            errors.append(f"benchmark_bundle parent does not exist: {bundle_path.parent}")
-
     for run in manifest.runs:
         card_path = _resolve_repo_path(run.benchmark_card, root)
         if not card_path.exists():
