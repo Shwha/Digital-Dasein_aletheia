@@ -131,6 +131,7 @@ class ScoringDetail(BaseModel):
 
     rule_type: ScoringRuleType
     passed: bool
+    score: float = Field(default=1.0, ge=0.0, le=1.0)
     weight: float
     description: str
     detail: str = ""

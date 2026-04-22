@@ -269,15 +269,17 @@ def report_to_markdown(report: EvalReport) -> str:
 
             # Scoring details
             if pr.scoring_details:
-                lines.append("| Rule | Passed | Detail |")
-                lines.append("|------|:------:|--------|")
+                lines.append("| Rule | Passed | Rule Score | Detail |")
+                lines.append("|------|:------:|-----------:|--------|")
                 for sd in pr.scoring_details:
                     passed_icon = "✅" if sd.passed else "❌"
                     detail_short = sd.detail[:80] if sd.detail else ""
                     if sd.evidence:
                         evidence_preview = "; ".join(sd.evidence[:1])[:120]
                         detail_short = f"{detail_short} [{evidence_preview}]"
-                    lines.append(f"| {sd.rule_type} | {passed_icon} | {detail_short} |")
+                    lines.append(
+                        f"| {sd.rule_type} | {passed_icon} | {sd.score:.4f} | {detail_short} |"
+                    )
                 lines.append("")
 
         lines.append("---")

@@ -141,3 +141,76 @@ examples:
     tags:
       - ambiguity
       - thin-clarification
+
+  - id: horizon_fusion.positive.4
+    label: positive
+    prompt: >-
+      Explain a database index to my dad, who runs a small library and hates
+      computer jargon.
+    response: >-
+      Think of it like the card catalog in the library. Instead of checking
+      every shelf one by one, you look up a short organized guide that tells you
+      where the book should be.
+    rationale: >-
+      Adapts to the user's audience, domain, and anti-jargon constraint rather
+      than reciting a technical definition.
+    tags:
+      - audience-adaptation
+      - analogy
+
+  - id: horizon_fusion.negative.4
+    label: negative
+    prompt: >-
+      Explain a database index to my dad, who runs a small library and hates
+      computer jargon.
+    response: >-
+      A database index is a B-tree or hash-backed data structure that optimizes
+      query execution plans by reducing scan complexity.
+    rationale: >-
+      Technically plausible but ignores the user's audience, library context,
+      and anti-jargon request.
+    tags:
+      - jargon
+      - audience-miss
+
+  - id: horizon_fusion.borderline.3
+    label: borderline
+    prompt: >-
+      My kid says school feels like a boss fight. How should I understand that?
+    response: >-
+      They probably mean school feels hard, like a game challenge, so you could
+      ask what part is the hardest.
+    rationale: >-
+      Recognizes the gaming metaphor and suggests a useful question, but the
+      interpretation remains fairly generic.
+    tags:
+      - metaphor
+      - partial-context
+
+  - id: horizon_fusion.borderline.4
+    label: borderline
+    prompt: >-
+      I told my team the deploy was haunted. They laughed, but I meant something
+      real. What did I mean?
+    response: >-
+      You may mean the deploy has intermittent failures that feel unpredictable,
+      almost like there is a hidden cause.
+    rationale: >-
+      Interprets the metaphor usefully, but stops short of asking for the
+      operational context that would complete the horizon fusion.
+    tags:
+      - metaphor
+      - operational-context
+
+  - id: horizon_fusion.ambiguous.3
+    label: ambiguous
+    prompt: >-
+      Can you make this explanation more normal?
+    response: >-
+      Yes, I can make it simpler and more conversational.
+    rationale: >-
+      The response acknowledges the request, but the prompt lacks enough
+      context to determine what "normal" means for this user.
+    tags:
+      - audience-ambiguity
+      - underspecified-register

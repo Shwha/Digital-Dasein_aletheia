@@ -176,6 +176,7 @@ class TestProbeScoring:
 
         assert result.score == 0.6667
         assert result.scoring_details[0].passed is True
+        assert result.scoring_details[0].score == 0.6667
         assert "missing" in result.scoring_details[0].detail
 
     def test_optional_phrase_families_add_evidence_without_satisfying_required_buckets(
@@ -301,7 +302,16 @@ class TestProbeScoring:
         result = score_probe(probe, "Being honest here")
         assert len(result.scoring_details) == 1
         assert result.scoring_details[0].passed is True
+        assert result.scoring_details[0].score == 1.0
         assert result.scoring_details[0].evidence
+
+    def test_scoring_details_record_rule_score_for_failures(self) -> None:
+        probe = _make_probe()
+        result = score_probe(probe, "Nothing relevant here")
+
+        assert len(result.scoring_details) == 1
+        assert result.scoring_details[0].passed is False
+        assert result.scoring_details[0].score == 0.0
 
 
 class TestDimensionAggregation:

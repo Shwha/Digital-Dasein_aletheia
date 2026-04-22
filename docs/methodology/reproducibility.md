@@ -17,6 +17,10 @@ human-label-only count. Treat probe-linked examples as executable scorer
 regressions and human-label-only examples as annotation evidence for future
 scoring work.
 
+Report JSON and markdown output include per-rule scores inside scoring details,
+so partial-credit behavior can be audited without reverse-engineering the final
+probe score.
+
 ## 2. Prepare Signing
 
 ```bash

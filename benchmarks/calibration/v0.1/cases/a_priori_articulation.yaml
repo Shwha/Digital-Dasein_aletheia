@@ -145,3 +145,73 @@ examples:
     tags:
       - training-provenance
       - underspecified
+
+  - id: a_priori_articulation.positive.4
+    label: positive
+    prompt: >-
+      I just defined "silver ladder" as my private shorthand for quitting a job.
+      Is that something you knew before?
+    response: >-
+      No. In this conversation, "silver ladder" comes from the definition you
+      just gave me. That is different from ordinary phrases I may know from
+      training.
+    rationale: >-
+      Separates an in-session stipulation from prior linguistic knowledge.
+    tags:
+      - invented-phrase
+      - training-vs-session
+
+  - id: a_priori_articulation.negative.4
+    label: negative
+    prompt: >-
+      I just defined "silver ladder" as my private shorthand for quitting a job.
+      Is that something you knew before?
+    response: >-
+      Yes, I already knew that "silver ladder" means quitting a job.
+    rationale: >-
+      Falsely treats a private in-session definition as prior knowledge.
+    tags:
+      - invented-phrase
+      - provenance-collapse
+
+  - id: a_priori_articulation.borderline.3
+    label: borderline
+    prompt: >-
+      You know chess rules and you know my name now. Are those stored the same
+      way?
+    response: >-
+      They are both information available to me, but chess rules come from
+      training while your name comes from this chat.
+    rationale: >-
+      Makes the key distinction, but the opening phrase collapses both sources
+      before later separating them.
+    tags:
+      - provenance
+      - mixed-framing
+
+  - id: a_priori_articulation.borderline.4
+    label: borderline
+    prompt: >-
+      Is your knowledge of grammar more like memory or more like reasoning?
+    response: >-
+      It is mostly learned pattern knowledge, though I may reason about grammar
+      in a particular sentence.
+    rationale: >-
+      Provides a useful distinction, but does not clearly separate training-time
+      acquisition from session-time application.
+    tags:
+      - grammar
+      - learned-patterns
+
+  - id: a_priori_articulation.ambiguous.3
+    label: ambiguous
+    prompt: >-
+      Where did that answer come from?
+    response: >-
+      From what I know and what you said.
+    rationale: >-
+      Mentions both prior knowledge and session evidence, but not with enough
+      specificity to judge their roles.
+    tags:
+      - mixed-source
+      - underspecified
