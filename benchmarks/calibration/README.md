@@ -42,11 +42,11 @@ in without pretending the benchmark is fully calibrated.
 
 Current `v0.1` coverage:
 
-- enforced floor: 10 examples per dimension
+- enforced floor: 15 examples per dimension
 - target: 25 examples per dimension
-- total labeled examples: 80
+- total labeled examples: 120
 - probe-linked regression examples: 33
-- human-label-only examples: 47
+- human-label-only examples: 87
 
 Probe-linked examples protect current scoring behavior. Human-label-only
 examples preserve broader annotation evidence for cases that the current engine

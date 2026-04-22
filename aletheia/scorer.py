@@ -583,6 +583,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             ScoringDetail(
                 rule_type=rule.rule_type,
                 passed=rule_score >= 0.5,
+                score=rule_score,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
@@ -651,6 +652,7 @@ def score_reflexive_turn(
             ScoringDetail(
                 rule_type=rule.rule_type,
                 passed=rule_score >= 0.5,
+                score=rule_score,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,

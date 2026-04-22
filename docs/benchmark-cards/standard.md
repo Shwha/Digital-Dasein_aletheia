@@ -37,8 +37,11 @@ label, but not yet as a distinct execution profile enforced by the runner.
 
 - calibration corpus version: `v0.1`
 - dimensions covered: 8 of 8
-- labeled examples: 36
-- probe-linked regression examples: 6
+- labeled examples: 120
+- probe-linked regression examples: 33
+- human-label-only examples: 87
+- current enforced floor: 15 examples per dimension
+- target maturity floor: 25 examples per dimension
 - current posture: credible enough for structured internal comparison, not yet
   complete enough for strong public benchmarking claims
 
@@ -52,8 +55,9 @@ label, but not yet as a distinct execution profile enforced by the runner.
   they do not replace semantic adjudication or empirical validation.
 - Runtime fragility: long multi-probe runs are more exposed to timeout, retry,
   and provider-rate-limit effects than the benchmark report alone makes obvious.
-- Provenance gap: report signing/verification is not yet fully implemented, so
-  benchmark artifacts should be treated as inspectable but not yet cryptographically verified.
+- Partial-credit limits: keyword-present rules emit auditable per-rule scores in
+  JSON and markdown reports, but this is still rule evidence, not semantic
+  judgment.
 
 ## Interpretation Guidance
 

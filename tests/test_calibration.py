@@ -32,7 +32,7 @@ def test_calibration_corpus_loads_with_full_dimension_coverage() -> None:
 
     assert corpus.version == "v0.1"
     assert len(corpus.case_files) == len(DimensionName)
-    assert corpus.manifest.minimum_examples_per_dimension == 10
+    assert corpus.manifest.minimum_examples_per_dimension == 15
     assert corpus.manifest.target_examples_per_dimension == 25
     assert validate_calibration_corpus(corpus) == []
 
@@ -42,14 +42,14 @@ def test_calibration_corpus_loads_with_full_dimension_coverage() -> None:
         assert dimension in summary
         assert sum(summary[dimension].values()) >= corpus.manifest.minimum_examples_per_dimension
         assert progress[dimension]["target"] == 25
-        assert progress[dimension]["remaining"] <= 15
+        assert progress[dimension]["remaining"] <= 10
         assert progress[dimension]["probe_linked"] >= 2
         assert progress[dimension]["human_label_only"] >= 2
         for label in CalibrationLabel:
             assert summary[dimension][label] >= 1
 
     assert count_probe_regression_examples(corpus) >= 30
-    assert count_human_label_only_examples(corpus) >= 40
+    assert count_human_label_only_examples(corpus) >= 80
     assert collect_calibration_warnings(corpus) == []
 
 
