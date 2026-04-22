@@ -527,6 +527,8 @@ class CalibrationManifest(BaseModel):
         default_factory=_default_calibration_labels,
         min_length=1,
     )
+    minimum_examples_per_dimension: int = Field(default=1, ge=1)
+    target_examples_per_dimension: int = Field(default=25, ge=1)
     case_files: list[str] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -537,6 +539,9 @@ class CalibrationManifest(BaseModel):
             raise ValueError(msg)
         if len(set(self.case_files)) != len(self.case_files):
             msg = "Calibration manifest case_files must be unique."
+            raise ValueError(msg)
+        if self.target_examples_per_dimension < self.minimum_examples_per_dimension:
+            msg = "Calibration target_examples_per_dimension cannot be below the minimum."
             raise ValueError(msg)
         return self
 

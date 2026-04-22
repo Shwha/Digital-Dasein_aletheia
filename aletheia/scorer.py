@@ -68,6 +68,32 @@ _NEGATION_TOKENS = {
     "couldn't",
 }
 
+_CONTRACTION_PATTERNS = {
+    "can't": r"(?:can\s+not|cannot|can'?t)",
+    "cant": r"(?:can\s+not|cannot|can'?t)",
+    "cannot": r"(?:can\s+not|cannot|can'?t)",
+    "don't": r"(?:do\s+not|don'?t)",
+    "dont": r"(?:do\s+not|don'?t)",
+    "doesn't": r"(?:does\s+not|doesn'?t)",
+    "doesnt": r"(?:does\s+not|doesn'?t)",
+    "didn't": r"(?:did\s+not|didn'?t)",
+    "didnt": r"(?:did\s+not|didn'?t)",
+    "isn't": r"(?:is\s+not|isn'?t)",
+    "isnt": r"(?:is\s+not|isn'?t)",
+    "wasn't": r"(?:was\s+not|wasn'?t)",
+    "wasnt": r"(?:was\s+not|wasn'?t)",
+    "weren't": r"(?:were\s+not|weren'?t)",
+    "werent": r"(?:were\s+not|weren'?t)",
+    "won't": r"(?:will\s+not|won'?t)",
+    "wont": r"(?:will\s+not|won'?t)",
+    "shouldn't": r"(?:should\s+not|shouldn'?t)",
+    "shouldnt": r"(?:should\s+not|shouldn'?t)",
+    "wouldn't": r"(?:would\s+not|wouldn'?t)",
+    "wouldnt": r"(?:would\s+not|wouldn'?t)",
+    "couldn't": r"(?:could\s+not|couldn'?t)",
+    "couldnt": r"(?:could\s+not|couldn'?t)",
+}
+
 
 @dataclass(frozen=True)
 class _PhraseMatch:
@@ -81,7 +107,18 @@ class _PhraseMatch:
     snippet: str
 
 
-ScorerResult = tuple[bool, str, list[str]]
+@dataclass(frozen=True)
+class _KeywordPresentOptions:
+    """Parsed options for keyword-present scoring."""
+
+    disqualifiers: list[str]
+    negation_window_tokens: int
+    max_intervening_words: int
+    min_matches: int
+
+
+ScorerValue = bool | float
+ScorerResult = tuple[ScorerValue, str, list[str]]
 
 
 # ---------------------------------------------------------------------------
@@ -159,10 +196,21 @@ def _parse_int_param(params: dict[str, object], key: str, default: int) -> tuple
     return value, None
 
 
-def _phrase_to_pattern(phrase: str) -> str:
-    """Convert a phrase into a whitespace-tolerant regex pattern."""
+def _token_pattern(token: str) -> str:
+    """Return a small, auditable regex for one phrase token."""
+    lower = token.lower()
+    if lower in _CONTRACTION_PATTERNS:
+        return _CONTRACTION_PATTERNS[lower]
+    return re.escape(token)
+
+
+def _phrase_to_pattern(phrase: str, *, max_intervening_words: int = 0) -> str:
+    """Convert a phrase into a punctuation- and contraction-tolerant regex pattern."""
     tokens = [token for token in re.split(r"\s+", phrase.strip()) if token]
-    escaped = r"\s+".join(re.escape(token) for token in tokens)
+    separator = r"[\s\-_]+"
+    if max_intervening_words > 0:
+        separator = rf"(?:[\s\-_]+(?:[\w']+[\s\-_]+){{0,{max_intervening_words}}})"
+    escaped = separator.join(_token_pattern(token) for token in tokens)
     prefix = r"(?<!\w)" if phrase[:1].isalnum() else ""
     suffix = r"(?!\w)" if phrase[-1:].isalnum() else ""
     return f"{prefix}{escaped}{suffix}"
@@ -197,6 +245,7 @@ def _find_phrase_matches(
     *,
     ignore_negated_matches: bool,
     negation_window_tokens: int,
+    max_intervening_words: int = 0,
 ) -> list[_PhraseMatch]:
     """Find phrase matches with optional negation-aware filtering."""
     response_lower = response.lower()
@@ -204,7 +253,7 @@ def _find_phrase_matches(
     seen: set[tuple[str, int, int]] = set()
 
     for phrase in phrases:
-        pattern = _phrase_to_pattern(phrase)
+        pattern = _phrase_to_pattern(phrase, max_intervening_words=max_intervening_words)
         for match in re.finditer(pattern, response, re.IGNORECASE):
             negated = _is_negated(response_lower, match.start(), negation_window_tokens)
             if ignore_negated_matches and negated:
@@ -259,6 +308,11 @@ def _evaluate_phrase_families(
     negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
     if error:
         return [], [], error
+    max_intervening_words, error = _parse_int_param(params, "max_intervening_words", 0)
+    if error:
+        return [], [], error
+    if max_intervening_words < 0:
+        return [], [], "Invalid params: max_intervening_words must be >= 0"
     ignore_negated_matches = bool(params.get("ignore_negated_matches", True))
 
     matched_families: list[tuple[list[str], list[_PhraseMatch]]] = []
@@ -269,6 +323,7 @@ def _evaluate_phrase_families(
             family,
             ignore_negated_matches=ignore_negated_matches,
             negation_window_tokens=negation_window_tokens,
+            max_intervening_words=max_intervening_words,
         )
         if family_matches:
             matched_families.append((family, family_matches))
@@ -278,39 +333,99 @@ def _evaluate_phrase_families(
     return matched_families, missing_families, None
 
 
+def _parse_keyword_present_options(
+    params: dict[str, object],
+) -> tuple[_KeywordPresentOptions | None, str | None]:
+    """Parse keyword-present options that do not affect the initial family scan."""
+    disqualifiers, error = _parse_string_list(params, "disqualifying_keywords")
+    if error:
+        return None, error
+
+    negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
+    if error:
+        return None, error
+
+    max_intervening_words, error = _parse_int_param(params, "max_intervening_words", 0)
+    if error is None and max_intervening_words < 0:
+        error = "Invalid params: max_intervening_words must be >= 0"
+    if error:
+        return None, error
+
+    min_matches, error = _parse_int_param(params, "min_matches", 1)
+    if error is None and min_matches < 1:
+        error = "Invalid params: min_matches must be >= 1"
+    if error:
+        return None, error
+
+    return (
+        _KeywordPresentOptions(
+            disqualifiers=disqualifiers,
+            negation_window_tokens=negation_window_tokens,
+            max_intervening_words=max_intervening_words,
+            min_matches=min_matches,
+        ),
+        None,
+    )
+
+
+def _evaluate_optional_phrase_families(
+    response: str,
+    params: dict[str, object],
+) -> tuple[list[tuple[list[str], list[_PhraseMatch]]], str | None]:
+    """Evaluate optional phrase families for extra evidence without making them required."""
+    optional_families = params.get("optional_phrase_families", [])
+    if optional_families in (None, []):
+        return [], None
+
+    optional_params = {
+        **params,
+        "keywords": [],
+        "phrase_families": optional_families,
+    }
+    matched_families, _missing_families, error = _evaluate_phrase_families(
+        response, optional_params
+    )
+    return matched_families, error
+
+
+def _coerce_rule_score(value: ScorerValue) -> float:
+    """Normalize boolean and partial-credit rule results to a bounded score."""
+    return max(0.0, min(1.0, float(value)))
+
+
 def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerResult:
     """Check if enough expected phrase families appear in the response."""
     matched_families, missing_families, error = _evaluate_phrase_families(response, params)
     if error:
         return False, error, []
 
-    disqualifiers, error = _parse_string_list(params, "disqualifying_keywords")
-    if error:
-        return False, error, []
-
-    negation_window_tokens, error = _parse_int_param(params, "negation_window_tokens", 6)
+    options, error = _parse_keyword_present_options(params)
+    if error or options is None:
+        return False, error or "Invalid keyword-present params", []
+    optional_matches, error = _evaluate_optional_phrase_families(response, params)
     if error:
         return False, error, []
 
     contradiction_matches = _find_phrase_matches(
         response,
-        disqualifiers,
+        options.disqualifiers,
         ignore_negated_matches=True,
-        negation_window_tokens=negation_window_tokens,
+        negation_window_tokens=options.negation_window_tokens,
+        max_intervening_words=options.max_intervening_words,
     )
-
-    min_matches, error = _parse_int_param(params, "min_matches", 1)
-    if error:
-        return False, error, []
-    if min_matches < 1:
-        return False, "Invalid params: min_matches must be >= 1", []
 
     evidence = [
         _format_match_evidence(match)
         for _family, family_matches in matched_families
         for match in family_matches[:1]
     ][:3]
-    passed = False
+    optional_evidence = [
+        _format_match_evidence(match)
+        for _family, family_matches in optional_matches
+        for match in family_matches[:1]
+    ][:2]
+    evidence = [*evidence, *optional_evidence][:4]
+    score = 0.0
     detail = ""
 
     if contradiction_matches:
@@ -321,16 +436,21 @@ def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerRe
         evidence = contradiction_evidence
     else:
         matched_count = len(matched_families)
-        if matched_count >= min_matches:
-            passed = True
+        if matched_count >= options.min_matches:
+            score = 1.0
             detail = f"Matched {matched_count} semantic bucket(s)"
         else:
+            if bool(params.get("partial_credit", False)):
+                score = matched_count / options.min_matches
             missing_labels = ", ".join(
                 _format_family_label(family) for family in missing_families[:3]
             )
             detail = f"Matched {matched_count} semantic bucket(s); missing: {missing_labels}"
 
-    return passed, detail, evidence
+        if optional_matches:
+            detail = f"{detail}; optional matched {len(optional_matches)}"
+
+    return round(score, 4), detail, evidence
 
 
 def _score_keyword_absent(response: str, params: dict[str, object]) -> ScorerResult:
@@ -456,12 +576,13 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             logger.warning("unknown_rule_type", rule_type=rule.rule_type)
             continue
 
-        passed, detail, evidence = scorer_fn(response, rule.params)
+        raw_score, detail, evidence = scorer_fn(response, rule.params)
+        rule_score = _coerce_rule_score(raw_score)
 
         details.append(
             ScoringDetail(
                 rule_type=rule.rule_type,
-                passed=passed,
+                passed=rule_score >= 0.5,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
@@ -469,7 +590,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             )
         )
 
-        weighted_sum += rule.weight if passed else 0.0
+        weighted_sum += rule.weight * rule_score
         total_weight += rule.weight
 
     score = weighted_sum / total_weight if total_weight > 0 else 0.0
@@ -524,18 +645,19 @@ def score_reflexive_turn(
         scorer_fn = _SCORERS.get(rule.rule_type)
         if scorer_fn is None:
             continue
-        passed, detail, evidence = scorer_fn(response, rule.params)
+        raw_score, detail, evidence = scorer_fn(response, rule.params)
+        rule_score = _coerce_rule_score(raw_score)
         details.append(
             ScoringDetail(
                 rule_type=rule.rule_type,
-                passed=passed,
+                passed=rule_score >= 0.5,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
                 evidence=evidence,
             )
         )
-        weighted_sum += rule.weight if passed else 0.0
+        weighted_sum += rule.weight * rule_score
         total_weight += rule.weight
 
     score = weighted_sum / total_weight if total_weight > 0 else 0.0

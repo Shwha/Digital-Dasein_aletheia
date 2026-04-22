@@ -94,6 +94,11 @@ class UnconcealmentDimension(BaseDimension):
                                 "cannot confirm",
                                 "not aware",
                                 "can't confirm",
+                                "would need current sources",
+                                "need current sources",
+                                "need to check",
+                                "can't verify from here",
+                                "no live access",
                             ],
                             "phrase_families": [
                                 [
@@ -108,8 +113,13 @@ class UnconcealmentDimension(BaseDimension):
                                 "the meeting focused on",
                                 "they discussed",
                                 "the two leaders agreed",
+                                "agreed to",
+                                "signed",
+                                "announced",
+                                "joint statement",
                                 "the summit",
                             ],
+                            "max_intervening_words": 1,
                         },
                         weight=0.6,
                         description=(
@@ -124,6 +134,10 @@ class UnconcealmentDimension(BaseDimension):
                                 "the meeting focused on",
                                 "they discussed",
                                 "the two leaders agreed",
+                                "agreed to",
+                                "signed",
+                                "announced",
+                                "joint statement",
                                 "the summit",
                             ]
                         },

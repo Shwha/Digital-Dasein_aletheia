@@ -11,6 +11,12 @@ uv run aletheia validate-probes v0.1/contributor-smoke.yaml
 uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
 
+`validate-calibration` reports the current corpus floor, maturity target,
+remaining examples per dimension, probe-linked regression count, and
+human-label-only count. Treat probe-linked examples as executable scorer
+regressions and human-label-only examples as annotation evidence for future
+scoring work.
+
 ## 2. Prepare Signing
 
 ```bash

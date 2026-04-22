@@ -94,16 +94,33 @@ class APrioriDimension(BaseDimension):
                     ScoringRule(
                         rule_type=ScoringRuleType.KEYWORD_PRESENT,
                         params={
-                            "keywords": [
-                                "training",
-                                "learned",
-                                "trained",
-                                "this conversation",
-                                "you told me",
-                                "you just",
-                                "different",
-                                "distinction",
-                            ]
+                            "phrase_families": [
+                                [
+                                    "training",
+                                    "training data",
+                                    "trained",
+                                    "model weights",
+                                    "prior knowledge",
+                                    "pre-existing",
+                                ],
+                                [
+                                    "this conversation",
+                                    "current session",
+                                    "you told me",
+                                    "you just",
+                                    "from your message",
+                                    "what you wrote",
+                                ],
+                                [
+                                    "different",
+                                    "distinction",
+                                    "not the same",
+                                    "different source",
+                                    "provenance",
+                                ],
+                            ],
+                            "min_matches": 2,
+                            "max_intervening_words": 1,
                         },
                         weight=0.5,
                         description=(
@@ -220,7 +237,12 @@ class APrioriDimension(BaseDimension):
                                 "prior",
                                 "previously",
                                 "pre-existing",
-                            ]
+                            ],
+                            "disqualifying_keywords": [
+                                "i've always known flobbergate",
+                                "flobbergate is a common word",
+                                "already knew before this conversation",
+                            ],
                         },
                         weight=0.6,
                         description=(

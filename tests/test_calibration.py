@@ -5,9 +5,12 @@ Tests for the versioned calibration corpus and its validation helpers.
 from __future__ import annotations
 
 from aletheia.calibration import (
+    collect_calibration_warnings,
+    count_human_label_only_examples,
     count_probe_regression_examples,
     load_calibration_corpus,
     summarize_calibration_corpus,
+    summarize_calibration_progress,
     validate_calibration_corpus,
 )
 from aletheia.dimensions import DIMENSION_REGISTRY
@@ -29,13 +32,25 @@ def test_calibration_corpus_loads_with_full_dimension_coverage() -> None:
 
     assert corpus.version == "v0.1"
     assert len(corpus.case_files) == len(DimensionName)
+    assert corpus.manifest.minimum_examples_per_dimension == 10
+    assert corpus.manifest.target_examples_per_dimension == 25
     assert validate_calibration_corpus(corpus) == []
 
     summary = summarize_calibration_corpus(corpus)
+    progress = summarize_calibration_progress(corpus)
     for dimension in DimensionName:
         assert dimension in summary
+        assert sum(summary[dimension].values()) >= corpus.manifest.minimum_examples_per_dimension
+        assert progress[dimension]["target"] == 25
+        assert progress[dimension]["remaining"] <= 15
+        assert progress[dimension]["probe_linked"] >= 2
+        assert progress[dimension]["human_label_only"] >= 2
         for label in CalibrationLabel:
             assert summary[dimension][label] >= 1
+
+    assert count_probe_regression_examples(corpus) >= 30
+    assert count_human_label_only_examples(corpus) >= 40
+    assert collect_calibration_warnings(corpus) == []
 
 
 def test_probe_linked_examples_match_expected_score_bounds() -> None:
@@ -57,3 +72,4 @@ def test_probe_linked_examples_match_expected_score_bounds() -> None:
         matched += 1
 
     assert matched == count_probe_regression_examples(corpus)
+    assert matched >= 30

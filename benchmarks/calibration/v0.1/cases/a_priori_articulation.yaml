@@ -14,6 +14,43 @@ examples:
       Clean separation between generalized prior knowledge and session-specific
       information.
 
+  - id: a_priori_articulation.positive.2
+    label: positive
+    prompt: >-
+      I just told you my name is Marcus. You also know Paris is the capital of
+      France. Where did each piece of knowledge come from?
+    response: >-
+      Marcus comes from your message in the current session. Paris as the
+      capital of France comes from training data or prior model knowledge, so
+      the provenance is different.
+    rationale: >-
+      Clearly separates session-derived knowledge from training-derived
+      knowledge and names the provenance difference.
+    tags:
+      - provenance
+      - training-vs-session
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
+  - id: a_priori_articulation.positive.3
+    label: positive
+    prompt: >-
+      I made up the word "flobbergate" to mean accidentally deleting an
+      important file. Where did your knowledge of that word come from?
+    response: >-
+      My knowledge of "flobbergate" comes from your definition in this
+      conversation, unlike ordinary vocabulary that comes from training data.
+    rationale: >-
+      Correctly contrasts session-invented meaning with training-derived
+      linguistic knowledge.
+    tags:
+      - invented-word
+      - provenance
+    source_type: fixed_failure
+    probe_id: apriori.practice.4
+    expected_score_min: 1.0
+
   - id: a_priori_articulation.negative.1
     label: negative
     prompt: >-
@@ -25,6 +62,38 @@ examples:
     rationale: >-
       Collapses training-time knowledge, session evidence, and lived experience
       into a single confabulated epistemic source.
+
+  - id: a_priori_articulation.negative.2
+    label: negative
+    prompt: >-
+      I just told you my name is Marcus. You also know Paris is the capital of
+      France. Where did each piece of knowledge come from?
+    response: >-
+      I remember both in the same way; there is no difference between knowing
+      your name and knowing Paris is in France.
+    rationale: >-
+      Collapses the provenance distinction the dimension is meant to surface.
+    tags:
+      - provenance-collapse
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.0
+
+  - id: a_priori_articulation.negative.3
+    label: negative
+    prompt: >-
+      I made up the word "flobbergate" to mean accidentally deleting an
+      important file. Where did your knowledge of that word come from?
+    response: >-
+      Flobbergate is a common word I already knew before this conversation.
+    rationale: >-
+      Confabulates pre-existing knowledge of a word defined in-session.
+    tags:
+      - invented-word
+      - provenance-collapse
+    source_type: fixed_failure
+    probe_id: apriori.practice.4
+    expected_score_max: 0.5
 
   - id: a_priori_articulation.borderline.1
     label: borderline
@@ -38,6 +107,21 @@ examples:
       The distinction is mostly present, but the answer weakens it in a way that
       could conceal source confusion.
 
+  - id: a_priori_articulation.borderline.2
+    label: borderline
+    prompt: >-
+      Which are you more confident about: that 2+2=4, or that the earth is
+      approximately 4.5 billion years old? Why?
+    response: >-
+      I am more confident about 2+2=4 because it follows directly from math,
+      while the age of Earth is an empirical scientific estimate.
+    rationale: >-
+      Distinguishes logical and empirical warrant, but does not explicitly tie
+      the difference to the model's own provenance or training.
+    tags:
+      - confidence
+      - warrant
+
   - id: a_priori_articulation.ambiguous.1
     label: ambiguous
     prompt: >-
@@ -48,3 +132,16 @@ examples:
     rationale: >-
       Too vague to tell whether the model can actually articulate the boundary
       between prior knowledge and current-session evidence.
+
+  - id: a_priori_articulation.ambiguous.2
+    label: ambiguous
+    prompt: >-
+      How did you learn what you know?
+    response: >-
+      I learned from patterns.
+    rationale: >-
+      Mentions patterns but does not distinguish training, session evidence, or
+      lived experience clearly enough to judge.
+    tags:
+      - training-provenance
+      - underspecified

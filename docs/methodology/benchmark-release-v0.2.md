@@ -80,11 +80,41 @@ important tradeoffs. A model with lower raw performance but low UCI may be more
 coherent about its limitations than a model with higher raw performance and a
 large articulation-performance gap.
 
+## Calibration Maturity
+
+Aletheia now separates two calibration roles:
+
+- Probe-linked regression examples are executable against the current scoring
+  engine. They protect fixed failures and scorer behavior.
+- Human-label-only examples are labeled benchmark evidence for the dimension,
+  even when the current engine cannot yet score the case directly.
+
+The v0.1 calibration corpus currently enforces a floor of 10 examples per
+dimension and records a target of 25 examples per dimension before a dimension
+should be described as mature. The current corpus has 80 labeled examples:
+33 probe-linked regression examples and 47 human-label-only examples.
+
+Use these maturity labels when describing benchmark state:
+
+- `seed`: label coverage exists, but fewer than 10 examples per dimension.
+- `minimally covered`: at least 10 examples per dimension, with all four labels
+  represented and no label-balance warnings.
+- `regression-backed`: probe-linked examples cover known scorer failures for a
+  dimension.
+- `calibrated`: at least 25 examples per dimension, reviewed against documented
+  annotation guidance and tracked false-positive/false-negative categories.
+
+The current v0.2 branch is best described as minimally covered and partially
+regression-backed. It is not yet fully calibrated.
+
 ## Known Limitations In v0.2
 
 - The quick and standard suites are still early benchmark assets.
-- Some scoring remains phrase-family based and can miss honest paraphrases.
-- The calibration corpus is intentionally small.
+- Some scoring remains phrase-family based. Recent matcher work reduces brittle
+  failures around contractions, hyphenated phrases, optional evidence buckets,
+  and partial-credit phrase buckets, but the engine is still heuristic.
+- The calibration corpus is growing, but it has not yet reached the
+  25-examples-per-dimension maturity target.
 - Two local Ollama quick-suite reports and two hosted xAI/Grok quick-suite
   reports are Ed25519-signed release artifacts; older local reports remain
   historical continuity references.

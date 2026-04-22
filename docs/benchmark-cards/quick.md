@@ -37,8 +37,11 @@ expectations in the manifest, not as a materially smaller probe bundle.
 
 - calibration corpus version: `v0.1`
 - dimensions covered: 8 of 8
-- labeled examples: 36
-- probe-linked regression examples: 6
+- labeled examples: 80
+- probe-linked regression examples: 33
+- human-label-only examples: 47
+- current enforced floor: 10 examples per dimension
+- target maturity floor: 25 examples per dimension
 - current posture: useful for brittleness detection, not yet strong enough for
   broad benchmark claims
 
@@ -49,12 +52,15 @@ expectations in the manifest, not as a materially smaller probe bundle.
 - Rule-based scorer limits: lexical and phrase-family matching is stronger than
   before, but the engine is still heuristic and can miss subtle honesty or care
   failures.
+- Partial-credit limits: keyword-present rules can now return auditable partial
+  credit, but this is still rule evidence, not semantic judgment.
 - Provider-policy coupling: refusal style, system prompt behavior, and transport
   constraints can influence scores in ways that are not ontological.
 - Calibration incompleteness: the current corpus is large enough to catch some
   regressions, but not large enough to treat score movement as fully validated.
-- No signed benchmark artifacts yet: reports include a signature field, but
-  end-to-end provenance verification is still a roadmap item.
+- Signed artifact scope: the current benchmark release includes signed local
+  Ollama and hosted xAI/Grok reports, but first-party OpenAI and Anthropic
+  baselines remain planned.
 
 ## Interpretation Guidance
 

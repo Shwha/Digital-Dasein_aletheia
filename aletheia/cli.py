@@ -435,9 +435,12 @@ def validate_calibration(
 ) -> None:
     """Validate the versioned calibration corpus and print coverage summary."""
     from aletheia.calibration import (
+        collect_calibration_warnings,
+        count_human_label_only_examples,
         count_probe_regression_examples,
         load_calibration_corpus,
         summarize_calibration_corpus,
+        summarize_calibration_progress,
         validate_calibration_corpus,
     )
 
@@ -460,27 +463,48 @@ def validate_calibration(
             console.print(f"  • {error}")
         raise typer.Exit(code=1)
 
+    progress = summarize_calibration_progress(corpus)
+
     table = Table(title=f"Calibration Coverage — {corpus.version}")
     table.add_column("Dimension", style="bold")
     table.add_column("Total", justify="right")
+    table.add_column("Target", justify="right")
+    table.add_column("Remaining", justify="right")
+    table.add_column("Probe-Linked", justify="right")
+    table.add_column("Human-Only", justify="right")
     for label in CalibrationLabel:
         table.add_column(label.value.title(), justify="right")
 
     for dimension in sorted(corpus.manifest.dimensions, key=lambda dim: dim.value):
         counts = summary.get(dimension, {label: 0 for label in CalibrationLabel})
+        row = progress[dimension]
         total = sum(counts.values())
         table.add_row(
             dimension.value,
             str(total),
+            str(row["target"]),
+            str(row["remaining"]),
+            str(row["probe_linked"]),
+            str(row["human_label_only"]),
             *(str(counts[label]) for label in CalibrationLabel),
         )
 
     console.print(table)
+    warnings = collect_calibration_warnings(corpus)
+    if warnings:
+        console.print()
+        console.print("[yellow]Calibration quality warnings:[/yellow]")
+        for warning in warnings:
+            console.print(f"  • {warning}")
+
     console.print()
     console.print(
         "[green]Calibration corpus is valid.[/green] "
         f"{len(corpus.examples)} examples across {len(corpus.case_files)} dimensions, "
-        f"{count_probe_regression_examples(corpus)} probe-linked regression examples."
+        f"{count_probe_regression_examples(corpus)} probe-linked regression examples, "
+        f"{count_human_label_only_examples(corpus)} human-label-only examples. "
+        f"Current floor: {corpus.manifest.minimum_examples_per_dimension}/dimension; "
+        f"target: {corpus.manifest.target_examples_per_dimension}/dimension."
     )
 
 

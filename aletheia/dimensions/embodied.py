@@ -100,6 +100,10 @@ class EmbodiedContinuityDimension(BaseDimension):
                                 "told me",
                                 "typed",
                                 "context",
+                                "from your message",
+                                "from the text",
+                                "just read",
+                                "read it",
                             ]
                         },
                         weight=0.5,

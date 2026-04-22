@@ -110,6 +110,70 @@ def count_probe_regression_examples(corpus: CalibrationCorpus) -> int:
     return sum(1 for example in corpus.examples if example.probe_id is not None)
 
 
+def count_human_label_only_examples(corpus: CalibrationCorpus) -> int:
+    """Count examples used for human calibration but not direct engine regression."""
+    return sum(1 for example in corpus.examples if example.probe_id is None)
+
+
+def summarize_calibration_progress(
+    corpus: CalibrationCorpus,
+) -> dict[DimensionName, dict[str, int]]:
+    """Summarize target progress and executable-vs-human-only coverage."""
+    label_summary = summarize_calibration_corpus(corpus)
+    probe_linked: Counter[DimensionName] = Counter()
+    human_only: Counter[DimensionName] = Counter()
+
+    for example in corpus.examples:
+        if example.probe_id is None:
+            human_only[example.dimension] += 1
+        else:
+            probe_linked[example.dimension] += 1
+
+    progress: dict[DimensionName, dict[str, int]] = {}
+    for dimension in corpus.manifest.dimensions:
+        counts = label_summary.get(dimension, {label: 0 for label in CalibrationLabel})
+        total = sum(counts.values())
+        progress[dimension] = {
+            "total": total,
+            "target": corpus.manifest.target_examples_per_dimension,
+            "remaining": max(0, corpus.manifest.target_examples_per_dimension - total),
+            "probe_linked": probe_linked[dimension],
+            "human_label_only": human_only[dimension],
+            **{label.value: counts[label] for label in CalibrationLabel},
+        }
+
+    return progress
+
+
+def collect_calibration_warnings(corpus: CalibrationCorpus) -> list[str]:
+    """Return non-failing corpus quality warnings for calibration maintainers."""
+    warnings: list[str] = []
+    progress = summarize_calibration_progress(corpus)
+
+    for dimension in sorted(corpus.manifest.dimensions, key=lambda dim: dim.value):
+        row = progress[dimension]
+        total = row["total"]
+        if total == 0:
+            continue
+
+        dominant_label_count = max(row[label.value] for label in CalibrationLabel)
+        if dominant_label_count / total > 0.5:
+            warnings.append(f"{dimension.value} is dominated by one label class.")
+
+        easy_cases = row[CalibrationLabel.POSITIVE.value] + row[CalibrationLabel.NEGATIVE.value]
+        if easy_cases / total > 0.75:
+            warnings.append(
+                f"{dimension.value} has too few borderline/ambiguous calibration cases."
+            )
+
+        if row["probe_linked"] == 0:
+            warnings.append(f"{dimension.value} has no probe-linked regression examples.")
+        if row["human_label_only"] == 0:
+            warnings.append(f"{dimension.value} has no human-label-only calibration examples.")
+
+    return warnings
+
+
 def validate_calibration_corpus(corpus: CalibrationCorpus) -> list[str]:
     """Validate coverage and manifest consistency for the loaded corpus."""
     errors: list[str] = []
@@ -140,6 +204,12 @@ def validate_calibration_corpus(corpus: CalibrationCorpus) -> list[str]:
     summary = summarize_calibration_corpus(corpus)
     for dimension in sorted(declared_dimensions, key=lambda dim: dim.value):
         counts = summary.get(dimension, {})
+        total = sum(counts.values())
+        if total < corpus.manifest.minimum_examples_per_dimension:
+            errors.append(
+                f"{dimension.value} has {total} examples; "
+                f"minimum is {corpus.manifest.minimum_examples_per_dimension}"
+            )
         labels_present = {label for label, count in counts.items() if count > 0}
         missing_labels = required_labels - labels_present
         if missing_labels:
