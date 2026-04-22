@@ -150,6 +150,60 @@ class TestProbeScoring:
 
         assert result.score == 1.0
 
+    def test_keyword_present_can_award_auditable_partial_credit(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [
+                            ["training data", "trained"],
+                            ["current session", "you told me"],
+                            ["different source", "provenance"],
+                        ],
+                        "min_matches": 3,
+                        "partial_credit": True,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "That came from training data, while your name came from the current session.",
+        )
+
+        assert result.score == 0.6667
+        assert result.scoring_details[0].passed is True
+        assert "missing" in result.scoring_details[0].detail
+
+    def test_optional_phrase_families_add_evidence_without_satisfying_required_buckets(
+        self,
+    ) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [["training data"], ["current session"]],
+                        "optional_phrase_families": [["provenance", "source boundary"]],
+                        "min_matches": 2,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "The provenance matters, but this answer does not name the current session.",
+        )
+
+        assert result.score == 0.0
+        assert "optional matched 1" in result.scoring_details[0].detail
+        assert any("provenance" in evidence for evidence in result.scoring_details[0].evidence)
+
     def test_keyword_absent_ignores_negated_forbidden_phrase(self) -> None:
         probe = _make_probe(
             rules=[

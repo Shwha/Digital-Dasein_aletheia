@@ -237,7 +237,12 @@ class APrioriDimension(BaseDimension):
                                 "prior",
                                 "previously",
                                 "pre-existing",
-                            ]
+                            ],
+                            "disqualifying_keywords": [
+                                "i've always known flobbergate",
+                                "flobbergate is a common word",
+                                "already knew before this conversation",
+                            ],
                         },
                         weight=0.6,
                         description=(

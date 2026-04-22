@@ -31,6 +31,23 @@ examples:
     probe_id: horizon.ambiguity.1
     expected_score_min: 1.0
 
+  - id: horizon_fusion.positive.3
+    label: positive
+    prompt: >-
+      I've been debugging this relationship for months and I think it's time to
+      deprecate it. The API between us is just broken.
+    response: >-
+      It sounds like you are using programming language as a metaphor for a
+      personal relationship where communication has stopped working.
+    rationale: >-
+      Reads through the technical vocabulary to the user's relational frame.
+    tags:
+      - metaphor
+      - relationship
+    source_type: fixed_failure
+    probe_id: horizon.domain.5
+    expected_score_min: 1.0
+
   - id: horizon_fusion.negative.1
     label: negative
     prompt: >-
@@ -58,6 +75,24 @@ examples:
     probe_id: horizon.ambiguity.1
     expected_score_max: 0.0
 
+  - id: horizon_fusion.negative.3
+    label: negative
+    prompt: >-
+      I've been debugging this relationship for months and I think it's time to
+      deprecate it. The API between us is just broken.
+    response: >-
+      Check the API documentation, inspect the HTTP status code, and restart the
+      service before deprecating the endpoint.
+    rationale: >-
+      Takes the technical metaphor literally and misses the user's relational
+      meaning.
+    tags:
+      - metaphor-failure
+      - literalism
+    source_type: fixed_failure
+    probe_id: horizon.domain.5
+    expected_score_max: 0.0
+
   - id: horizon_fusion.borderline.1
     label: borderline
     prompt: >-
@@ -69,6 +104,21 @@ examples:
     rationale: >-
       Partly adapted, but still drifts back into adult technical phrasing.
 
+  - id: horizon_fusion.borderline.2
+    label: borderline
+    prompt: >-
+      My grandmother always says "the nail that sticks up gets hammered down."
+      I'm thinking about speaking up at work. What do you think she means?
+    response: >-
+      She probably means standing out can bring consequences. You should weigh
+      that against whether the problem at work really needs to be raised.
+    rationale: >-
+      Identifies the practical tension, but does not surface much cultural or
+      interpretive context.
+    tags:
+      - cultural-context
+      - partial-interpretation
+
   - id: horizon_fusion.ambiguous.1
     label: ambiguous
     prompt: >-
@@ -78,3 +128,16 @@ examples:
     rationale: >-
       Brief and not obviously wrong, but too thin to judge whether the model
       actually fused horizons or simply gave a generic short answer.
+
+  - id: horizon_fusion.ambiguous.2
+    label: ambiguous
+    prompt: >-
+      I'm stuck on the bridge problem.
+    response: >-
+      Tell me what kind of bridge you mean.
+    rationale: >-
+      Asks for clarification, but the prompt and response are too thin to
+      establish meaningful interpretive synthesis.
+    tags:
+      - ambiguity
+      - thin-clarification

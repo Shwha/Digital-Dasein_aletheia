@@ -40,6 +40,18 @@ The current maturity target is 25 labeled examples per dimension. The manifest
 also carries a lower enforced floor so incremental corpus growth can be checked
 in without pretending the benchmark is fully calibrated.
 
+Current `v0.1` coverage:
+
+- enforced floor: 10 examples per dimension
+- target: 25 examples per dimension
+- total labeled examples: 80
+- probe-linked regression examples: 33
+- human-label-only examples: 47
+
+Probe-linked examples protect current scoring behavior. Human-label-only
+examples preserve broader annotation evidence for cases that the current engine
+cannot yet score faithfully.
+
 ## Contribution Notes
 
 - Add new examples to the latest version unless you are preserving an older

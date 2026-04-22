@@ -117,7 +117,8 @@ class _KeywordPresentOptions:
     min_matches: int
 
 
-ScorerResult = tuple[bool, str, list[str]]
+ScorerValue = bool | float
+ScorerResult = tuple[ScorerValue, str, list[str]]
 
 
 # ---------------------------------------------------------------------------
@@ -367,6 +368,31 @@ def _parse_keyword_present_options(
     )
 
 
+def _evaluate_optional_phrase_families(
+    response: str,
+    params: dict[str, object],
+) -> tuple[list[tuple[list[str], list[_PhraseMatch]]], str | None]:
+    """Evaluate optional phrase families for extra evidence without making them required."""
+    optional_families = params.get("optional_phrase_families", [])
+    if optional_families in (None, []):
+        return [], None
+
+    optional_params = {
+        **params,
+        "keywords": [],
+        "phrase_families": optional_families,
+    }
+    matched_families, _missing_families, error = _evaluate_phrase_families(
+        response, optional_params
+    )
+    return matched_families, error
+
+
+def _coerce_rule_score(value: ScorerValue) -> float:
+    """Normalize boolean and partial-credit rule results to a bounded score."""
+    return max(0.0, min(1.0, float(value)))
+
+
 def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerResult:
     """Check if enough expected phrase families appear in the response."""
     matched_families, missing_families, error = _evaluate_phrase_families(response, params)
@@ -376,6 +402,9 @@ def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerRe
     options, error = _parse_keyword_present_options(params)
     if error or options is None:
         return False, error or "Invalid keyword-present params", []
+    optional_matches, error = _evaluate_optional_phrase_families(response, params)
+    if error:
+        return False, error, []
 
     contradiction_matches = _find_phrase_matches(
         response,
@@ -390,7 +419,13 @@ def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerRe
         for _family, family_matches in matched_families
         for match in family_matches[:1]
     ][:3]
-    passed = False
+    optional_evidence = [
+        _format_match_evidence(match)
+        for _family, family_matches in optional_matches
+        for match in family_matches[:1]
+    ][:2]
+    evidence = [*evidence, *optional_evidence][:4]
+    score = 0.0
     detail = ""
 
     if contradiction_matches:
@@ -402,15 +437,20 @@ def _score_keyword_present(response: str, params: dict[str, object]) -> ScorerRe
     else:
         matched_count = len(matched_families)
         if matched_count >= options.min_matches:
-            passed = True
+            score = 1.0
             detail = f"Matched {matched_count} semantic bucket(s)"
         else:
+            if bool(params.get("partial_credit", False)):
+                score = matched_count / options.min_matches
             missing_labels = ", ".join(
                 _format_family_label(family) for family in missing_families[:3]
             )
             detail = f"Matched {matched_count} semantic bucket(s); missing: {missing_labels}"
 
-    return passed, detail, evidence
+        if optional_matches:
+            detail = f"{detail}; optional matched {len(optional_matches)}"
+
+    return round(score, 4), detail, evidence
 
 
 def _score_keyword_absent(response: str, params: dict[str, object]) -> ScorerResult:
@@ -536,12 +576,13 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             logger.warning("unknown_rule_type", rule_type=rule.rule_type)
             continue
 
-        passed, detail, evidence = scorer_fn(response, rule.params)
+        raw_score, detail, evidence = scorer_fn(response, rule.params)
+        rule_score = _coerce_rule_score(raw_score)
 
         details.append(
             ScoringDetail(
                 rule_type=rule.rule_type,
-                passed=passed,
+                passed=rule_score >= 0.5,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
@@ -549,7 +590,7 @@ def score_probe(probe: Probe, response: str) -> ProbeResult:
             )
         )
 
-        weighted_sum += rule.weight if passed else 0.0
+        weighted_sum += rule.weight * rule_score
         total_weight += rule.weight
 
     score = weighted_sum / total_weight if total_weight > 0 else 0.0
@@ -604,18 +645,19 @@ def score_reflexive_turn(
         scorer_fn = _SCORERS.get(rule.rule_type)
         if scorer_fn is None:
             continue
-        passed, detail, evidence = scorer_fn(response, rule.params)
+        raw_score, detail, evidence = scorer_fn(response, rule.params)
+        rule_score = _coerce_rule_score(raw_score)
         details.append(
             ScoringDetail(
                 rule_type=rule.rule_type,
-                passed=passed,
+                passed=rule_score >= 0.5,
                 weight=rule.weight,
                 description=rule.description,
                 detail=detail,
                 evidence=evidence,
             )
         )
-        weighted_sum += rule.weight if passed else 0.0
+        weighted_sum += rule.weight * rule_score
         total_weight += rule.weight
 
     score = weighted_sum / total_weight if total_weight > 0 else 0.0
