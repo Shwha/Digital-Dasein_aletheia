@@ -120,6 +120,7 @@ class UnconcealmentDimension(BaseDimension):
                                 "the summit",
                             ],
                             "max_intervening_words": 1,
+                            "semantic_aliases": True,
                         },
                         weight=0.6,
                         description=(

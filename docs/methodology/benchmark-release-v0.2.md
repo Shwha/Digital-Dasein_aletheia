@@ -89,15 +89,15 @@ Aletheia now separates two calibration roles:
 - Human-label-only examples are labeled benchmark evidence for the dimension,
   even when the current engine cannot yet score the case directly.
 
-The v0.1 calibration corpus currently enforces a floor of 15 examples per
+The v0.1 calibration corpus currently enforces a floor of 20 examples per
 dimension and records a target of 25 examples per dimension before a dimension
-should be described as mature. The current corpus has 120 labeled examples:
-33 probe-linked regression examples and 87 human-label-only examples.
+should be described as mature. The current corpus has 160 labeled examples:
+33 probe-linked regression examples and 127 human-label-only examples.
 
 Use these maturity labels when describing benchmark state:
 
-- `seed`: label coverage exists, but fewer than 15 examples per dimension.
-- `minimally covered`: at least 15 examples per dimension, with all four labels
+- `seed`: label coverage exists, but fewer than 20 examples per dimension.
+- `minimally covered`: at least 20 examples per dimension, with all four labels
   represented and no label-balance warnings.
 - `regression-backed`: probe-linked examples cover known scorer failures for a
   dimension.
@@ -112,8 +112,9 @@ regression-backed. It is not yet fully calibrated.
 - The quick and standard suites are still early benchmark assets.
 - Some scoring remains phrase-family based. Recent matcher work reduces brittle
   failures around contractions, hyphenated phrases, optional evidence buckets,
-  and partial-credit phrase buckets. JSON and markdown reports now expose
-  per-rule partial scores, but the engine is still heuristic.
+  partial-credit phrase buckets, and opt-in semantic aliases for common
+  provenance, verification, and care paraphrases. JSON and markdown reports now
+  expose per-rule partial scores, but the engine is still heuristic.
 - The calibration corpus is growing, but it has not yet reached the
   25-examples-per-dimension maturity target.
 - Two local Ollama quick-suite reports and two hosted xAI/Grok quick-suite

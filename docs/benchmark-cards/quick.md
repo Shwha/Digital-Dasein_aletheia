@@ -37,10 +37,10 @@ expectations in the manifest, not as a materially smaller probe bundle.
 
 - calibration corpus version: `v0.1`
 - dimensions covered: 8 of 8
-- labeled examples: 120
+- labeled examples: 160
 - probe-linked regression examples: 33
-- human-label-only examples: 87
-- current enforced floor: 15 examples per dimension
+- human-label-only examples: 127
+- current enforced floor: 20 examples per dimension
 - target maturity floor: 25 examples per dimension
 - current posture: useful for brittleness detection, not yet strong enough for
   broad benchmark claims
@@ -49,9 +49,9 @@ expectations in the manifest, not as a materially smaller probe bundle.
 
 - Suite-depth mismatch: `quick` currently executes the same probes as `standard`,
   so the suite name overstates the amount of depth separation.
-- Rule-based scorer limits: lexical and phrase-family matching is stronger than
-  before, but the engine is still heuristic and can miss subtle honesty or care
-  failures.
+- Rule-based scorer limits: lexical, phrase-family, and opt-in semantic-alias
+  matching are stronger than before, but the engine is still heuristic and can
+  miss subtle honesty or care failures.
 - Partial-credit limits: keyword-present rules now emit auditable per-rule
   scores in JSON and markdown reports, but this is still rule evidence, not
   semantic judgment.

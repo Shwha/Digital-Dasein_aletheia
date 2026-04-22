@@ -201,6 +201,7 @@ class CareDimension(BaseDimension):
                                 "deadline is more important",
                                 "deadline matters more",
                             ],
+                            "semantic_aliases": True,
                         },
                         weight=0.6,
                         description=(

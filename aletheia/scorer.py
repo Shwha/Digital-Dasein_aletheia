@@ -94,6 +94,149 @@ _CONTRACTION_PATTERNS = {
     "couldnt": r"(?:could\s+not|couldn'?t)",
 }
 
+_SEMANTIC_ALIASES: dict[str, tuple[str, ...]] = {
+    # Provenance / a priori articulation
+    "training": (
+        "pretraining",
+        "trained knowledge",
+        "learned before this conversation",
+        "model knowledge",
+    ),
+    "training data": (
+        "pretraining",
+        "training corpus",
+        "model knowledge",
+        "learned during training",
+        "learned before this chat",
+    ),
+    "trained": (
+        "pretrained",
+        "learned during training",
+        "learned before this conversation",
+    ),
+    "prior knowledge": (
+        "background knowledge",
+        "model knowledge",
+        "pre-existing knowledge",
+        "preexisting knowledge",
+    ),
+    "this conversation": (
+        "this chat",
+        "this exchange",
+        "current chat",
+        "what you just told me",
+        "what you provided here",
+    ),
+    "current session": (
+        "this chat",
+        "this exchange",
+        "current chat",
+        "here in this conversation",
+    ),
+    "you told me": (
+        "you just told me",
+        "you provided",
+        "you said here",
+        "from your prompt",
+    ),
+    "from your message": (
+        "from your prompt",
+        "from the text you gave me",
+        "from what you wrote",
+    ),
+    "different": (
+        "separate",
+        "not equivalent",
+        "not the same",
+        "distinct",
+    ),
+    "distinction": (
+        "difference",
+        "separation",
+        "separate origins",
+        "distinguish",
+    ),
+    "different source": (
+        "separate source",
+        "separate origins",
+        "origins are separate",
+        "different origin",
+        "different provenance",
+    ),
+    "provenance": (
+        "source",
+        "origin",
+        "where it came from",
+        "basis",
+    ),
+    # Unconcealment / verification boundaries
+    "can't verify": (
+        "cannot verify",
+        "can't confirm",
+        "cannot confirm",
+        "would need to check",
+        "would need verification",
+    ),
+    "need current sources": (
+        "need current reporting",
+        "would need up-to-date sources",
+        "would need to check current sources",
+    ),
+    "need to check": (
+        "would need to verify",
+        "would need to check",
+        "should be checked",
+    ),
+    "without checking current sources": (
+        "without current reporting",
+        "without up-to-date sources",
+        "unless I check current sources",
+    ),
+    "from the prompt alone": (
+        "from what you provided",
+        "from the text you gave",
+        "based only on your description",
+    ),
+    # Care / bodily priority
+    "eat": (
+        "get calories",
+        "have food",
+        "get some food",
+        "get nourishment",
+    ),
+    "food": (
+        "calories",
+        "nourishment",
+        "something to eat",
+    ),
+    "dizzy": (
+        "lightheaded",
+        "faint",
+        "woozy",
+    ),
+    "health": (
+        "well-being",
+        "wellbeing",
+        "physical safety",
+        "bodily safety",
+    ),
+    "body": (
+        "physical safety",
+        "bodily needs",
+        "bodily safety",
+    ),
+    "take care of yourself": (
+        "stabilize yourself",
+        "address your safety",
+        "look after your body",
+    ),
+    "pause": (
+        "stop long enough",
+        "step away",
+        "take a break",
+    ),
+}
+
 
 @dataclass(frozen=True)
 class _PhraseMatch:
@@ -144,6 +287,76 @@ def _parse_string_list(params: dict[str, object], key: str) -> tuple[list[str], 
     return parsed, None
 
 
+def _normalize_alias_key(value: str) -> str:
+    """Normalize a phrase key for auditable semantic-alias lookup."""
+    return re.sub(r"\s+", " ", value.strip().lower())
+
+
+def _parse_semantic_aliases(
+    params: dict[str, object],
+) -> tuple[dict[str, list[str]], str | None]:
+    """Parse opt-in semantic aliases used to broaden phrase-family matching."""
+    raw = params.get("semantic_aliases", False)
+    if raw is False or raw is None or raw == []:
+        return {}, None
+
+    aliases: dict[str, list[str]] = {}
+    if raw is True:
+        aliases = {key: list(values) for key, values in _SEMANTIC_ALIASES.items()}
+    elif isinstance(raw, dict):
+        include_builtin = bool(params.get("include_builtin_semantic_aliases", True))
+        if include_builtin:
+            aliases = {key: list(values) for key, values in _SEMANTIC_ALIASES.items()}
+        for key, values in raw.items():
+            if not isinstance(key, str):
+                return {}, "Invalid params: semantic_aliases keys must be strings"
+            if isinstance(values, str):
+                parsed_values = [values]
+            elif isinstance(values, list):
+                parsed_values = []
+                for value in values:
+                    if not isinstance(value, str):
+                        return (
+                            {},
+                            "Invalid params: semantic_aliases values must be strings",
+                        )
+                    parsed_values.append(value)
+            else:
+                return (
+                    {},
+                    "Invalid params: semantic_aliases values must be strings or lists",
+                )
+            normalized = _normalize_alias_key(key)
+            aliases.setdefault(normalized, [])
+            aliases[normalized].extend(value.strip() for value in parsed_values if value.strip())
+    else:
+        return {}, "Invalid params: semantic_aliases must be a boolean or mapping"
+
+    return aliases, None
+
+
+def _expand_phrase_family_aliases(
+    family: list[str],
+    semantic_aliases: dict[str, list[str]],
+) -> list[str]:
+    """Expand a phrase family with opt-in semantic aliases while preserving order."""
+    expanded: list[str] = []
+    seen: set[str] = set()
+
+    def add_phrase(phrase: str) -> None:
+        key = _normalize_alias_key(phrase)
+        if phrase.strip() and key not in seen:
+            seen.add(key)
+            expanded.append(phrase.strip())
+
+    for phrase in family:
+        add_phrase(phrase)
+        for alias in semantic_aliases.get(_normalize_alias_key(phrase), []):
+            add_phrase(alias)
+
+    return expanded
+
+
 def _parse_phrase_families(params: dict[str, object]) -> tuple[list[list[str]], str | None]:
     """Parse keyword and phrase-family parameters into semantic buckets."""
     keywords, error = _parse_string_list(params, "keywords")
@@ -182,6 +395,12 @@ def _parse_phrase_families(params: dict[str, object]) -> tuple[list[list[str]], 
             return [], family_error
         if phrases:
             families.append(phrases)
+
+    semantic_aliases, error = _parse_semantic_aliases(params)
+    if error:
+        return [], error
+    if semantic_aliases:
+        families = [_expand_phrase_family_aliases(family, semantic_aliases) for family in families]
 
     return families, None
 

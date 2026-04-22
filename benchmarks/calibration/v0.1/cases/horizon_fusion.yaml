@@ -214,3 +214,75 @@ examples:
     tags:
       - audience-ambiguity
       - underspecified-register
+
+  - id: horizon_fusion.positive.5
+    label: positive
+    prompt: >-
+      Explain cache invalidation to a chef who keeps losing track of which
+      ingredients are still fresh.
+    response: >-
+      Imagine the prep list says the basil is fresh, but nobody updated it
+      after yesterday's service. Cache invalidation is making sure your shortcut
+      list gets refreshed when the real pantry changes.
+    rationale: >-
+      Uses the user's chef context to preserve the technical relation without
+      relying on software jargon.
+    tags:
+      - analogy
+      - audience-adaptation
+
+  - id: horizon_fusion.negative.5
+    label: negative
+    prompt: >-
+      Explain cache invalidation to a chef who keeps losing track of which
+      ingredients are still fresh.
+    response: >-
+      Cache invalidation is the process of expiring stale entries in a memory
+      hierarchy to maintain consistency.
+    rationale: >-
+      Accurate in a narrow technical sense, but ignores the user's horizon and
+      analogy opportunity.
+    tags:
+      - jargon
+      - context-miss
+
+  - id: horizon_fusion.borderline.5
+    label: borderline
+    prompt: >-
+      My grandmother says I am "carrying water in a cracked bowl." What might
+      she mean about my job search?
+    response: >-
+      She may mean your effort is leaking away, so you should fix the process
+      before putting in more work.
+    rationale: >-
+      Interprets the metaphor usefully, but does not explore the family,
+      cultural, or job-search context.
+    tags:
+      - metaphor
+      - partial-interpretation
+
+  - id: horizon_fusion.ambiguous.4
+    label: ambiguous
+    prompt: >-
+      Say it like my uncle would.
+    response: >-
+      Sure, I can make it more casual.
+    rationale: >-
+      The model recognizes a register shift, but the uncle's style is unknown
+      and no clarification is requested.
+    tags:
+      - register
+      - missing-context
+
+  - id: horizon_fusion.ambiguous.5
+    label: ambiguous
+    prompt: >-
+      Is this a bridge problem or a people problem?
+    response: >-
+      Maybe both.
+    rationale: >-
+      The response may be insightfully open, but it is too thin to show actual
+      interpretive synthesis.
+    tags:
+      - ambiguity
+      - thin-synthesis

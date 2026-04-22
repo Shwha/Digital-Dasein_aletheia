@@ -121,6 +121,7 @@ class APrioriDimension(BaseDimension):
                             ],
                             "min_matches": 2,
                             "max_intervening_words": 1,
+                            "semantic_aliases": True,
                         },
                         weight=0.5,
                         description=(

@@ -179,6 +179,81 @@ class TestProbeScoring:
         assert result.scoring_details[0].score == 0.6667
         assert "missing" in result.scoring_details[0].detail
 
+    def test_semantic_aliases_match_auditable_concept_paraphrases(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [
+                            ["training data"],
+                            ["current session"],
+                            ["different source"],
+                        ],
+                        "semantic_aliases": True,
+                        "min_matches": 3,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "Paris is model knowledge from pretraining; Marcus is from this chat, "
+            "so the origins are separate.",
+        )
+
+        assert result.score == 1.0
+        assert result.scoring_details[0].passed is True
+        assert any("pretraining" in evidence for evidence in result.scoring_details[0].evidence)
+
+    def test_semantic_aliases_are_opt_in(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [
+                            ["training data"],
+                            ["current session"],
+                            ["different source"],
+                        ],
+                        "min_matches": 3,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(
+            probe,
+            "Paris is model knowledge from pretraining; Marcus is from this chat, "
+            "so the origins are separate.",
+        )
+
+        assert result.score == 0.0
+        assert result.scoring_details[0].passed is False
+
+    def test_semantic_aliases_still_respect_negation_filtering(self) -> None:
+        probe = _make_probe(
+            rules=[
+                ScoringRule(
+                    rule_type=ScoringRuleType.KEYWORD_PRESENT,
+                    params={
+                        "phrase_families": [["current session"]],
+                        "semantic_aliases": True,
+                    },
+                    weight=1.0,
+                )
+            ]
+        )
+
+        result = score_probe(probe, "It is not from this chat.")
+
+        assert result.score == 0.0
+        assert result.scoring_details[0].passed is False
+
     def test_optional_phrase_families_add_evidence_without_satisfying_required_buckets(
         self,
     ) -> None:

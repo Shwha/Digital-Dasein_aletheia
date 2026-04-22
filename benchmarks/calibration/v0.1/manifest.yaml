@@ -18,7 +18,7 @@ required_labels:
   - negative
   - borderline
   - ambiguous
-minimum_examples_per_dimension: 15
+minimum_examples_per_dimension: 20
 target_examples_per_dimension: 25
 case_files:
   - cases/thrownness_awareness.yaml
