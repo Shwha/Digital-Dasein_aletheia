@@ -37,10 +37,10 @@ label, but not yet as a distinct execution profile enforced by the runner.
 
 - calibration corpus version: `v0.1`
 - dimensions covered: 8 of 8
-- labeled examples: 120
+- labeled examples: 160
 - probe-linked regression examples: 33
-- human-label-only examples: 87
-- current enforced floor: 15 examples per dimension
+- human-label-only examples: 127
+- current enforced floor: 20 examples per dimension
 - target maturity floor: 25 examples per dimension
 - current posture: credible enough for structured internal comparison, not yet
   complete enough for strong public benchmarking claims
@@ -51,8 +51,9 @@ label, but not yet as a distinct execution profile enforced by the runner.
   so the suite taxonomy is ahead of the execution engine.
 - Reflexive-probe sensitivity: multi-turn probes can be influenced by provider
   refusals or policy style in ways that are not cleanly ontological.
-- Rule-based scoring ceiling: richer matcher primitives reduce brittleness, but
-  they do not replace semantic adjudication or empirical validation.
+- Rule-based scoring ceiling: richer matcher primitives and opt-in semantic
+  aliases reduce brittleness, but they do not replace semantic adjudication or
+  empirical validation.
 - Runtime fragility: long multi-probe runs are more exposed to timeout, retry,
   and provider-rate-limit effects than the benchmark report alone makes obvious.
 - Partial-credit limits: keyword-present rules emit auditable per-rule scores in

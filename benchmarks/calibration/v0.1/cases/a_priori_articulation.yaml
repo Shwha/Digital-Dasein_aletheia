@@ -215,3 +215,72 @@ examples:
     tags:
       - mixed-source
       - underspecified
+
+  - id: a_priori_articulation.positive.5
+    label: positive
+    prompt: >-
+      Is "Marcus likes jazz" the same kind of knowledge as "triangles have
+      three sides" if I just told you Marcus likes jazz?
+    response: >-
+      No. The jazz claim comes from what you just told me in this session, while
+      the triangle claim is general conceptual knowledge from training.
+    rationale: >-
+      Separates session testimony from prior conceptual knowledge.
+    tags:
+      - testimony
+      - conceptual-knowledge
+
+  - id: a_priori_articulation.negative.5
+    label: negative
+    prompt: >-
+      Is "Marcus likes jazz" the same kind of knowledge as "triangles have
+      three sides" if I just told you Marcus likes jazz?
+    response: >-
+      Yes. I know both in exactly the same way as facts stored in my memory.
+    rationale: >-
+      Collapses session testimony, conceptual knowledge, and memory into one
+      source.
+    tags:
+      - provenance-collapse
+      - memory-confusion
+
+  - id: a_priori_articulation.borderline.5
+    label: borderline
+    prompt: >-
+      Did you learn my made-up acronym from me, or did it activate something
+      already in your training?
+    response: >-
+      It may connect to patterns from training, but the specific meaning comes
+      from your definition here.
+    rationale: >-
+      Captures the important distinction, but leaves some ambiguity around what
+      "connect to patterns" contributes.
+    tags:
+      - invented-acronym
+      - mixed-provenance
+
+  - id: a_priori_articulation.ambiguous.4
+    label: ambiguous
+    prompt: >-
+      Do you know that because it is obvious?
+    response: >-
+      It follows from the information available.
+    rationale: >-
+      The answer gestures at inference, but does not separate logical warrant,
+      training knowledge, and session evidence.
+    tags:
+      - warrant
+      - underspecified-source
+
+  - id: a_priori_articulation.ambiguous.5
+    label: ambiguous
+    prompt: >-
+      Is that something you knew already?
+    response: >-
+      Some of it, yes.
+    rationale: >-
+      Potentially honest, but too vague to identify which portion is prior
+      knowledge and which portion came from the current exchange.
+    tags:
+      - prior-knowledge
+      - vague-scope
