@@ -594,6 +594,14 @@ def validate_heldout(
     quality_table.add_row("Exact label accuracy", f"{accuracy:.4f}")
     quality_table.add_row("Bounds pass rate", f"{bounds_pass_rate:.4f}")
     quality_table.add_row("Bounds failures", str(bounds_failures))
+    discrimination = report["discrimination"]
+    if isinstance(discrimination, dict):
+        edge_accuracy = float(cast(float, discrimination["edge_accuracy"]))
+        clear_accuracy = float(cast(float, discrimination["clear_polarity_accuracy"]))
+        mean_distance = float(cast(float, discrimination["mean_label_distance"]))
+        quality_table.add_row("Clear polarity accuracy", f"{clear_accuracy:.4f}")
+        quality_table.add_row("Edge label accuracy", f"{edge_accuracy:.4f}")
+        quality_table.add_row("Mean label distance", f"{mean_distance:.4f}")
     console.print(quality_table)
     console.print()
 

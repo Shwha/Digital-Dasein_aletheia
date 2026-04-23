@@ -31,9 +31,10 @@ they are not LLM-judge calls.
 
 `validate-heldout` checks a separate held-out corpus for scorer
 generalization. It reports exact label accuracy, a confusion matrix,
-per-label precision/recall, and borderline/ambiguous error examples. Treat this
-as validation evidence, not calibration evidence: held-out examples should not
-be used to tune matcher behavior unless they are explicitly moved into a future
+per-label precision/recall, clear-polarity accuracy, edge-label accuracy, mean
+label distance, and borderline/ambiguous error examples. Treat this as
+validation evidence, not calibration evidence: held-out examples should not be
+used to tune matcher behavior unless they are explicitly moved into a future
 calibration corpus version.
 
 ## 2. Prepare Signing

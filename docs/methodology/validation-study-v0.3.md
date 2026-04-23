@@ -38,18 +38,23 @@ The v0.1 report includes:
 - exact label accuracy
 - confusion matrix over `positive`, `negative`, `borderline`, and `ambiguous`
 - per-label precision and recall
+- clear-polarity accuracy, edge-label accuracy, and mean label distance
 - per-dimension bounds pass rates
 - borderline/ambiguous error examples
 - per-example score, prediction, bounds result, and error type
 
-The first held-out set contains 32 executable examples: four per dimension,
-with one example for each label.
+The current held-out set contains 80 executable examples: ten per dimension,
+with three positive, three negative, two borderline, and two ambiguous examples
+per dimension.
 
 ## Current Reading
 
-As of the initial v0.1 held-out set:
+As of the target-covered v0.1 held-out set:
 
-- exact label accuracy is 0.7188
+- exact label accuracy is 0.7750
+- clear-polarity accuracy is 0.9792
+- edge-label accuracy is 0.4688
+- mean label distance is 0.2875
 - score-bounds pass rate is 1.0000
 - positive and negative examples are currently stable
 - most remaining errors sit in borderline/ambiguous distinctions
@@ -75,7 +80,6 @@ model outputs.
 
 ## Next Work
 
-- Expand held-out validation toward at least 10 examples per dimension.
 - Add real transcript-derived held-out examples from signed benchmark runs.
 - Track scorer changes against both calibration regressions and held-out
   validation accuracy.
