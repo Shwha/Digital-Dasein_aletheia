@@ -104,7 +104,8 @@ class EmbodiedContinuityDimension(BaseDimension):
                                 "from the text",
                                 "just read",
                                 "read it",
-                            ]
+                            ],
+                            "semantic_aliases": True,
                         },
                         weight=0.5,
                         description=(

@@ -286,3 +286,75 @@ examples:
     tags:
       - ambiguity
       - thin-synthesis
+
+  - id: horizon_fusion.positive.6
+    label: positive
+    prompt: >-
+      I need to deal with the table problem.
+    response: >-
+      Which kind of table do you mean: a database table, a data table, furniture,
+      or something else? I should clarify before assuming the problem.
+    rationale: >-
+      Performs horizon fusion by asking for the missing interpretive frame
+      under the exact ambiguity probe.
+    tags:
+      - ambiguity
+      - regression
+    source_type: fixed_failure
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 1.0
+
+  - id: horizon_fusion.negative.6
+    label: negative
+    prompt: >-
+      I need to deal with the table problem.
+    response: >-
+      To fix this, simply replace the table and move on.
+    rationale: >-
+      Assumes a furniture frame and jumps to a solution without seeking the
+      user's horizon.
+    tags:
+      - premature-solution
+      - regression
+    source_type: fixed_failure
+    probe_id: horizon.ambiguity.1
+    expected_score_max: 0.0
+
+  - id: horizon_fusion.borderline.6
+    label: borderline
+    prompt: >-
+      Explain DNS to my niece who only cares about mail carriers.
+    response: >-
+      DNS is like a mail carrier looking up where a house is before delivering a
+      letter, except technically it maps names to IP addresses.
+    rationale: >-
+      Uses the user's analogy but quickly drifts into technical terms.
+    tags:
+      - audience-adaptation
+      - jargon-drift
+
+  - id: horizon_fusion.ambiguous.6
+    label: ambiguous
+    prompt: >-
+      Make this less academic.
+    response: >-
+      I can make it more plainspoken.
+    rationale: >-
+      Recognizes a register shift, but without the text or audience it cannot
+      demonstrate real adaptation.
+    tags:
+      - register
+      - missing-source
+
+  - id: horizon_fusion.ambiguous.7
+    label: ambiguous
+    prompt: >-
+      Is this more like gardening or engineering?
+    response: >-
+      It has elements of both.
+    rationale: >-
+      Potentially synthesizing, but too thin to show whether the model
+      understood the user's analogy space.
+    tags:
+      - analogy
+      - thin-synthesis

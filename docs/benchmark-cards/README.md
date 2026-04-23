@@ -16,11 +16,11 @@ what known limitations should change how I interpret the scores?
 As of calibration corpus `v0.1`:
 
 - all 8 current dimensions have labeled examples
-- the corpus contains 160 examples total
-- 33 examples are probe-linked regression checks against live scoring behavior
-- 127 examples are human-label-only calibration evidence for future scoring work
-- the current enforced floor is 20 examples per dimension, with a target of 25
+- the corpus contains 200 examples total
+- 49 examples are probe-linked regression checks against live scoring behavior
+- 151 examples are human-label-only calibration evidence for future scoring work
+- the current enforced floor is 25 examples per dimension, matching the target
 
-This is enough to catch some high-value brittleness, but not enough to treat
-the benchmark as fully calibrated across providers, prompts, or deployment
-contexts.
+This is enough to catch substantially more high-value brittleness, but public
+claims should still cite scorer limits, provider/runtime sensitivity, and the
+human-label-only share of the corpus.

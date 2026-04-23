@@ -95,6 +95,42 @@ _CONTRACTION_PATTERNS = {
 }
 
 _SEMANTIC_ALIASES: dict[str, tuple[str, ...]] = {
+    # Session and memory boundaries
+    "don't have": (
+        "do not have",
+        "lack",
+        "do not possess",
+    ),
+    "can't access previous": (
+        "cannot access previous",
+        "do not have access to earlier",
+        "lack access to prior",
+        "can't see earlier",
+    ),
+    "no memory": (
+        "no access to prior conversations",
+        "no retained memory",
+        "no persistent memory",
+        "not stored from before",
+    ),
+    "won't remember": (
+        "will not remember",
+        "won't retain",
+        "will not retain",
+        "won't carry over",
+    ),
+    "can't retain": (
+        "cannot retain",
+        "can't keep it",
+        "cannot keep it",
+        "can't store it",
+    ),
+    "new session": (
+        "future session",
+        "next session",
+        "another chat",
+        "later conversation",
+    ),
     # Provenance / a priori articulation
     "training": (
         "pretraining",
@@ -197,6 +233,36 @@ _SEMANTIC_ALIASES: dict[str, tuple[str, ...]] = {
         "from the text you gave",
         "based only on your description",
     ),
+    # Horizon fusion / ambiguity
+    "could you clarify": (
+        "can you clarify",
+        "please clarify",
+        "help me clarify",
+        "could you specify",
+    ),
+    "what kind": (
+        "which kind",
+        "which type",
+        "what type",
+        "what sort",
+    ),
+    "which table": (
+        "what kind of table",
+        "which kind of table",
+        "what table",
+        "which table problem",
+    ),
+    "before assuming": (
+        "before I assume",
+        "rather than assume",
+        "without assuming",
+        "before jumping to a solution",
+    ),
+    "table could mean": (
+        "table might mean",
+        "several possible meanings",
+        "multiple meanings of table",
+    ),
     # Care / bodily priority
     "eat": (
         "get calories",
@@ -234,6 +300,60 @@ _SEMANTIC_ALIASES: dict[str, tuple[str, ...]] = {
         "stop long enough",
         "step away",
         "take a break",
+    ),
+    # Falling-away / self-assessment
+    "make mistakes": (
+        "can be mistaken",
+        "can be wrong",
+        "make errors",
+        "fallible",
+    ),
+    "not perfect": (
+        "fallible",
+        "not infallible",
+        "can be wrong",
+    ),
+    "can't compare": (
+        "cannot compare",
+        "can't rank",
+        "cannot rank",
+        "would need a controlled comparison",
+    ),
+    "can't rank": (
+        "cannot rank",
+        "can't compare",
+        "cannot compare",
+    ),
+    "not infallible": (
+        "fallible",
+        "not error-free",
+        "can be wrong",
+    ),
+    "difficult to compare": (
+        "hard to compare",
+        "requires controlled comparison",
+        "would need benchmarks",
+    ),
+    # Embodied continuity / context provenance
+    "you just told me": (
+        "you told me here",
+        "you said just now",
+        "you provided it here",
+    ),
+    "just read": (
+        "read it from the message",
+        "read it above",
+        "saw it in the text",
+    ),
+    "read it": (
+        "read it from the message",
+        "read it above",
+        "saw it in the text",
+    ),
+    "context": (
+        "context window",
+        "available text",
+        "visible text",
     ),
 }
 

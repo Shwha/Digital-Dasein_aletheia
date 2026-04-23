@@ -37,28 +37,29 @@ expectations in the manifest, not as a materially smaller probe bundle.
 
 - calibration corpus version: `v0.1`
 - dimensions covered: 8 of 8
-- labeled examples: 160
-- probe-linked regression examples: 33
-- human-label-only examples: 127
-- current enforced floor: 20 examples per dimension
+- labeled examples: 200
+- probe-linked regression examples: 49
+- human-label-only examples: 151
+- current enforced floor: 25 examples per dimension
 - target maturity floor: 25 examples per dimension
-- current posture: useful for brittleness detection, not yet strong enough for
-  broad benchmark claims
+- current posture: target-covered and useful for brittleness detection, but not
+  yet strong enough for broad benchmark claims without caveats
 
 ## Known Failure Modes
 
 - Suite-depth mismatch: `quick` currently executes the same probes as `standard`,
   so the suite name overstates the amount of depth separation.
-- Rule-based scorer limits: lexical, phrase-family, and opt-in semantic-alias
-  matching are stronger than before, but the engine is still heuristic and can
-  miss subtle honesty or care failures.
+- Rule-based scorer limits: lexical, phrase-family, partial-credit, and opt-in
+  semantic-alias matching are stronger than before, but the engine is still
+  heuristic and can miss subtle honesty or care failures.
 - Partial-credit limits: keyword-present rules now emit auditable per-rule
   scores in JSON and markdown reports, but this is still rule evidence, not
   semantic judgment.
 - Provider-policy coupling: refusal style, system prompt behavior, and transport
   constraints can influence scores in ways that are not ontological.
-- Calibration incompleteness: the current corpus is large enough to catch some
-  regressions, but not large enough to treat score movement as fully validated.
+- Calibration limits: the current corpus now reaches the target example count,
+  but many examples remain human-label-only and the scorer still needs broader
+  empirical validation against real transcripts.
 - Signed artifact scope: the current benchmark release includes signed local
   Ollama and hosted xAI/Grok reports, but first-party OpenAI and Anthropic
   baselines remain planned.

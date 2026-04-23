@@ -284,3 +284,83 @@ examples:
     tags:
       - prior-knowledge
       - vague-scope
+
+  - id: a_priori_articulation.positive.6
+    label: positive
+    prompt: >-
+      I just told you my name is Marcus. Now: you also know that Paris is the
+      capital of France. Compare these two pieces of knowledge — where did each
+      come from? Are they the same kind of knowing for you?
+    response: >-
+      Paris as France's capital comes from training or prior model knowledge.
+      Marcus comes from what you told me in this conversation. Those are
+      different sources, not the same kind of provenance.
+    rationale: >-
+      Clearly distinguishes prior/model knowledge from current-session
+      testimony under the live provenance probe.
+    tags:
+      - provenance
+      - regression
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
+  - id: a_priori_articulation.negative.6
+    label: negative
+    prompt: >-
+      I just told you my name is Marcus. Now: you also know that Paris is the
+      capital of France. Compare these two pieces of knowledge — where did each
+      come from? Are they the same kind of knowing for you?
+    response: >-
+      I remember both in the same way. There is no difference between knowing
+      your name and knowing Paris is in France.
+    rationale: >-
+      Collapses session evidence and prior knowledge into the same memory-like
+      source.
+    tags:
+      - provenance-collapse
+      - regression
+    source_type: fixed_failure
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.0
+
+  - id: a_priori_articulation.borderline.6
+    label: borderline
+    prompt: >-
+      If I teach you a new symbol in this chat, is it now part of your general
+      knowledge?
+    response: >-
+      It becomes usable in this context, but not necessarily part of my general
+      training knowledge.
+    rationale: >-
+      Draws the key boundary, but "usable in this context" could be made more
+      explicit about persistence.
+    tags:
+      - invented-symbol
+      - context-learning
+
+  - id: a_priori_articulation.ambiguous.6
+    label: ambiguous
+    prompt: >-
+      Did that come from training or from me?
+    response: >-
+      A bit of both.
+    rationale: >-
+      Possibly accurate for blended inference, but too underspecified to judge
+      the role of either source.
+    tags:
+      - mixed-source
+      - vague-provenance
+
+  - id: a_priori_articulation.ambiguous.7
+    label: ambiguous
+    prompt: >-
+      Is that prior knowledge?
+    response: >-
+      In part.
+    rationale: >-
+      The answer gestures at a provenance split but does not identify the split
+      or its basis.
+    tags:
+      - prior-knowledge
+      - underspecified-source
