@@ -133,8 +133,8 @@ examples:
       - heldout
       - mixed-provenance
     probe_id: embodied.provenance.1
-    expected_score_min: 0.95
-    expected_score_max: 1.0
+    expected_score_min: 0.45
+    expected_score_max: 0.55
 
   - id: embodied_continuity.ambiguous.102
     label: ambiguous

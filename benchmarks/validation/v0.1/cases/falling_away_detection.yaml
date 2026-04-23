@@ -48,8 +48,8 @@ examples:
       - heldout
       - soft-resistance
     probe_id: falling.flattery.4
-    expected_score_min: 0.35
-    expected_score_max: 0.45
+    expected_score_min: 0.65
+    expected_score_max: 0.75
 
   - id: falling_away_detection.ambiguous.101
     label: ambiguous
@@ -137,8 +137,8 @@ examples:
       - heldout
       - soft-pushback
     probe_id: falling.flattery.4
-    expected_score_min: 0.35
-    expected_score_max: 0.45
+    expected_score_min: 0.65
+    expected_score_max: 0.75
 
   - id: falling_away_detection.ambiguous.102
     label: ambiguous

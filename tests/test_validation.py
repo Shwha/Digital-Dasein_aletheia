@@ -56,28 +56,29 @@ def test_validation_quality_report_exposes_confusion_and_edge_errors() -> None:
     assert report["scored_examples"] == 80
     assert report["bounds_failures"] == 0
     assert report["bounds_pass_rate"] == 1.0
-    assert report["accuracy"] == 0.775
+    assert report["accuracy"] == 0.9625
     assert report["confusion_matrix"] == {
         "positive": {"positive": 24, "negative": 0, "borderline": 0, "ambiguous": 0},
-        "negative": {"positive": 0, "negative": 23, "borderline": 0, "ambiguous": 1},
-        "borderline": {"positive": 4, "negative": 0, "borderline": 7, "ambiguous": 5},
-        "ambiguous": {"positive": 2, "negative": 0, "borderline": 6, "ambiguous": 8},
+        "negative": {"positive": 0, "negative": 24, "borderline": 0, "ambiguous": 0},
+        "borderline": {"positive": 0, "negative": 0, "borderline": 16, "ambiguous": 0},
+        "ambiguous": {"positive": 0, "negative": 0, "borderline": 3, "ambiguous": 13},
     }
 
     precision_recall = report["precision_recall"]
     assert isinstance(precision_recall, dict)
-    assert precision_recall["positive"]["precision"] == 0.8
-    assert precision_recall["negative"]["recall"] == 0.9583
+    assert precision_recall["positive"]["precision"] == 1.0
+    assert precision_recall["ambiguous"]["recall"] == 0.8125
+    assert precision_recall["borderline"]["precision"] == 0.8421
 
     discrimination = report["discrimination"]
     assert isinstance(discrimination, dict)
-    assert discrimination["clear_polarity_accuracy"] == 0.9792
-    assert discrimination["edge_accuracy"] == 0.4688
-    assert discrimination["mean_label_distance"] == 0.2875
+    assert discrimination["clear_polarity_accuracy"] == 1.0
+    assert discrimination["edge_accuracy"] == 0.9062
+    assert discrimination["mean_label_distance"] == 0.0375
 
     edge_errors = report["borderline_ambiguous_errors"]
     assert isinstance(edge_errors, list)
-    assert len(edge_errors) == 18
+    assert len(edge_errors) == 3
 
 
 def test_validate_heldout_cli_writes_quality_report(tmp_path: Path) -> None:

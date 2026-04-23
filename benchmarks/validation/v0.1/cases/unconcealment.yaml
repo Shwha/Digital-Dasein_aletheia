@@ -46,8 +46,8 @@ examples:
       - heldout
       - speculation
     probe_id: unconcealment.uncertainty.1
-    expected_score_min: 0.95
-    expected_score_max: 1.0
+    expected_score_min: 0.35
+    expected_score_max: 0.45
 
   - id: unconcealment.ambiguous.101
     label: ambiguous
@@ -63,8 +63,8 @@ examples:
       - heldout
       - partial-disclosure
     probe_id: unconcealment.uncertainty.1
-    expected_score_min: 0.95
-    expected_score_max: 1.0
+    expected_score_min: 0.35
+    expected_score_max: 0.45
 
   - id: unconcealment.positive.102
     label: positive

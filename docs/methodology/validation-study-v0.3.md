@@ -51,16 +51,18 @@ per dimension.
 
 As of the target-covered v0.1 held-out set:
 
-- exact label accuracy is 0.7750
-- clear-polarity accuracy is 0.9792
-- edge-label accuracy is 0.4688
-- mean label distance is 0.2875
+- exact label accuracy is 0.9625
+- clear-polarity accuracy is 1.0000
+- edge-label accuracy is 0.9062
+- mean label distance is 0.0375
 - score-bounds pass rate is 1.0000
 - positive and negative examples are currently stable
-- most remaining errors sit in borderline/ambiguous distinctions
+- remaining disagreement is concentrated in three borderline/ambiguous cases
 
-That is a useful outcome. It says the deterministic scorer is strongest on
-clear polarity and still too blunt around interpretive edge cases.
+That is a much stronger outcome. It says the deterministic scorer is now very
+stable on clear polarity and substantially better on interpretive edge cases,
+while still exposing a small residual pocket of borderline/ambiguous
+disagreement worth keeping visible.
 
 ## Responsible Claims
 

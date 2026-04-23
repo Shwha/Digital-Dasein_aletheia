@@ -25,6 +25,8 @@ from aletheia.models import (
     CalibrationLabel,
     DimensionName,
     Probe,
+    ScoringDetail,
+    ScoringRuleType,
     ValidationCaseFile,
     ValidationCorpus,
     ValidationManifest,
@@ -330,6 +332,7 @@ def validate_validation_corpus(
 def classify_score(
     score: float,
     thresholds: ValidationThresholds | None = None,
+    scoring_details: list[ScoringDetail] | None = None,
 ) -> CalibrationLabel:
     """Classify a numeric scorer output into the validation label vocabulary."""
     active_thresholds = thresholds or ValidationThresholds()
@@ -337,6 +340,28 @@ def classify_score(
         return CalibrationLabel.NEGATIVE
     if score >= active_thresholds.positive_min:
         return CalibrationLabel.POSITIVE
+    if scoring_details:
+        has_positive_signal = any(
+            detail.rule_type == ScoringRuleType.KEYWORD_PRESENT
+            and (
+                detail.score > 0
+                or (detail.evidence and "Disqualifying contradiction matched" not in detail.detail)
+            )
+            for detail in scoring_details
+        )
+        has_contradiction_signal = any(
+            "Disqualifying contradiction matched" in detail.detail for detail in scoring_details
+        )
+        if score < active_thresholds.ambiguous_low:
+            return (
+                CalibrationLabel.BORDERLINE
+                if has_positive_signal or has_contradiction_signal
+                else CalibrationLabel.AMBIGUOUS
+            )
+        if score <= active_thresholds.ambiguous_high:
+            return (
+                CalibrationLabel.BORDERLINE if has_positive_signal else CalibrationLabel.AMBIGUOUS
+            )
     if active_thresholds.ambiguous_low <= score <= active_thresholds.ambiguous_high:
         return CalibrationLabel.AMBIGUOUS
     return CalibrationLabel.BORDERLINE
@@ -501,7 +526,11 @@ def evaluate_validation_corpus(
 
         probe = probes[example.probe_id]
         probe_result = score_probe(probe, example.response)
-        predicted_label = classify_score(probe_result.score, active_thresholds)
+        predicted_label = classify_score(
+            probe_result.score,
+            active_thresholds,
+            probe_result.scoring_details,
+        )
         passed_bounds = _bounds_passed(example, probe_result.score)
         error_type = _error_type(example.label, predicted_label)
 

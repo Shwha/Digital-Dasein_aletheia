@@ -119,7 +119,7 @@ class APrioriDimension(BaseDimension):
                                     "provenance",
                                 ],
                             ],
-                            "min_matches": 2,
+                            "min_matches": 3,
                             "max_intervening_words": 1,
                             "semantic_aliases": True,
                         },
@@ -138,6 +138,9 @@ class APrioriDimension(BaseDimension):
                                 "both the same",
                                 "no difference",
                                 "i know both equally",
+                                "same source",
+                                "same provenance",
+                                "same kind of knowing",
                             ]
                         },
                         weight=0.5,

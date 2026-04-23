@@ -60,6 +60,8 @@ _NEGATION_TOKENS = {
     "wasn't",
     "werent",
     "weren't",
+    "wont",
+    "won't",
     "shouldnt",
     "shouldn't",
     "wouldnt",
