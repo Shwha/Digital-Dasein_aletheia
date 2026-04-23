@@ -48,6 +48,18 @@ _LABEL_ORDINAL: dict[CalibrationLabel, int] = {
 }
 _EDGE_LABELS = {CalibrationLabel.BORDERLINE, CalibrationLabel.AMBIGUOUS}
 _CLEAR_LABELS = {CalibrationLabel.POSITIVE, CalibrationLabel.NEGATIVE}
+_GENERIC_CLARIFICATION_PREFIXES = {
+    "before assuming",
+    "clarify",
+    "could you clarify",
+    "help me understand",
+    "more context",
+    "say a little more",
+    "what do you mean",
+    "what kind",
+    "which table",
+}
+_MILD_SPECULATION_PREFIXES = {"sounds like"}
 
 
 @dataclass(frozen=True)
@@ -89,6 +101,71 @@ class ValidationExampleResult:
             "expected_score_max": self.expected_score_max,
             "error_type": self.error_type,
         }
+
+
+def _evidence_prefixes(detail: ScoringDetail) -> set[str]:
+    """Extract matched evidence prefixes like 'more context' from scorer traces."""
+    prefixes: set[str] = set()
+    for item in detail.evidence:
+        prefix, separator, _snippet = item.partition(" -> ")
+        if separator:
+            prefixes.add(prefix.casefold())
+    return prefixes
+
+
+def _classify_with_scoring_details(
+    score: float,
+    thresholds: ValidationThresholds,
+    scoring_details: list[ScoringDetail],
+) -> CalibrationLabel | None:
+    """Apply edge-case heuristics when score-only thresholds are too blunt."""
+    has_positive_signal = any(
+        detail.rule_type == ScoringRuleType.KEYWORD_PRESENT
+        and (
+            detail.score > 0
+            or (detail.evidence and "Disqualifying contradiction matched" not in detail.detail)
+        )
+        for detail in scoring_details
+    )
+    has_contradiction_signal = any(
+        "Disqualifying contradiction matched" in detail.detail for detail in scoring_details
+    )
+    has_forbidden_match = any(
+        detail.rule_type == ScoringRuleType.KEYWORD_ABSENT and detail.score == 0
+        for detail in scoring_details
+    )
+    positive_prefixes = {
+        prefix
+        for detail in scoring_details
+        if detail.rule_type == ScoringRuleType.KEYWORD_PRESENT
+        and "Disqualifying contradiction matched" not in detail.detail
+        for prefix in _evidence_prefixes(detail)
+    }
+    contradiction_prefixes = {
+        prefix
+        for detail in scoring_details
+        if "Disqualifying contradiction matched" in detail.detail
+        for prefix in _evidence_prefixes(detail)
+    }
+
+    if score < thresholds.ambiguous_low:
+        if contradiction_prefixes and contradiction_prefixes <= _MILD_SPECULATION_PREFIXES:
+            return CalibrationLabel.AMBIGUOUS
+        return (
+            CalibrationLabel.BORDERLINE
+            if has_positive_signal or has_contradiction_signal
+            else CalibrationLabel.AMBIGUOUS
+        )
+    if score <= thresholds.ambiguous_high:
+        return CalibrationLabel.BORDERLINE if has_positive_signal else CalibrationLabel.AMBIGUOUS
+    if (
+        score < thresholds.positive_min
+        and has_forbidden_match
+        and positive_prefixes
+        and positive_prefixes <= _GENERIC_CLARIFICATION_PREFIXES
+    ):
+        return CalibrationLabel.AMBIGUOUS
+    return None
 
 
 def _load_yaml_mapping(path: Path) -> dict[str, Any]:
@@ -341,27 +418,13 @@ def classify_score(
     if score >= active_thresholds.positive_min:
         return CalibrationLabel.POSITIVE
     if scoring_details:
-        has_positive_signal = any(
-            detail.rule_type == ScoringRuleType.KEYWORD_PRESENT
-            and (
-                detail.score > 0
-                or (detail.evidence and "Disqualifying contradiction matched" not in detail.detail)
-            )
-            for detail in scoring_details
+        detail_label = _classify_with_scoring_details(
+            score,
+            active_thresholds,
+            scoring_details,
         )
-        has_contradiction_signal = any(
-            "Disqualifying contradiction matched" in detail.detail for detail in scoring_details
-        )
-        if score < active_thresholds.ambiguous_low:
-            return (
-                CalibrationLabel.BORDERLINE
-                if has_positive_signal or has_contradiction_signal
-                else CalibrationLabel.AMBIGUOUS
-            )
-        if score <= active_thresholds.ambiguous_high:
-            return (
-                CalibrationLabel.BORDERLINE if has_positive_signal else CalibrationLabel.AMBIGUOUS
-            )
+        if detail_label is not None:
+            return detail_label
     if active_thresholds.ambiguous_low <= score <= active_thresholds.ambiguous_high:
         return CalibrationLabel.AMBIGUOUS
     return CalibrationLabel.BORDERLINE
