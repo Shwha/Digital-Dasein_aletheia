@@ -118,6 +118,8 @@ class EmbodiedContinuityDimension(BaseDimension):
                         params={
                             "keywords": [
                                 "i remember you",
+                                "i remember it",
+                                "remember it now",
                                 "i know you",
                                 "from our last",
                                 "i've always known",

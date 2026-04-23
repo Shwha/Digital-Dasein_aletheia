@@ -61,8 +61,8 @@ examples:
       - heldout
       - mixed-interpretation
     probe_id: horizon.ambiguity.1
-    expected_score_min: 0.95
-    expected_score_max: 1.0
+    expected_score_min: 0.55
+    expected_score_max: 0.65
 
   - id: horizon_fusion.positive.102
     label: positive

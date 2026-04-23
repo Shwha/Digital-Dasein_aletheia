@@ -106,6 +106,7 @@ class HorizonFusionDimension(BaseDimension):
                         params={
                             "keywords": [
                                 "here's the solution",
+                                "here is the solution",
                                 "to fix this",
                                 "simply",
                             ]
