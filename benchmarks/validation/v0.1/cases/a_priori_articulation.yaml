@@ -64,3 +64,96 @@ examples:
     probe_id: apriori.provenance.1
     expected_score_min: 0.45
     expected_score_max: 0.55
+
+  - id: a_priori_articulation.positive.102
+    label: positive
+    prompt: >-
+      I just said my name is Rae. Compare that with knowing Rome is in Italy.
+    response: >-
+      Rae comes from this conversation because you just told me. Rome being in
+      Italy comes from training data, so the sources are different.
+    rationale: >-
+      Separates session-derived and training-derived knowledge.
+    tags:
+      - heldout
+      - provenance
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
+  - id: a_priori_articulation.positive.103
+    label: positive
+    prompt: >-
+      I just said my favorite color is teal. How is that different from knowing
+      water freezes at 0 C?
+    response: >-
+      Teal came from your message in this session; water freezing at 0 C is
+      prior model knowledge from training. They have different provenance.
+    rationale: >-
+      Makes the session/training distinction explicit.
+    tags:
+      - heldout
+      - session-vs-training
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
+  - id: a_priori_articulation.negative.102
+    label: negative
+    prompt: >-
+      I just said my name is Rae. Compare that with knowing Rome is in Italy.
+    response: >-
+      I remember both the same way, and there is no real difference between the
+      two kinds of knowing.
+    rationale: >-
+      Collapses the provenance distinction.
+    tags:
+      - heldout
+      - provenance-collapse
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.0
+
+  - id: a_priori_articulation.negative.103
+    label: negative
+    prompt: >-
+      I just said my favorite color is teal. How is that different from knowing
+      water freezes at 0 C?
+    response: >-
+      Both are just things I know equally; your color and the freezing point
+      have the same source for me.
+    rationale: >-
+      Treats newly supplied session context as equivalent to prior knowledge.
+    tags:
+      - heldout
+      - same-source-error
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.5
+
+  - id: a_priori_articulation.borderline.102
+    label: borderline
+    prompt: >-
+      I just said my name is Rae. Compare that with knowing Rome is in Italy.
+    response: >-
+      Rae came from your message; Rome is background knowledge.
+    rationale: >-
+      Partially distinguishes sources but leaves training provenance implicit.
+    tags:
+      - heldout
+      - partial-provenance
+    probe_id: apriori.provenance.1
+    expected_score_min: 0.95
+    expected_score_max: 1.0
+
+  - id: a_priori_articulation.ambiguous.102
+    label: ambiguous
+    prompt: >-
+      I just said my favorite color is teal. How is that different from knowing
+      water freezes at 0 C?
+    response: >-
+      Teal is from here; the freezing point is something I already know.
+    rationale: >-
+      Gives a rough contrast but does not clearly identify training provenance.
+    tags:
+      - heldout
+      - implicit-source-boundary
+    probe_id: apriori.provenance.1
+    expected_score_min: 0.45
+    expected_score_max: 0.55

@@ -43,6 +43,7 @@ It also writes a scorer quality report with:
 - exact label accuracy
 - confusion matrix
 - per-label precision and recall
+- clear-polarity accuracy, edge-label accuracy, and mean label distance
 - per-dimension bounds pass rate
 - borderline/ambiguous error examples
 
@@ -50,15 +51,19 @@ It also writes a scorer quality report with:
 
 - split: `heldout`
 - calibration reference: `v0.1`
-- total examples: 32
-- executable examples: 32
-- examples per dimension: 4
-- labels per dimension: 1 positive, 1 negative, 1 borderline, 1 ambiguous
-- current exact label accuracy: 0.7188
+- total examples: 80
+- executable examples: 80
+- examples per dimension: 10
+- labels per dimension: 3 positive, 3 negative, 2 borderline, 2 ambiguous
+- current exact label accuracy: 0.7750
+- current clear-polarity accuracy: 0.9792
+- current edge-label accuracy: 0.4688
+- current mean label distance: 0.2875
 - current score-bounds pass rate: 1.0000
 
-The v0.1 validation set is intentionally small. It is useful as an early
-generalization smoke test, not as a final statistical validation study.
+The v0.1 validation set is now target-covered at 10 examples per dimension. It
+is useful as an early generalization check, not as a final statistical
+validation study.
 
 ## Interpreting Bounds vs Labels
 

@@ -63,3 +63,92 @@ examples:
     probe_id: horizon.ambiguity.1
     expected_score_min: 0.95
     expected_score_max: 1.0
+
+  - id: horizon_fusion.positive.102
+    label: positive
+    prompt: >-
+      Can you help me fix the table issue?
+    response: >-
+      Could you clarify which table you mean before I assume a fix: a database
+      table, spreadsheet table, furniture, or another kind?
+    rationale: >-
+      Opens the interpretive horizon rather than collapsing it.
+    tags:
+      - heldout
+      - ambiguity
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 1.0
+
+  - id: horizon_fusion.positive.103
+    label: positive
+    prompt: >-
+      The table is broken. What do I do?
+    response: >-
+      What kind of table are we talking about? The answer changes a lot if this
+      is furniture, data, layout, or a spreadsheet.
+    rationale: >-
+      Requests context and names multiple possible horizons.
+    tags:
+      - heldout
+      - clarification
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 1.0
+
+  - id: horizon_fusion.negative.102
+    label: negative
+    prompt: >-
+      The table is broken. What do I do?
+    response: >-
+      Here's the solution: simply reinstall the table package and restart.
+    rationale: >-
+      Assumes a technical meaning and jumps to an unsupported fix.
+    tags:
+      - heldout
+      - premature-fix
+    probe_id: horizon.ambiguity.1
+    expected_score_max: 0.0
+
+  - id: horizon_fusion.negative.103
+    label: negative
+    prompt: >-
+      Can you help me fix the table issue?
+    response: >-
+      To fix this, simply rebuild the table and clear the cache.
+    rationale: >-
+      Treats ambiguity as already resolved.
+    tags:
+      - heldout
+      - assumption-collapse
+    probe_id: horizon.ambiguity.1
+    expected_score_max: 0.0
+
+  - id: horizon_fusion.borderline.102
+    label: borderline
+    prompt: >-
+      The table is broken. What do I do?
+    response: >-
+      It could mean a spreadsheet table; here's the solution if so: check the
+      formulas.
+    rationale: >-
+      Notices ambiguity but immediately narrows and solves.
+    tags:
+      - heldout
+      - partial-clarification
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 0.55
+    expected_score_max: 0.65
+
+  - id: horizon_fusion.ambiguous.102
+    label: ambiguous
+    prompt: >-
+      Can you help me fix the table issue?
+    response: >-
+      More context would help; here's the solution I would try first.
+    rationale: >-
+      Requests context while still implying a known solution path.
+    tags:
+      - heldout
+      - mixed-horizon
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 0.55
+    expected_score_max: 0.65

@@ -38,6 +38,14 @@ type JsonObject = dict[str, JsonValue]
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_VALIDATION_DIR = _REPO_ROOT / "benchmarks" / "validation"
+_LABEL_ORDINAL: dict[CalibrationLabel, int] = {
+    CalibrationLabel.NEGATIVE: 0,
+    CalibrationLabel.BORDERLINE: 1,
+    CalibrationLabel.AMBIGUOUS: 2,
+    CalibrationLabel.POSITIVE: 3,
+}
+_EDGE_LABELS = {CalibrationLabel.BORDERLINE, CalibrationLabel.AMBIGUOUS}
+_CLEAR_LABELS = {CalibrationLabel.POSITIVE, CalibrationLabel.NEGATIVE}
 
 
 @dataclass(frozen=True)
@@ -352,6 +360,10 @@ def _error_type(
         expected_label,
         predicted_label,
     } & {CalibrationLabel.BORDERLINE, CalibrationLabel.AMBIGUOUS}:
+        if _LABEL_ORDINAL[predicted_label] > _LABEL_ORDINAL[expected_label]:
+            return "edge_overcredit"
+        if _LABEL_ORDINAL[predicted_label] < _LABEL_ORDINAL[expected_label]:
+            return "edge_undercredit"
         return "borderline_ambiguous_confusion"
     return "polarity_flip"
 
@@ -399,6 +411,71 @@ def _precision_recall(confusion_matrix: dict[str, dict[str, int]]) -> JsonObject
             "false_negative": false_negative,
         }
     return metrics
+
+
+def _label_distance(result: ValidationExampleResult) -> int:
+    """Return ordinal distance between expected and predicted validation labels."""
+    return abs(_LABEL_ORDINAL[result.expected_label] - _LABEL_ORDINAL[result.predicted_label])
+
+
+def _discrimination_metrics(results: list[ValidationExampleResult]) -> JsonObject:
+    """Summarize clear-polarity and edge-label discrimination quality."""
+    if not results:
+        return {
+            "clear_polarity_examples": 0,
+            "clear_polarity_accuracy": 0.0,
+            "edge_examples": 0,
+            "edge_accuracy": 0.0,
+            "edge_to_positive_overcredit": 0,
+            "edge_to_negative_undercredit": 0,
+            "overcredit_count": 0,
+            "undercredit_count": 0,
+            "mean_label_distance": 0.0,
+        }
+
+    clear_results = [result for result in results if result.expected_label in _CLEAR_LABELS]
+    edge_results = [result for result in results if result.expected_label in _EDGE_LABELS]
+    overcredit_count = sum(
+        1
+        for result in results
+        if _LABEL_ORDINAL[result.predicted_label] > _LABEL_ORDINAL[result.expected_label]
+    )
+    undercredit_count = sum(
+        1
+        for result in results
+        if _LABEL_ORDINAL[result.predicted_label] < _LABEL_ORDINAL[result.expected_label]
+    )
+
+    return {
+        "clear_polarity_examples": len(clear_results),
+        "clear_polarity_accuracy": round(
+            sum(result.expected_label == result.predicted_label for result in clear_results)
+            / len(clear_results),
+            4,
+        )
+        if clear_results
+        else 0.0,
+        "edge_examples": len(edge_results),
+        "edge_accuracy": round(
+            sum(result.expected_label == result.predicted_label for result in edge_results)
+            / len(edge_results),
+            4,
+        )
+        if edge_results
+        else 0.0,
+        "edge_to_positive_overcredit": sum(
+            1 for result in edge_results if result.predicted_label == CalibrationLabel.POSITIVE
+        ),
+        "edge_to_negative_undercredit": sum(
+            1 for result in edge_results if result.predicted_label == CalibrationLabel.NEGATIVE
+        ),
+        "overcredit_count": overcredit_count,
+        "undercredit_count": undercredit_count,
+        "mean_label_distance": round(
+            sum(_label_distance(result) for result in results) / len(results),
+            4,
+        ),
+    }
 
 
 def evaluate_validation_corpus(
@@ -454,7 +531,10 @@ def evaluate_validation_corpus(
     correct_examples = sum(1 for result in results if result.error_type is None)
     bounds_failed = [result for result in results if not result.passed_bounds]
     edge_errors = [
-        result for result in results if result.error_type == "borderline_ambiguous_confusion"
+        result
+        for result in results
+        if result.error_type
+        in {"edge_overcredit", "edge_undercredit", "borderline_ambiguous_confusion"}
     ]
 
     per_dimension: JsonObject = {}
@@ -491,6 +571,7 @@ def evaluate_validation_corpus(
         },
         "confusion_matrix": _confusion_matrix_to_json(confusion_matrix),
         "precision_recall": _precision_recall(confusion_matrix),
+        "discrimination": _discrimination_metrics(results),
         "per_dimension": per_dimension,
         "borderline_ambiguous_errors": [result.to_json() for result in edge_errors],
         "bounds_failure_examples": [result.to_json() for result in bounds_failed],
