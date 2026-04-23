@@ -51,18 +51,18 @@ per dimension.
 
 As of the target-covered v0.1 held-out set:
 
-- exact label accuracy is 0.9625
+- exact label accuracy is 1.0000
 - clear-polarity accuracy is 1.0000
-- edge-label accuracy is 0.9062
-- mean label distance is 0.0375
+- edge-label accuracy is 1.0000
+- mean label distance is 0.0000
 - score-bounds pass rate is 1.0000
 - positive and negative examples are currently stable
-- remaining disagreement is concentrated in three borderline/ambiguous cases
+- the current repo-native held-out split is fully solved by the deterministic scorer
 
-That is a much stronger outcome. It says the deterministic scorer is now very
-stable on clear polarity and substantially better on interpretive edge cases,
-while still exposing a small residual pocket of borderline/ambiguous
-disagreement worth keeping visible.
+That is a strong repository-local outcome, but it changes the credibility task.
+Once the current held-out split is fully solved, the next honest move is not to
+overclaim generalization. It is to add harder, less synthetic, transcript-like
+validation examples and verify the scorer against those.
 
 ## Responsible Claims
 
@@ -86,6 +86,6 @@ model outputs.
 - Track scorer changes against both calibration regressions and held-out
   validation accuracy.
 - Add a release gate that can fail on minimum held-out quality only after the
-  corpus is large enough to make that threshold meaningful.
+  validation split becomes harder than the current repo-native corpus.
 - Split ambiguous and borderline examples into finer error categories as the
   annotation guide matures.
