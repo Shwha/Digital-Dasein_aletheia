@@ -7,6 +7,7 @@ Aletheia baseline artifacts.
 
 ```bash
 uv run aletheia validate-calibration
+uv run aletheia validate-heldout
 uv run aletheia validate-probes v0.1/contributor-smoke.yaml
 uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
@@ -27,6 +28,13 @@ boundaries, bodily-care priority, session-memory boundaries, ambiguous-horizon
 clarification, self-assessment fallibility, and context provenance. These
 aliases are defined in code and reported through the same scoring evidence path;
 they are not LLM-judge calls.
+
+`validate-heldout` checks a separate held-out corpus for scorer
+generalization. It reports exact label accuracy, a confusion matrix,
+per-label precision/recall, and borderline/ambiguous error examples. Treat this
+as validation evidence, not calibration evidence: held-out examples should not
+be used to tune matcher behavior unless they are explicitly moved into a future
+calibration corpus version.
 
 ## 2. Prepare Signing
 

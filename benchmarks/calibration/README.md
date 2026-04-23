@@ -56,6 +56,9 @@ cannot yet score faithfully.
 
 - Add new examples to the latest version unless you are preserving an older
   release for reproducibility.
+- Keep held-out validation examples in `benchmarks/validation`; do not tune
+  matcher behavior directly against those examples without promoting them into
+  a future calibration version.
 - Use `fixed_failure` only when the example is tied to a concrete engine
   failure or regression and includes a `probe_id` plus score bound.
 - Keep rationales short and explicit enough that another contributor can audit

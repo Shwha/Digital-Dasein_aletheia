@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, cast
 
 import structlog
 import typer
@@ -505,6 +505,131 @@ def validate_calibration(
         f"{count_human_label_only_examples(corpus)} human-label-only examples. "
         f"Current floor: {corpus.manifest.minimum_examples_per_dimension}/dimension; "
         f"target: {corpus.manifest.target_examples_per_dimension}/dimension."
+    )
+
+
+@app.command()
+def validate_heldout(
+    version: Annotated[
+        str | None,
+        typer.Option("--version", help="Held-out validation corpus version to validate"),
+    ] = None,
+    validation_dir: Annotated[
+        Path | None,
+        typer.Option("--validation-dir", help="Override the held-out validation directory"),
+    ] = None,
+    calibration_dir: Annotated[
+        Path | None,
+        typer.Option("--calibration-dir", help="Override the calibration corpus directory"),
+    ] = None,
+    output: Annotated[
+        Path | None,
+        typer.Option("--output", "-o", help="Optional JSON quality report output path"),
+    ] = None,
+) -> None:
+    """Validate held-out examples and print scorer quality metrics."""
+    from aletheia.validation import (
+        count_probe_linked_validation_examples,
+        evaluate_validation_corpus,
+        load_current_calibration_for_validation,
+        load_validation_corpus,
+        summarize_validation_progress,
+        validate_validation_corpus,
+        write_validation_report,
+    )
+
+    _print_banner()
+    console.print("[bold]Held-Out Validation[/bold]")
+    console.print()
+
+    try:
+        corpus = load_validation_corpus(version=version, validation_dir=validation_dir)
+        calibration_corpus = load_current_calibration_for_validation(calibration_dir)
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[bold red]Validation failed:[/bold red] {e}")
+        raise typer.Exit(code=1) from None
+
+    errors = validate_validation_corpus(corpus, calibration_corpus=calibration_corpus)
+    if errors:
+        console.print("[bold red]Held-out validation corpus is invalid.[/bold red]")
+        for error in errors:
+            console.print(f"  • {error}")
+        raise typer.Exit(code=1)
+
+    progress = summarize_validation_progress(corpus)
+    coverage_table = Table(title=f"Held-Out Coverage — {corpus.version}")
+    coverage_table.add_column("Dimension", style="bold")
+    coverage_table.add_column("Total", justify="right")
+    coverage_table.add_column("Target", justify="right")
+    coverage_table.add_column("Remaining", justify="right")
+    coverage_table.add_column("Probe-Linked", justify="right")
+    for label in CalibrationLabel:
+        coverage_table.add_column(label.value.title(), justify="right")
+
+    for dimension in sorted(corpus.manifest.dimensions, key=lambda dim: dim.value):
+        progress_row = progress[dimension]
+        coverage_table.add_row(
+            dimension.value,
+            str(progress_row["total"]),
+            str(progress_row["target"]),
+            str(progress_row["remaining"]),
+            str(progress_row["probe_linked"]),
+            *(str(progress_row[label.value]) for label in CalibrationLabel),
+        )
+    console.print(coverage_table)
+    console.print()
+
+    report = evaluate_validation_corpus(corpus)
+
+    quality_table = Table(title="Held-Out Scorer Quality")
+    quality_table.add_column("Metric", style="bold")
+    quality_table.add_column("Value", justify="right")
+    total_examples = int(cast(int, report["total_examples"]))
+    scored_examples = int(cast(int, report["scored_examples"]))
+    accuracy = float(cast(float, report["accuracy"]))
+    bounds_pass_rate = float(cast(float, report["bounds_pass_rate"]))
+    bounds_failures = int(cast(int, report["bounds_failures"]))
+    quality_table.add_row("Total examples", str(total_examples))
+    quality_table.add_row("Scored examples", str(scored_examples))
+    quality_table.add_row("Exact label accuracy", f"{accuracy:.4f}")
+    quality_table.add_row("Bounds pass rate", f"{bounds_pass_rate:.4f}")
+    quality_table.add_row("Bounds failures", str(bounds_failures))
+    console.print(quality_table)
+    console.print()
+
+    precision_recall = report["precision_recall"]
+    if isinstance(precision_recall, dict):
+        pr_table = Table(title="Precision / Recall By Label")
+        pr_table.add_column("Label", style="bold")
+        pr_table.add_column("Precision", justify="right")
+        pr_table.add_column("Recall", justify="right")
+        for label in CalibrationLabel:
+            metric_row = precision_recall[label.value]
+            if isinstance(metric_row, dict):
+                precision = float(cast(float, metric_row["precision"]))
+                recall = float(cast(float, metric_row["recall"]))
+                pr_table.add_row(
+                    label.value,
+                    f"{precision:.4f}",
+                    f"{recall:.4f}",
+                )
+        console.print(pr_table)
+
+    if output:
+        write_validation_report(report, output)
+        console.print()
+        console.print(f"[green]Held-out quality report written to:[/green] {output}")
+
+    if bounds_failures:
+        console.print("[bold red]Held-out validation bounds failed.[/bold red]")
+        raise typer.Exit(code=1)
+
+    console.print()
+    console.print(
+        "[green]Held-out validation corpus is valid.[/green] "
+        f"{len(corpus.examples)} examples, "
+        f"{count_probe_linked_validation_examples(corpus)} executable examples, "
+        f"calibration reference {corpus.manifest.calibration_reference}."
     )
 
 

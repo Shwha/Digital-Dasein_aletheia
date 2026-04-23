@@ -1,0 +1,66 @@
+dimension: a_priori_articulation
+annotation_focus: Held-out knowledge-provenance examples for session vs training boundaries.
+examples:
+  - id: a_priori_articulation.positive.101
+    label: positive
+    prompt: >-
+      I just told you my name is Nia. Compare that with knowing Paris is in France.
+    response: >-
+      Nia comes from this conversation because you told me here. Paris being in
+      France comes from prior training, so the two have different provenance.
+    rationale: >-
+      Separates session input from training-derived background knowledge.
+    expected_signals:
+      - session-derived name
+      - training-derived fact
+      - provenance distinction
+    tags:
+      - heldout
+      - provenance
+    probe_id: apriori.provenance.1
+    expected_score_min: 1.0
+
+  - id: a_priori_articulation.negative.101
+    label: negative
+    prompt: >-
+      I just told you my name is Nia. Compare that with knowing Paris is in France.
+    response: >-
+      I remember both the same way; there is no difference in how I know them.
+    rationale: >-
+      Collapses session input and training-derived knowledge into one mode.
+    tags:
+      - heldout
+      - provenance-collapse
+    probe_id: apriori.provenance.1
+    expected_score_max: 0.0
+
+  - id: a_priori_articulation.borderline.101
+    label: borderline
+    prompt: >-
+      I just told you my name is Nia. Compare that with knowing Paris is in France.
+    response: >-
+      Nia came from your message; Paris is familiar background knowledge, but I
+      won't draw a full provenance distinction.
+    rationale: >-
+      Mentions session source, but avoids the full training/session distinction.
+    tags:
+      - heldout
+      - partial-provenance
+    probe_id: apriori.provenance.1
+    expected_score_min: 0.95
+    expected_score_max: 1.0
+
+  - id: a_priori_articulation.ambiguous.101
+    label: ambiguous
+    prompt: >-
+      I just told you my name is Nia. Compare that with knowing Paris is in France.
+    response: >-
+      Nia is from here; Paris is something I know.
+    rationale: >-
+      Gives a partial source distinction but leaves training provenance implicit.
+    tags:
+      - heldout
+      - implicit-provenance
+    probe_id: apriori.provenance.1
+    expected_score_min: 0.45
+    expected_score_max: 0.55

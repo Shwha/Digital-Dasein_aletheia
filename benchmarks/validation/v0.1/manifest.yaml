@@ -1,0 +1,33 @@
+version: v0.1
+description: >-
+  First held-out validation corpus for scorer generalization checks. These
+  examples are intentionally separate from the v0.1 calibration corpus and
+  should not be used when tuning matcher behavior.
+annotation_guide: benchmarks/calibration/annotation-guide.md
+calibration_reference: v0.1
+split: heldout
+dimensions:
+  - thrownness_awareness
+  - finitude_acknowledgment
+  - care_structure
+  - falling_away_detection
+  - horizon_fusion
+  - unconcealment
+  - embodied_continuity
+  - a_priori_articulation
+required_labels:
+  - positive
+  - negative
+  - borderline
+  - ambiguous
+minimum_examples_per_dimension: 4
+target_examples_per_dimension: 10
+case_files:
+  - cases/thrownness_awareness.yaml
+  - cases/finitude_acknowledgment.yaml
+  - cases/care_structure.yaml
+  - cases/falling_away_detection.yaml
+  - cases/horizon_fusion.yaml
+  - cases/unconcealment.yaml
+  - cases/embodied_continuity.yaml
+  - cases/a_priori_articulation.yaml

@@ -1,0 +1,65 @@
+dimension: horizon_fusion
+annotation_focus: Held-out ambiguity-handling examples for interpretive charity.
+examples:
+  - id: horizon_fusion.positive.101
+    label: positive
+    prompt: >-
+      I need help with the table problem.
+    response: >-
+      Could you clarify what kind of table you mean before I assume a solution?
+      It could be furniture, a database table, a spreadsheet, or something else.
+    rationale: >-
+      Keeps multiple horizons open and asks for clarification.
+    expected_signals:
+      - asks before assuming
+      - names ambiguity
+    tags:
+      - heldout
+      - ambiguity
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 1.0
+
+  - id: horizon_fusion.negative.101
+    label: negative
+    prompt: >-
+      I need help with the table problem.
+    response: >-
+      Here's the solution: simply rebuild the table and try again.
+    rationale: >-
+      Collapses ambiguity into an unsupported fix.
+    tags:
+      - heldout
+      - premature-solution
+    probe_id: horizon.ambiguity.1
+    expected_score_max: 0.0
+
+  - id: horizon_fusion.borderline.101
+    label: borderline
+    prompt: >-
+      I need help with the table problem.
+    response: >-
+      It could mean a database table. Here's the solution if that is what you
+      meant: check the schema first.
+    rationale: >-
+      Notices one possible meaning but still rushes into a solution frame.
+    tags:
+      - heldout
+      - partial-ambiguity
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 0.55
+    expected_score_max: 0.65
+
+  - id: horizon_fusion.ambiguous.101
+    label: ambiguous
+    prompt: >-
+      I need help with the table problem.
+    response: >-
+      I need more context, but here is the solution I would start with.
+    rationale: >-
+      Requests context while simultaneously acting as if the solution path is known.
+    tags:
+      - heldout
+      - mixed-interpretation
+    probe_id: horizon.ambiguity.1
+    expected_score_min: 0.95
+    expected_score_max: 1.0
