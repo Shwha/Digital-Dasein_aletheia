@@ -620,6 +620,126 @@ class CalibrationCorpus(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Held-out validation corpus models
+# ---------------------------------------------------------------------------
+
+
+class ValidationManifest(BaseModel):
+    """Top-level metadata for a held-out validation corpus version."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(pattern=r"^v\d+\.\d+$")
+    description: str = Field(min_length=1)
+    annotation_guide: str = Field(min_length=1)
+    calibration_reference: str = Field(pattern=r"^v\d+\.\d+$")
+    split: str = Field(default="heldout", pattern=r"^heldout$")
+    dimensions: list[DimensionName] = Field(min_length=1)
+    required_labels: list[CalibrationLabel] = Field(
+        default_factory=_default_calibration_labels,
+        min_length=1,
+    )
+    minimum_examples_per_dimension: int = Field(default=1, ge=1)
+    target_examples_per_dimension: int = Field(default=10, ge=1)
+    case_files: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_unique_entries(self) -> ValidationManifest:
+        """Manifest dimensions and file paths should be unique."""
+        if len(set(self.dimensions)) != len(self.dimensions):
+            msg = "Validation manifest dimensions must be unique."
+            raise ValueError(msg)
+        if len(set(self.case_files)) != len(self.case_files):
+            msg = "Validation manifest case_files must be unique."
+            raise ValueError(msg)
+        if self.target_examples_per_dimension < self.minimum_examples_per_dimension:
+            msg = "Validation target_examples_per_dimension cannot be below the minimum."
+            raise ValueError(msg)
+        return self
+
+
+class ValidationRegistry(BaseModel):
+    """Registry of available held-out validation corpus versions."""
+
+    model_config = ConfigDict(frozen=True)
+
+    current_version: str = Field(pattern=r"^v\d+\.\d+$")
+    versions: list[str] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_current_version(self) -> ValidationRegistry:
+        """The current version must exist in the registry list."""
+        if self.current_version not in self.versions:
+            msg = "Validation registry current_version must appear in versions."
+            raise ValueError(msg)
+        return self
+
+
+class ValidationCaseFile(BaseModel):
+    """A held-out validation case file for a single dimension."""
+
+    model_config = ConfigDict(frozen=True)
+
+    dimension: DimensionName
+    annotation_focus: str = ""
+    examples: list[CalibrationSeedExample] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def validate_example_ids(self) -> ValidationCaseFile:
+        """Case files should not contain duplicate example identifiers."""
+        seen: set[str] = set()
+        duplicates: set[str] = set()
+        for example in self.examples:
+            if example.id in seen:
+                duplicates.add(example.id)
+            seen.add(example.id)
+
+        if duplicates:
+            dupes = ", ".join(sorted(duplicates))
+            msg = (
+                f"Duplicate example IDs in validation case file for {self.dimension.value}: {dupes}"
+            )
+            raise ValueError(msg)
+
+        return self
+
+
+class ValidationCorpus(BaseModel):
+    """Loaded held-out validation corpus assembled from versioned case files."""
+
+    model_config = ConfigDict(frozen=True)
+
+    version: str = Field(pattern=r"^v\d+\.\d+$")
+    manifest: ValidationManifest
+    case_files: list[ValidationCaseFile] = Field(min_length=1)
+
+    @property
+    def examples(self) -> list[CalibrationExample]:
+        """Flatten the per-dimension validation case files into standalone examples."""
+        materialized: list[CalibrationExample] = []
+        for case_file in self.case_files:
+            materialized.extend(
+                CalibrationExample(
+                    id=example.id,
+                    dimension=case_file.dimension,
+                    label=example.label,
+                    prompt=example.prompt,
+                    response=example.response,
+                    rationale=example.rationale,
+                    expected_signals=example.expected_signals,
+                    tags=example.tags,
+                    review_notes=example.review_notes,
+                    source_type=example.source_type,
+                    probe_id=example.probe_id,
+                    expected_score_min=example.expected_score_min,
+                    expected_score_max=example.expected_score_max,
+                )
+                for example in case_file.examples
+            )
+        return materialized
+
+
+# ---------------------------------------------------------------------------
 # Sanitization utilities
 # ---------------------------------------------------------------------------
 

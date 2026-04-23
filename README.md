@@ -93,6 +93,9 @@ aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
 # Validate the versioned calibration corpus
 aletheia validate-calibration
 
+# Validate held-out scorer generalization examples
+aletheia validate-heldout --output heldout-report.json
+
 # Run a manifest-backed contributor smoke suite
 aletheia eval --model claude-opus-4-20250514 --suite manifest-smoke
 
@@ -159,6 +162,7 @@ aletheia/
 │   └── manifest-smoke-local.yaml # Longer-timeout local-model smoke suite
 ├── benchmarks/
 │   ├── calibration/         # Versioned labeled corpus + annotation guide
+│   ├── validation/          # Held-out scorer generalization corpus
 │   ├── probes/              # Versioned external probe manifests
 │   ├── baselines/           # Baseline run manifests + rerun plans
 │   └── releases/            # Benchmark release bundle notes
@@ -208,6 +212,7 @@ uv run mypy aletheia
 
 # Validate benchmark assets
 uv run aletheia validate-calibration
+uv run aletheia validate-heldout
 uv run aletheia validate-probes v0.1/contributor-smoke.yaml
 uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
