@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from pydantic import ValidationError
 
 from aletheia.calibration import DEFAULT_CALIBRATION_DIR, load_calibration_corpus
 from aletheia.dimensions import DIMENSION_REGISTRY
@@ -23,7 +24,9 @@ from aletheia.models import (
     CalibrationCorpus,
     CalibrationExample,
     CalibrationLabel,
+    CalibrationSourceType,
     DimensionName,
+    EvalReport,
     Probe,
     ScoringDetail,
     ScoringRuleType,
@@ -33,7 +36,7 @@ from aletheia.models import (
     ValidationRegistry,
 )
 from aletheia.scorer import score_probe
-from aletheia.security import write_secure_text
+from aletheia.security import verify_report_file, write_secure_text
 
 type JsonValue = None | bool | int | float | str | list[JsonValue] | dict[str, JsonValue]
 type JsonObject = dict[str, JsonValue]
@@ -375,6 +378,105 @@ def _validate_validation_independence(
     return errors
 
 
+def _normalize_provenance_text(text: str) -> str:
+    """Normalize prompt/response text for transcript provenance comparison."""
+    return " ".join(text.split())
+
+
+def _resolve_source_report_path(source_report_path: str, repo_root: Path) -> Path:
+    """Resolve a source report path relative to the repo root when needed."""
+    report_path = Path(source_report_path)
+    return report_path if report_path.is_absolute() else repo_root / report_path
+
+
+def _load_source_report(
+    report_path: Path,
+    cache: dict[Path, EvalReport],
+) -> tuple[EvalReport | None, str | None]:
+    """Load and verify a signed baseline report once per unique path."""
+    cached = cache.get(report_path)
+    if cached is not None:
+        return cached, None
+    if not report_path.exists():
+        return None, f"Observed transcript source report not found: {report_path}"
+
+    verification = verify_report_file(report_path)
+    if not verification.valid:
+        return None, (
+            f"Observed transcript source report failed signature verification: "
+            f"{report_path} ({verification.detail})"
+        )
+    if verification.scheme != "ed25519":
+        return None, (
+            f"Observed transcript source report must use ed25519 signatures: "
+            f"{report_path} ({verification.scheme})"
+        )
+
+    try:
+        report = EvalReport.model_validate_json(report_path.read_text(encoding="utf-8"))
+    except ValidationError as exc:
+        return None, f"Observed transcript source report is invalid JSON: {report_path} ({exc})"
+
+    cache[report_path] = report
+    return report, None
+
+
+def _validate_observed_transcript_sources(
+    examples: list[CalibrationExample],
+    repo_root: Path = _REPO_ROOT,
+) -> list[str]:
+    """Validate transcript-derived held-out examples against signed baseline reports."""
+    errors: list[str] = []
+    report_cache: dict[Path, EvalReport] = {}
+
+    for example in examples:
+        if example.source_type != CalibrationSourceType.OBSERVED_TRANSCRIPT:
+            continue
+        if example.source_report_path is None:
+            errors.append(f"{example.id}: observed transcript example missing source_report_path")
+            continue
+        if example.probe_id is None:
+            errors.append(f"{example.id}: observed transcript example missing probe_id")
+            continue
+
+        report_path = _resolve_source_report_path(example.source_report_path, repo_root)
+        report, report_error = _load_source_report(report_path, report_cache)
+        if report_error:
+            errors.append(f"{example.id}: {report_error}")
+            continue
+        if report is None:
+            errors.append(f"{example.id}: failed to load observed transcript source report")
+            continue
+
+        matching_probe_results = [
+            probe_result
+            for dimension_result in report.dimensions.values()
+            for probe_result in dimension_result.probe_results
+            if probe_result.probe_id == example.probe_id
+        ]
+        if not matching_probe_results:
+            errors.append(
+                f"{example.id}: source report {report_path} does not contain probe "
+                f"{example.probe_id}"
+            )
+            continue
+
+        matched_transcript = any(
+            _normalize_provenance_text(probe_result.prompt)
+            == _normalize_provenance_text(example.prompt)
+            and _normalize_provenance_text(probe_result.response)
+            == _normalize_provenance_text(example.response)
+            for probe_result in matching_probe_results
+        )
+        if not matched_transcript:
+            errors.append(
+                f"{example.id}: source report {report_path} probe {example.probe_id} "
+                "does not match the example prompt/response"
+            )
+
+    return errors
+
+
 def validate_validation_corpus(
     corpus: ValidationCorpus,
     calibration_corpus: CalibrationCorpus | None = None,
@@ -399,6 +501,7 @@ def validate_validation_corpus(
 
     errors.extend(_validate_validation_coverage(corpus))
     errors.extend(_validate_validation_probe_links(examples, probes))
+    errors.extend(_validate_observed_transcript_sources(examples))
 
     if calibration_corpus is not None:
         errors.extend(_validate_validation_independence(examples, calibration_corpus))

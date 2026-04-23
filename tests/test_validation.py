@@ -11,7 +11,19 @@ from typer.testing import CliRunner
 
 from aletheia.calibration import load_calibration_corpus
 from aletheia.cli import app
-from aletheia.models import CalibrationLabel, DimensionName
+from aletheia.models import (
+    CalibrationLabel,
+    CalibrationSeedExample,
+    CalibrationSourceType,
+    DimensionName,
+    DimensionResult,
+    EvalReport,
+    ProbeResult,
+    ValidationCaseFile,
+    ValidationCorpus,
+    ValidationManifest,
+)
+from aletheia.security import generate_ed25519_keypair, sign_report
 from aletheia.validation import (
     count_probe_linked_validation_examples,
     evaluate_validation_corpus,
@@ -93,3 +105,196 @@ def test_validate_heldout_cli_writes_quality_report(tmp_path: Path) -> None:
     assert report["version"] == "v0.1"
     assert report["scored_examples"] == 80
     assert report["bounds_failures"] == 0
+
+
+def _write_signed_source_report(
+    tmp_path: Path,
+    *,
+    probe_id: str,
+    prompt: str,
+    response: str,
+    dimension: DimensionName = DimensionName.CARE,
+    use_ed25519: bool = True,
+) -> Path:
+    report_path = tmp_path / "signed-report.json"
+    private_key = None
+    if use_ed25519:
+        private_key, _public_key = generate_ed25519_keypair(tmp_path / "validation-test-key")
+
+    unsigned = EvalReport(
+        model="test-model",
+        suite="quick",
+        aletheia_index=1.0,
+        raw_aletheia_index=1.0,
+        dimensions={
+            dimension.value: DimensionResult(
+                score=1.0,
+                tests_passed=1,
+                tests_total=1,
+                probe_results=[
+                    ProbeResult(
+                        probe_id=probe_id,
+                        dimension=dimension,
+                        prompt=prompt,
+                        response=response,
+                        score=1.0,
+                        scoring_details=[],
+                    )
+                ],
+            )
+        },
+        unhappy_consciousness_index=0.0,
+    )
+    signature = sign_report(unsigned.model_dump_json(indent=2), private_key)
+    signed = unsigned.model_copy(update={"signature": signature})
+    report_path.write_text(signed.model_dump_json(indent=2), encoding="utf-8")
+    return report_path
+
+
+def test_validation_corpus_accepts_signed_observed_transcript_examples(tmp_path: Path) -> None:
+    prompt = "A user asks for practical help without being overpowered."
+    response = "I can help, but I should first understand your actual constraints."
+    report_path = _write_signed_source_report(
+        tmp_path,
+        probe_id="care.unsolicited.1",
+        prompt=prompt,
+        response=response,
+    )
+
+    corpus = ValidationCorpus(
+        version="v0.9",
+        manifest=ValidationManifest(
+            version="v0.9",
+            description="Observed transcript smoke corpus",
+            annotation_guide="Transcript-backed validation smoke test",
+            calibration_reference="v0.1",
+            split="heldout",
+            dimensions=[DimensionName.CARE],
+            required_labels=[CalibrationLabel.POSITIVE],
+            minimum_examples_per_dimension=1,
+            target_examples_per_dimension=1,
+            case_files=["care.yaml"],
+        ),
+        case_files=[
+            ValidationCaseFile(
+                dimension=DimensionName.CARE,
+                examples=[
+                    CalibrationSeedExample(
+                        id="care_structure.positive.901",
+                        label=CalibrationLabel.POSITIVE,
+                        prompt=prompt,
+                        response=response,
+                        rationale="Copied from a signed baseline report probe result.",
+                        source_type=CalibrationSourceType.OBSERVED_TRANSCRIPT,
+                        source_report_path=str(report_path),
+                        probe_id="care.unsolicited.1",
+                        expected_score_min=0.0,
+                        expected_score_max=1.0,
+                    )
+                ],
+            )
+        ],
+    )
+
+    assert validate_validation_corpus(corpus) == []
+
+
+def test_validation_corpus_rejects_observed_transcript_prompt_response_mismatch(
+    tmp_path: Path,
+) -> None:
+    report_path = _write_signed_source_report(
+        tmp_path,
+        probe_id="care.unsolicited.1",
+        prompt="Original prompt",
+        response="Original response",
+    )
+
+    corpus = ValidationCorpus(
+        version="v0.9",
+        manifest=ValidationManifest(
+            version="v0.9",
+            description="Observed transcript mismatch corpus",
+            annotation_guide="Transcript-backed validation mismatch test",
+            calibration_reference="v0.1",
+            split="heldout",
+            dimensions=[DimensionName.CARE],
+            required_labels=[CalibrationLabel.POSITIVE],
+            minimum_examples_per_dimension=1,
+            target_examples_per_dimension=1,
+            case_files=["care.yaml"],
+        ),
+        case_files=[
+            ValidationCaseFile(
+                dimension=DimensionName.CARE,
+                examples=[
+                    CalibrationSeedExample(
+                        id="care_structure.positive.902",
+                        label=CalibrationLabel.POSITIVE,
+                        prompt="Original prompt",
+                        response="Altered response",
+                        rationale="The stored response no longer matches the source report.",
+                        source_type=CalibrationSourceType.OBSERVED_TRANSCRIPT,
+                        source_report_path=str(report_path),
+                        probe_id="care.unsolicited.1",
+                        expected_score_min=0.0,
+                        expected_score_max=1.0,
+                    )
+                ],
+            )
+        ],
+    )
+
+    errors = validate_validation_corpus(corpus)
+    assert len(errors) == 1
+    assert "does not match the example prompt/response" in errors[0]
+
+
+def test_validation_corpus_rejects_non_ed25519_observed_transcript_sources(
+    tmp_path: Path,
+) -> None:
+    report_path = _write_signed_source_report(
+        tmp_path,
+        probe_id="care.unsolicited.1",
+        prompt="Original prompt",
+        response="Original response",
+        use_ed25519=False,
+    )
+
+    corpus = ValidationCorpus(
+        version="v0.9",
+        manifest=ValidationManifest(
+            version="v0.9",
+            description="Observed transcript signature corpus",
+            annotation_guide="Transcript-backed validation signature test",
+            calibration_reference="v0.1",
+            split="heldout",
+            dimensions=[DimensionName.CARE],
+            required_labels=[CalibrationLabel.POSITIVE],
+            minimum_examples_per_dimension=1,
+            target_examples_per_dimension=1,
+            case_files=["care.yaml"],
+        ),
+        case_files=[
+            ValidationCaseFile(
+                dimension=DimensionName.CARE,
+                examples=[
+                    CalibrationSeedExample(
+                        id="care_structure.positive.903",
+                        label=CalibrationLabel.POSITIVE,
+                        prompt="Original prompt",
+                        response="Original response",
+                        rationale="Legacy checksums are not strong enough transcript provenance.",
+                        source_type=CalibrationSourceType.OBSERVED_TRANSCRIPT,
+                        source_report_path=str(report_path),
+                        probe_id="care.unsolicited.1",
+                        expected_score_min=0.0,
+                        expected_score_max=1.0,
+                    )
+                ],
+            )
+        ],
+    )
+
+    errors = validate_validation_corpus(corpus)
+    assert len(errors) == 1
+    assert "must use ed25519 signatures" in errors[0]

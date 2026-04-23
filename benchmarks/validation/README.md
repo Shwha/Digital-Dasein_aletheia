@@ -35,6 +35,7 @@ The command checks:
 - registry and manifest consistency
 - required label coverage per dimension
 - executable probe references
+- signed observed-transcript provenance for any transcript-derived examples
 - score bounds for current-regression stability
 - ID and prompt/response fingerprint independence from calibration
 
@@ -55,15 +56,37 @@ It also writes a scorer quality report with:
 - executable examples: 80
 - examples per dimension: 10
 - labels per dimension: 3 positive, 3 negative, 2 borderline, 2 ambiguous
-- current exact label accuracy: 0.7750
-- current clear-polarity accuracy: 0.9792
-- current edge-label accuracy: 0.4688
-- current mean label distance: 0.2875
+- current exact label accuracy: 1.0000
+- current clear-polarity accuracy: 1.0000
+- current edge-label accuracy: 1.0000
+- current mean label distance: 0.0000
 - current score-bounds pass rate: 1.0000
 
 The v0.1 validation set is now target-covered at 10 examples per dimension. It
 is useful as an early generalization check, not as a final statistical
-validation study.
+validation study. The current repo-native split is solved by the deterministic
+scorer, so the next credibility step is adding harder transcript-derived cases.
+
+## Transcript-Derived Examples
+
+Held-out examples can now declare transcript provenance when they are copied
+from a signed baseline report.
+
+Use these fields on any `observed_transcript` example:
+
+- `source_type: observed_transcript`
+- `source_report_path: results/baselines/<signed-report>.json`
+- `probe_id: <probe-id-from-the-report>`
+
+When `validate-heldout` runs, it verifies that:
+
+- the report exists
+- the report carries an `ed25519` signature
+- the referenced `probe_id` exists in that report
+- the example prompt/response still match the stored probe result
+
+That keeps transcript-derived validation examples auditable instead of relying
+on unattributed hand-copied text.
 
 ## Interpreting Bounds vs Labels
 

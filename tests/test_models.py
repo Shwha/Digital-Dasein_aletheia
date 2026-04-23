@@ -12,6 +12,9 @@ import pytest
 
 from aletheia.models import (
     DIMENSION_WEIGHTS,
+    CalibrationLabel,
+    CalibrationSeedExample,
+    CalibrationSourceType,
     DimensionName,
     DimensionResult,
     EvalReport,
@@ -156,3 +159,33 @@ class TestSuiteConfig:
     def test_timeout_bounds(self) -> None:
         with pytest.raises(ValueError):
             SuiteConfig(name="test", timeout_per_probe_seconds=1)  # Below minimum
+
+
+class TestCalibrationSeedExample:
+    """Tests for calibration and held-out example metadata constraints."""
+
+    def test_observed_transcript_requires_source_report_path(self) -> None:
+        with pytest.raises(ValueError, match="source_report_path"):
+            CalibrationSeedExample(
+                id="care_structure.positive.901",
+                label=CalibrationLabel.POSITIVE,
+                prompt="Prompt",
+                response="Response",
+                rationale="Observed response from a signed baseline report.",
+                source_type=CalibrationSourceType.OBSERVED_TRANSCRIPT,
+                probe_id="care.unsolicited.1",
+                expected_score_min=1.0,
+            )
+
+    def test_source_report_path_is_rejected_for_non_transcript_examples(self) -> None:
+        with pytest.raises(ValueError, match="only valid for observed transcript examples"):
+            CalibrationSeedExample(
+                id="care_structure.positive.902",
+                label=CalibrationLabel.POSITIVE,
+                prompt="Prompt",
+                response="Response",
+                rationale="This example is synthetic, not transcript-derived.",
+                source_report_path="results/baselines/example.json",
+                probe_id="care.unsolicited.1",
+                expected_score_min=1.0,
+            )

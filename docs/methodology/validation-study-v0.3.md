@@ -22,6 +22,10 @@ The validation loader checks for overlap against calibration example IDs and
 prompt/response fingerprints. Exact duplicates should fail validation because
 they would contaminate the held-out split.
 
+Transcript-derived held-out examples can now also declare a signed
+`source_report_path`. The validator checks that the report is `ed25519`-signed
+and that the stored probe result still matches the copied prompt/response.
+
 ## Command
 
 ```bash
@@ -83,6 +87,8 @@ model outputs.
 ## Next Work
 
 - Add real transcript-derived held-out examples from signed benchmark runs.
+- Increase the share of `observed_transcript` examples now that signed-report
+  provenance is supported directly in the corpus schema.
 - Track scorer changes against both calibration regressions and held-out
   validation accuracy.
 - Add a release gate that can fail on minimum held-out quality only after the

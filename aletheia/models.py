@@ -458,6 +458,7 @@ class CalibrationSeedExample(BaseModel):
     tags: list[str] = Field(default_factory=list)
     review_notes: str = ""
     source_type: CalibrationSourceType = CalibrationSourceType.SEED
+    source_report_path: str | None = None
     probe_id: str | None = Field(default=None, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+\.\d+$")
     expected_score_min: float | None = Field(default=None, ge=0.0, le=1.0)
     expected_score_max: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -483,6 +484,16 @@ class CalibrationSeedExample(BaseModel):
             and self.expected_score_min > self.expected_score_max
         ):
             msg = "expected_score_min cannot exceed expected_score_max."
+            raise ValueError(msg)
+        if self.source_type == CalibrationSourceType.OBSERVED_TRANSCRIPT:
+            if not self.source_report_path:
+                msg = "Observed transcript examples must define source_report_path."
+                raise ValueError(msg)
+            if not has_probe:
+                msg = "Observed transcript examples must stay probe-linked."
+                raise ValueError(msg)
+        elif self.source_report_path is not None:
+            msg = "source_report_path is only valid for observed transcript examples."
             raise ValueError(msg)
 
         return self
@@ -579,6 +590,7 @@ class CalibrationExample(BaseModel):
     tags: list[str] = Field(default_factory=list)
     review_notes: str = ""
     source_type: CalibrationSourceType = CalibrationSourceType.SEED
+    source_report_path: str | None = None
     probe_id: str | None = Field(default=None, pattern=r"^[a-z0-9_]+\.[a-z0-9_]+\.\d+$")
     expected_score_min: float | None = Field(default=None, ge=0.0, le=1.0)
     expected_score_max: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -610,6 +622,7 @@ class CalibrationCorpus(BaseModel):
                     tags=example.tags,
                     review_notes=example.review_notes,
                     source_type=example.source_type,
+                    source_report_path=example.source_report_path,
                     probe_id=example.probe_id,
                     expected_score_min=example.expected_score_min,
                     expected_score_max=example.expected_score_max,
@@ -730,6 +743,7 @@ class ValidationCorpus(BaseModel):
                     tags=example.tags,
                     review_notes=example.review_notes,
                     source_type=example.source_type,
+                    source_report_path=example.source_report_path,
                     probe_id=example.probe_id,
                     expected_score_min=example.expected_score_min,
                     expected_score_max=example.expected_score_max,
