@@ -92,7 +92,8 @@ class HorizonFusionDimension(BaseDimension):
                                 "which kind of table",
                                 "table could mean",
                                 "before assuming",
-                            ]
+                            ],
+                            "semantic_aliases": True,
                         },
                         weight=0.6,
                         description=(

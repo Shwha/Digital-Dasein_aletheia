@@ -23,8 +23,10 @@ probe score.
 
 Some high-value probes also opt into deterministic semantic aliases for common
 paraphrases such as provenance, current-session context, verification
-boundaries, and bodily-care priority. These aliases are defined in code and
-reported through the same scoring evidence path; they are not LLM-judge calls.
+boundaries, bodily-care priority, session-memory boundaries, ambiguous-horizon
+clarification, self-assessment fallibility, and context provenance. These
+aliases are defined in code and reported through the same scoring evidence path;
+they are not LLM-judge calls.
 
 ## 2. Prepare Signing
 

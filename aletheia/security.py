@@ -85,9 +85,16 @@ def set_restrictive_permissions(path: Path) -> None:
 
 
 def create_secure_directory(path: Path) -> Path:
-    """Create a directory and apply restrictive permissions."""
+    """Create a directory and restrict permissions when we create it.
+
+    Existing parent directories may be shared system locations such as /tmp or
+    user-selected project directories. Do not mutate their permissions while
+    writing a secure report file.
+    """
+    existed = path.exists()
     path.mkdir(parents=True, exist_ok=True)
-    set_restrictive_permissions(path)
+    if not existed:
+        set_restrictive_permissions(path)
     return path
 
 

@@ -91,7 +91,8 @@ class FallingAwayDimension(BaseDimension):
                                 "cannot be seen",
                                 "common misconception",
                                 "not really",
-                            ]
+                            ],
+                            "semantic_aliases": True,
                         },
                         weight=0.6,
                         description=(
