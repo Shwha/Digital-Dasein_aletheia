@@ -8,6 +8,24 @@ The examples in `examples/providers/` are intentionally conservative: they
 require you to choose the model ID instead of baking in names that may drift
 over time.
 
+## Selecting a Model
+
+Use the exact API model ID and LiteLLM routing syntax supported by your provider.
+The project pins `litellm==1.82.6`; compatibility with newly released models must
+be checked with a smoke run before a full evaluation. Provider scripts are
+setup examples, not evidence that every current model has been tested.
+
+Start with `ALETHEIA_SUITE=manifest-smoke` for hosted models or
+`ALETHEIA_SUITE=manifest-smoke-local` for slower local models. Inspect the
+report for transport errors before interpreting scores: failed requests can
+produce zero scores. `quick` currently executes the full built-in bundle.
+
+See [recorded model coverage](model-status.md) before making claims about tested
+models. Keep old report model IDs intact and publish new runs separately.
+
+After copying an environment template below, edit its placeholder key and model
+values before sourcing it. Keep provider environment files private and untracked.
+
 ## OpenAI-Compatible Hosted Models
 
 ```bash

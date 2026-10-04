@@ -20,3 +20,11 @@ Validate referenced artifacts with:
 ```bash
 uv run aletheia validate-baselines v0.1/manifest.yaml
 ```
+
+## Model Coverage and Freshness
+
+The checked-in runs are March–April 2026 snapshots. `published` denotes
+artifact policy compliance, not that a model is current. OpenAI and Anthropic
+slots are still planned. Keep existing reports and manifest entries intact;
+add new runs with exact model IDs, separate output paths, and matching runtime
+settings. See [model coverage and refresh workflow](../../docs/model-status.md).

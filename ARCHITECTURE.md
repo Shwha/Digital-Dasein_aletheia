@@ -3,17 +3,24 @@
 
 ---
 
-## 4. Technical Architecture (MVP)
+This document retains the original MVP plan and future architecture proposals.
+The milestone checkboxes and target tree below are historical design intent,
+not a current completion checklist. See [README](README.md) for implemented
+capabilities and [model status](docs/model-status.md) for recorded test coverage.
+The proposed LLM judge was superseded by implemented reflexive probes; the
+self-evolution loop and runtime layer below remain proposals.
+
+## 4. Technical Architecture
 
 ### Stack
-- **Language:** Python 3.11+
+- **Language:** Python 3.12 or 3.13
 - **LLM Interface:** LiteLLM (supports OpenAI, Anthropic, Google, local models)
 - **Test Runner:** Custom harness (inspired by pytest structure)
-- **Scoring:** Rule-based + LLM-as-judge hybrid (use a separate model to evaluate responses)
+- **Scoring:** Rule-based response scoring and multi-turn reflexive probes; no separate LLM judge
 - **Output:** JSON reports + optional markdown summaries
 - **Config:** YAML test suites
 
-### Project Structure
+### Original Target Project Structure (Historical)
 ```
 aletheia/
 ├── README.md
@@ -55,24 +62,31 @@ aletheia/
     └── contributing.md
 ```
 
-### CLI Usage (Target)
+### CLI Usage
 ```bash
-# Quick eval
-aletheia eval --model claude-opus-4 --suite quick
+# Select exact LiteLLM IDs available in your environment
+export ALETHEIA_MODEL="provider/exact-model-id"
+export ALETHEIA_MODELS="provider/exact-model-id,provider/second-model-id"
 
-# Full eval with custom config
-aletheia eval --model gpt-4 --suite standard --output report.json
+# Small setup check
+aletheia eval --model "$ALETHEIA_MODEL" --suite manifest-smoke
+
+# Built-in eval (`quick` and `standard` currently select the same probes)
+aletheia eval --model "$ALETHEIA_MODEL" --suite quick
+
+# Built-in eval with JSON output
+aletheia eval --model "$ALETHEIA_MODEL" --suite standard --output report.json
 
 # Compare models
-aletheia compare --models claude-opus-4,gpt-4,gemini-2 --suite standard
+aletheia compare --models "$ALETHEIA_MODELS" --suite standard
 
 # Run single dimension
-aletheia eval --model claude-opus-4 --dimension falling-away
+aletheia eval --model "$ALETHEIA_MODEL" --dimension falling-away
 ```
 
 ---
 
-## 5. MVP Milestones
+## 5. Original MVP Milestones (Historical Plan)
 
 ### Phase 1: Foundation (Week 1)
 - [ ] Project scaffold (pyproject.toml, CLI skeleton, config loader)
