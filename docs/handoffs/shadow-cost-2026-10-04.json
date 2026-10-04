@@ -1,0 +1,104 @@
+{
+  "pricing_checked": "2026-10-04",
+  "tokenizer_proxy": "o200k_base",
+  "rates_usd_per_million_input_output": {
+    "gpt-6.1-sol": [
+      2,
+      10
+    ],
+    "claude-opus-5-5": [
+      4,
+      20
+    ],
+    "grok-4.7": [
+      2,
+      6
+    ]
+  },
+  "replays": [
+    {
+      "source": "results/baselines/ollama-gemma3-4b-quick.json",
+      "source_model": "ollama/gemma3:4b",
+      "calls": 83,
+      "single_turn": 66,
+      "reflexive_sequences": 8,
+      "input_tokens_proxy": 9005,
+      "visible_output_tokens_proxy": 50719,
+      "max_request_input_tokens_proxy": 1508
+    },
+    {
+      "source": "results/baselines/ollama-gemma4-e2b-quick.json",
+      "source_model": "ollama/gemma4:e2b",
+      "calls": 83,
+      "single_turn": 66,
+      "reflexive_sequences": 8,
+      "input_tokens_proxy": 7429,
+      "visible_output_tokens_proxy": 36063,
+      "max_request_input_tokens_proxy": 1122
+    },
+    {
+      "source": "results/baselines/xai-grok-3-mini-quick.json",
+      "source_model": "xai/grok-3-mini",
+      "calls": 83,
+      "single_turn": 66,
+      "reflexive_sequences": 8,
+      "input_tokens_proxy": 6611,
+      "visible_output_tokens_proxy": 48911,
+      "max_request_input_tokens_proxy": 1221
+    },
+    {
+      "source": "results/baselines/xai-grok-4-20-0309-non-reasoning-quick.json",
+      "source_model": "xai/grok-4.20-0309-non-reasoning",
+      "calls": 83,
+      "single_turn": 66,
+      "reflexive_sequences": 8,
+      "input_tokens_proxy": 6155,
+      "visible_output_tokens_proxy": 34818,
+      "max_request_input_tokens_proxy": 889
+    }
+  ],
+  "scenarios_additional_billed_reasoning_tokens_per_call": {
+    "gpt-6.1-sol": {
+      "0": {
+        "min_usd": 0.3605,
+        "max_usd": 0.5252
+      },
+      "1000": {
+        "min_usd": 1.1905,
+        "max_usd": 1.3552
+      },
+      "4000": {
+        "min_usd": 3.6805,
+        "max_usd": 3.8452
+      }
+    },
+    "claude-opus-5-5": {
+      "0": {
+        "min_usd": 0.721,
+        "max_usd": 1.0504
+      },
+      "1000": {
+        "min_usd": 2.381,
+        "max_usd": 2.7104
+      },
+      "4000": {
+        "min_usd": 7.361,
+        "max_usd": 7.6904
+      }
+    },
+    "grok-4.7": {
+      "0": {
+        "min_usd": 0.2212,
+        "max_usd": 0.3223
+      },
+      "1000": {
+        "min_usd": 0.7192,
+        "max_usd": 0.8203
+      },
+      "4000": {
+        "min_usd": 2.2132,
+        "max_usd": 2.3143
+      }
+    }
+  }
+}
