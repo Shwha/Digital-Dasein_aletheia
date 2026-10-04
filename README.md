@@ -18,7 +18,8 @@ The philosophical question is **ontological authenticity**: does this agent have
 - Eight dimensions, 66 built-in single-turn probes, and 8 reflexive sequences.
 - `quick` and `standard` currently select the same built-in probes, with different timeout settings. For a small setup check, use `manifest-smoke` or `manifest-smoke-local`.
 - Calibration corpus: 200 labeled examples. Held-out validation: 84 examples, including 4 signed transcript-derived cases; two label disagreements remain.
-- Recorded baselines span March–April 2026. Signed full runs cover local Gemma and hosted xAI/Grok; OpenAI and Anthropic baseline slots remain planned. These are historical snapshots, not results for the newest models.
+- Latest recorded hosted run: **Grok 4.7**, 2026-10-04 — 83 successful requests, final index **0.7289**, provider-reported cost **$0.3410** ($0.3465 including smoke). See [run findings](docs/handoffs/grok-4.7-results-2026-10-04.md) for scoring limitations.
+- Earlier baselines span March–April 2026 and cover local Gemma and hosted xAI/Grok. OpenAI and Anthropic baseline slots remain planned; each result describes its recorded runtime, not a general model ranking.
 
 See [model coverage and refresh workflow](docs/model-status.md) for the exact recorded model IDs and the next evaluation steps.
 

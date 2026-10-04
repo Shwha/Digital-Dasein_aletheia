@@ -107,3 +107,31 @@ bash examples/providers/run-comparison.sh
 ```
 
 Comparison outputs are written under `results/provider-comparison/` by default.
+
+## macOS Keychain: xAI
+
+Store the credential at a hidden prompt, keeping `-w` last:
+
+```bash
+security add-generic-password -a "$USER" -s "aletheia-xai-api-key" -w
+```
+
+The dedicated run script reads the credential through a captured subprocess,
+without printing it or writing it to `.env`:
+
+```bash
+uv run python scripts/run_grok_keychain.py
+```
+
+This command makes paid requests: a two-probe smoke evaluation followed by the
+full 83-request built-in run if the smoke phase has no transport errors. It
+requires the existing `.aletheia/m3-baseline-signing-key.pem` and matching public
+key, records provider usage/cost in a sidecar, uses 120-second request timeouts
+and zero retries, and preserves provider-default reasoning and output limits.
+A smoke score of zero does not by itself stop the run; request errors do.
+
+When supplying a key programmatically to `AletheiaSettings`, pass
+`XAI_API_KEY=SecretStr(key)`. Its validation aliases are `XAI_API_KEY` and
+`xAI_API_Key`; passing `xai_api_key=` is ignored under the current settings
+configuration. Verify the selected value matches the intended credential
+without printing either value.

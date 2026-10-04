@@ -2,13 +2,14 @@
 
 This inventory describes checked-in evidence, not a list of the newest models.
 Model IDs and timestamps come from the report JSON and
-`benchmarks/baselines/v0.1/manifest.yaml`. No new model evaluations were run
-during this documentation refresh.
+`benchmarks/baselines/v0.1/manifest.yaml`. The October documentation refresh
+was followed by a live Grok 4.7 evaluation; see the run findings below.
 
 ## Recorded Coverage
 
 | Model ID | Recorded date (UTC) | Evidence |
 |----------|---------------------|----------|
+| `xai/grok-4.7` | 2026-10-04 | Signed quick and smoke reports, exact provider billing sidecar |
 | `ollama/gemma3:4b` | 2026-04-20 | Signed quick and smoke reports |
 | `ollama/gemma4:e2b` | 2026-04-20 | Signed quick and smoke reports; local experimental model |
 | `xai/grok-3-mini` | 2026-04-20–21 | Signed smoke and quick reports |
@@ -25,7 +26,15 @@ Historical reports live directly under `results/`. `published` is an artifact
 status, not a claim of current model availability or general benchmark validity.
 Signing establishes report integrity, not correctness of the scoring rubric.
 
-## Resume Point
+## Latest Model Evaluation
+
+[Grok 4.7 findings](handoffs/grok-4.7-results-2026-10-04.md): 83 successful
+full-suite requests, no request errors, final index 0.7289, raw 0.8722,
+UCI 0.1643. Exact reported full-run cost was $0.341012; smoke adds $0.005466.
+Observed lexical and punctuation sensitivity limits score interpretation.
+OpenAI and Anthropic still need their first published baselines.
+
+## Scorer Resume Point
 
 The last recorded implementation work added four transcript-backed held-out
 cases with signed-report provenance (`c09b93c`). The held-out corpus contains

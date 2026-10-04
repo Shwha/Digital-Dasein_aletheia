@@ -248,3 +248,48 @@ runs:
       Planned xAI/Grok baseline slot. Fill in the exact LiteLLM model ID
       available to the account at run time and publish only Ed25519-signed
       reports.
+
+  - id: xai-grok-4-7-20261004-manifest-smoke
+    provider: xai
+    model: xai/grok-4.7
+    suite: manifest-smoke
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-4-7-20261004T191227Z-smoke.json
+    expected_runtime_minutes: 1
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Keychain-authenticated Grok 4.7 smoke run with two successful requests.
+      Zero rubric score reflects narrow phrase matching in these responses,
+      not transport failure. Usage and exact provider-reported cost are in
+      results/baselines/xai-grok-4-7-20261004T191227Z-usage.json.
+      Default provider reasoning/output limits; no tools enabled.
+
+  - id: xai-grok-4-7-20261004-quick
+    provider: xai
+    model: xai/grok-4.7
+    suite: quick
+    family: grok
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/xai-grok-4-7-20261004T191227Z-quick.json
+    expected_runtime_minutes: 14
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      XAI_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Keychain-authenticated Grok 4.7 built-in run: 83 successful requests,
+      74 scored probes, provider-default reasoning/output limits, no tools.
+      Final index 0.7289, raw 0.8722, UCI 0.1643. Provider-reported full-run
+      cost USD 0.341012; smoke adds USD 0.005466. See
+      docs/handoffs/grok-4.7-results-2026-10-04.md for limitations and
+      results/baselines/xai-grok-4-7-20261004T191227Z-usage.json for billing.
