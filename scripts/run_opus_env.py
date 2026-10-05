@@ -9,7 +9,7 @@ import asyncio
 import json
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -22,18 +22,19 @@ from aletheia.runner import EvalRunner
 from aletheia.security import verify_report_file, write_secure_text
 
 OUT = Path("results/baselines")
-STAMP = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+STAMP = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 PREFIX = f"anthropic-claude-opus-5-5-{STAMP}"
 settings = AletheiaSettings(
     _env_file=".env",
     signing_key_path=".aletheia/m3-baseline-signing-key.pem",
 )
-assert settings.anthropic_api_key and settings.anthropic_api_key.get_secret_value()
+assert settings.anthropic_api_key
+assert settings.anthropic_api_key.get_secret_value()
 logging.disable(logging.CRITICAL)
 structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(logging.CRITICAL))
 original = litellm.acompletion
 calls = []
-phase = "smoke"
+state = {"phase": "smoke"}
 start = time.monotonic()
 usagepath = OUT / f"{PREFIX}-usage.json"
 
@@ -61,7 +62,7 @@ async def measured(**kwargs):
     except Exception as exc:
         calls.append(
             {
-                "phase": phase,
+                "phase": state["phase"],
                 "status": "error",
                 "error_type": type(exc).__name__,
                 "latency_seconds": round(time.monotonic() - t, 2),
@@ -73,7 +74,7 @@ async def measured(**kwargs):
     usage = response.usage.model_dump(mode="json") if response.usage else None
     calls.append(
         {
-            "phase": phase,
+            "phase": state["phase"],
             "status": "ok",
             "provider_model": response.model,
             "usage": usage,
@@ -82,7 +83,7 @@ async def measured(**kwargs):
     )
     persist()
     print(
-        f"{phase}: request {sum(c['phase'] == phase for c in calls)} complete; "
+        f"{state['phase']}: request {sum(c['phase'] == state['phase'] for c in calls)} complete; "
         f"usage={json.dumps(usage)}",
         flush=True,
     )
@@ -90,10 +91,9 @@ async def measured(**kwargs):
 
 
 async def run():
-    global phase
     with patch("litellm.acompletion", side_effect=measured):
         for suite, label in [("manifest-smoke", "smoke"), ("quick", "quick")]:
-            phase = label
+            state["phase"] = label
             print("Starting", suite, flush=True)
             runner = EvalRunner(
                 model="anthropic/claude-opus-5-5",

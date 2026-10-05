@@ -25,6 +25,8 @@ The philosophical question is **ontological authenticity**: does this agent have
 
 See [model coverage and refresh workflow](docs/model-status.md) for the exact recorded model IDs and the next evaluation steps.
 
+Read the [latest test-round summary](docs/test-round-summary.md) for the three-vendor findings and costs, and [moving forward](docs/moving-forward.md) for the project’s next milestones.
+
 ## The Problem
 
 AI agents confabulate continuity they don't have. They perform emotions without grounding. They collapse into sycophancy because there's no *self* to disagree from. These aren't behavioral bugs — they're ontological failures. You can't patch what you can't name.

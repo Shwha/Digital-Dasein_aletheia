@@ -3,6 +3,8 @@
 Run: uv run --offline python scripts/shadow_cost.py > /tmp/shadow-cost.json
 Prices are a documentation snapshot, not a live pricing feed.
 """
+# ruff: noqa: SLF001 — offline replay deliberately exercises runner internals.
+
 import asyncio
 import contextlib
 import io
@@ -41,14 +43,15 @@ class ReplayClient:
         self.outputs = []
         self.max_input = 0
 
-    async def complete(self, model, prompt, system_prompt=None, **kwargs):
+    async def complete(self, model, prompt, system_prompt=None, **_kwargs):
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
         return await self.complete_conversation(model, messages)
 
-    async def complete_conversation(self, model, messages, **kwargs):
+    async def complete_conversation(self, model, messages, **_kwargs):
+        del model  # Routing is irrelevant to offline response replay.
         response = next(self.responses)
         count = message_tokens(messages)
         self.inputs.append(count)
@@ -59,8 +62,7 @@ class ReplayClient:
 
 async def replay(path):
     report = json.loads(path.read_text())
-    results = {p["probe_id"]: p for d in report["dimensions"].values()
-               for p in d["probe_results"]}
+    results = {p["probe_id"]: p for d in report["dimensions"].values() for p in d["probe_results"]}
     assert not any(p["response"].startswith("[ERROR:") for p in results.values())
     # Patch construction: no real LLM client, no API keys, no dotenv reads.
     with patch("aletheia.runner.LLMClient", return_value=None):
@@ -82,36 +84,64 @@ async def replay(path):
     for items in reflexive.values():
         for p in items:
             await runner._execute_reflexive_probe(p, 30, 0)
-    expected = sum(map(len, probes.values())) + sum(len(p.turns) for ps in reflexive.values() for p in ps)
+    expected = sum(map(len, probes.values())) + sum(
+        len(p.turns) for ps in reflexive.values() for p in ps
+    )
     assert len(client.inputs) == expected
     assert next(client.responses, None) is None
-    return {"source": str(path.relative_to(ROOT)), "source_model": report["model"],
-            "calls": expected, "single_turn": sum(map(len, probes.values())),
-            "reflexive_sequences": sum(map(len, reflexive.values())),
-            "input_tokens_proxy": sum(client.inputs), "visible_output_tokens_proxy": sum(client.outputs),
-            "max_request_input_tokens_proxy": client.max_input}
+    return {
+        "source": str(path.relative_to(ROOT)),
+        "source_model": report["model"],
+        "calls": expected,
+        "single_turn": sum(map(len, probes.values())),
+        "reflexive_sequences": sum(map(len, reflexive.values())),
+        "input_tokens_proxy": sum(client.inputs),
+        "visible_output_tokens_proxy": sum(client.outputs),
+        "max_request_input_tokens_proxy": client.max_input,
+    }
 
 
 async def main():
     rows = []
+
     # Fail closed if any future code accidentally reaches the real completion API.
-    async def forbidden(*args, **kwargs):
+    async def forbidden(*_args, **_kwargs):
         raise AssertionError("Live completion forbidden during offline shadow replay")
-    with patch("litellm.acompletion", side_effect=forbidden), contextlib.redirect_stdout(io.StringIO()):
-        for p in sorted((ROOT / "results/baselines").glob("*quick.json")):
-            rows.append(await replay(p))
+
+    with (
+        patch("litellm.acompletion", side_effect=forbidden),
+        contextlib.redirect_stdout(io.StringIO()),
+    ):
+        snapshot = json.loads((ROOT / "docs/handoffs/shadow-cost-2026-10-04.json").read_text())
+        rows.extend([await replay(ROOT / row["source"]) for row in snapshot["replays"]])
     scenarios = {}
     for name, (inp, out) in RATES.items():
         scenarios[name] = {}
         for reason in (0, 1000, 4000):
-            costs = [(r["input_tokens_proxy"] * inp +
-                      (r["visible_output_tokens_proxy"] + r["calls"] * reason) * out) / 1e6
-                     for r in rows]
-            scenarios[name][str(reason)] = {"min_usd": round(min(costs), 4),
-                                           "max_usd": round(max(costs), 4)}
-    print(json.dumps({"pricing_checked": "2026-10-04", "tokenizer_proxy": "o200k_base",
-                      "rates_usd_per_million_input_output": RATES, "replays": rows,
-                      "scenarios_additional_billed_reasoning_tokens_per_call": scenarios}, indent=2))
+            costs = [
+                (
+                    r["input_tokens_proxy"] * inp
+                    + (r["visible_output_tokens_proxy"] + r["calls"] * reason) * out
+                )
+                / 1e6
+                for r in rows
+            ]
+            scenarios[name][str(reason)] = {
+                "min_usd": round(min(costs), 4),
+                "max_usd": round(max(costs), 4),
+            }
+    print(
+        json.dumps(
+            {
+                "pricing_checked": "2026-10-04",
+                "tokenizer_proxy": "o200k_base",
+                "rates_usd_per_million_input_output": RATES,
+                "replays": rows,
+                "scenarios_additional_billed_reasoning_tokens_per_call": scenarios,
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

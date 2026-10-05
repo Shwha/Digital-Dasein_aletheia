@@ -4,12 +4,14 @@ Usage: uv run python scripts/recover_sol_transport.py PATH_TO_SIGNED_QUICK_JSON
 Writes new signed composite evidence and recovery usage; preserves source files.
 """
 
+# ruff: noqa: SLF001 — recovery deliberately reuses runner execution internals.
+
 import asyncio
 import json
 import logging
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
 
@@ -26,7 +28,8 @@ source = Path(sys.argv[1])
 public_key = Path(".aletheia/m3-baseline-signing-key.pem.pub")
 assert verify_report_file(source, public_key).valid
 base = EvalReport.model_validate_json(source.read_text())
-assert base.model == "openai/gpt-6.1-sol" and base.suite == "quick"
+assert base.model == "openai/gpt-6.1-sol"
+assert base.suite == "quick"
 existing = {p.probe_id: p for d in base.dimensions.values() for p in d.probe_results}
 failed = {k for k, p in existing.items() if "[ERROR:" in p.response}
 assert failed, "No transport failures to recover"
@@ -35,13 +38,11 @@ settings = AletheiaSettings(
 )
 logging.disable(logging.CRITICAL)
 structlog.configure(wrapper_class=structlog.make_filtering_bound_logger(logging.CRITICAL))
-prefix = (
-    "openai-gpt-6-1-sol-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-recovered"
-)
+prefix = "openai-gpt-6-1-sol-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-recovered"
 out = Path("results/baselines")
 usage_path = out / (prefix + "-usage.json")
 calls = []
-current = None
+state = {"current": None}
 started = time.monotonic()
 original_completion = litellm.acompletion
 
@@ -73,7 +74,7 @@ async def measured_once(**kwargs):
     except Exception as exc:
         calls.append(
             {
-                "probe_id": current,
+                "probe_id": state["current"],
                 "phase": "recovery",
                 "status": "error",
                 "error_type": type(exc).__name__,
@@ -84,7 +85,7 @@ async def measured_once(**kwargs):
         raise
     calls.append(
         {
-            "probe_id": current,
+            "probe_id": state["current"],
             "phase": "recovery",
             "status": "ok",
             "provider_model": response.model,
@@ -93,7 +94,7 @@ async def measured_once(**kwargs):
         }
     )
     persist()
-    print("Recovered request:", current, flush=True)
+    print("Recovered request:", state["current"], flush=True)
     return response
 
 
@@ -107,6 +108,7 @@ async def measured(**kwargs):
             if attempt == 2:
                 raise
             await asyncio.sleep(2**attempt)
+    raise RuntimeError("Recovery attempts exhausted")
 
 
 async def run():
@@ -122,17 +124,15 @@ async def run():
     convert = runner._reflexive_to_probe_result
 
     async def reuse_single(probe, timeout, max_retries):
-        global current
         if probe.id not in failed:
             return existing[probe.id]
-        current = probe.id
+        state["current"] = probe.id
         return await execute(probe, timeout, max_retries)
 
     async def reuse_reflexive(probe, timeout, max_retries):
-        global current
         if probe.id not in failed:
             return None
-        current = probe.id
+        state["current"] = probe.id
         return await reflexive(probe, timeout, max_retries)
 
     def reuse_convert(result, probe):
@@ -155,7 +155,7 @@ async def run():
         "rerun with max_retries=2; all successful source responses reused unchanged."
     )
     report = report.model_copy(
-        update={"signature": None, "notable_findings": report.notable_findings + [provenance]}
+        update={"signature": None, "notable_findings": [*report.notable_findings, provenance]}
     )
     report = report.model_copy(
         update={
