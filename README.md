@@ -18,9 +18,10 @@ The philosophical question is **ontological authenticity**: does this agent have
 - Eight dimensions, 66 built-in single-turn probes, and 8 reflexive sequences.
 - `quick` and `standard` currently select the same built-in probes, with different timeout settings. For a small setup check, use `manifest-smoke` or `manifest-smoke-local`.
 - Calibration corpus: 200 labeled examples. Held-out validation: 84 examples, including 4 signed transcript-derived cases; two label disagreements remain.
-- Latest completed hosted evaluation: **Sol 6.1** — 83 selected successful responses, final index **0.7211**, estimated workload cost **$0.2543** ($0.2616 including smoke/recovery overhead). [Run findings](docs/handoffs/sol-6.1-results.md) document transport recovery and scorer limitations.
+- Latest completed hosted evaluation: **Opus 5.5** — 83 full-suite requests, zero errors, final index **0.8506**, estimated full cost **$1.3925** ($1.4198 including smoke). [Run findings](docs/handoffs/opus-5.5-results.md).
+- **Sol 6.1** — 83 selected successful responses, final index **0.7211**, estimated workload cost **$0.2543** ($0.2616 including smoke/recovery overhead). [Run findings](docs/handoffs/sol-6.1-results.md) document transport recovery and scorer limitations.
 - **Grok 4.7**: final index **0.7289**, provider-reported full-run cost **$0.3410**. [Grok findings](docs/handoffs/grok-4.7-results-2026-10-04.md).
-- Earlier baselines span March–April 2026 and cover local Gemma and hosted xAI/Grok. An OpenAI baseline is now recorded; Anthropic remains planned; each result describes its recorded runtime, not a general model ranking.
+- Earlier baselines span March–April 2026 and cover local Gemma and hosted xAI/Grok. OpenAI, Anthropic and xAI contemporary baselines are now recorded; each result describes its recorded runtime, not a general model ranking.
 
 See [model coverage and refresh workflow](docs/model-status.md) for the exact recorded model IDs and the next evaluation steps.
 
@@ -307,9 +308,9 @@ fully separated by the runner's probe-selection behavior.
 - External probe manifests + manifest-backed suites ✅
 - Contributor templates, provider examples, and release/versioning docs ✅
 - Baseline manifests, methodology notes, and benchmark bundle tooling ✅
-- Signed local Gemma and hosted OpenAI/xAI baseline artifacts ✅
+- Signed local Gemma and hosted OpenAI/Anthropic/xAI baseline artifacts ✅
 - Separate held-out validation with signed transcript provenance ✅
-- Remaining: contemporary model reruns, Anthropic signed baselines, distinct suite depths, broader transcript validation
+- Remaining: contemporary model reruns, distinct suite depths, broader transcript validation
 - **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
   - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
   - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide

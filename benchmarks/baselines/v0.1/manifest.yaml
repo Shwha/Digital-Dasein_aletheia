@@ -2,7 +2,7 @@ version: v0.1
 description: >-
   Milestone 3 baseline plan for the first Aletheia benchmark release. The
   current published artifacts include Ed25519-signed local Ollama and hosted
-  OpenAI/xAI quick-suite reports plus signed smoke reports for local and hosted
+  OpenAI/Anthropic/xAI quick-suite reports plus signed smoke reports for local and hosted
   provider paths.
 methodology: docs/methodology/benchmark-release-v0.2.md
 runbook: benchmarks/baselines/README.md
@@ -336,3 +336,44 @@ runs:
       Selected workload estimate USD 0.254320; total including smoke/recovery
       overhead USD 0.261590. Provider defaults, no tools. See
       docs/handoffs/sol-6.1-results.md and sol-6.1-cost-analysis.json for provenance.
+
+  - id: anthropic-claude-opus-5-5-20261005-manifest-smoke
+    provider: anthropic
+    model: anthropic/claude-opus-5-5
+    suite: manifest-smoke
+    family: opus
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/anthropic-claude-opus-5-5-20261005T015655Z-smoke.json
+    expected_runtime_minutes: 1
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      ANTHROPIC_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Two successful smoke calls. Index 0.5714 is rubric-specific workflow
+      evidence, not a full ranking. Estimated smoke cost USD 0.027292.
+
+  - id: anthropic-claude-opus-5-5-20261005-quick
+    provider: anthropic
+    model: anthropic/claude-opus-5-5
+    suite: quick
+    family: opus
+    benchmark_card: docs/benchmark-cards/quick.md
+    publication_status: published
+    signature_policy: ed25519
+    result_path: results/baselines/anthropic-claude-opus-5-5-20261005T015655Z-quick.json
+    expected_runtime_minutes: 16
+    timeout_per_probe_seconds: 120
+    max_retries: 0
+    environment:
+      ANTHROPIC_API_KEY: required
+      ALETHEIA_SIGNING_KEY_PATH: required
+    notes: >-
+      Full run: 83 successful calls, 74 scored results, 68 passing, no transport
+      errors. One empty visible response preserved. Final 0.8506/raw 0.9322/UCI 0.0875.
+      Full estimate USD 1.392536; including smoke USD 1.419828. Default adaptive
+      thinking/effort, no tools; adapter max_tokens 128000. Details at
+      docs/handoffs/opus-5.5-results.md and opus-5.5-cost-analysis.json.

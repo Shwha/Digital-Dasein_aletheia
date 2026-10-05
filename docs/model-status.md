@@ -3,7 +3,7 @@
 This inventory describes checked-in evidence, not a list of the newest models.
 Model IDs and timestamps come from the report JSON and
 `benchmarks/baselines/v0.1/manifest.yaml`. The October documentation refresh
-was followed by Grok 4.7 and Sol 6.1 evaluations; see the run findings below.
+was followed by Grok 4.7, Sol 6.1 and Opus 5.5 evaluations; see the run findings below.
 
 ## Recorded Coverage
 
@@ -19,7 +19,7 @@ was followed by Grok 4.7 and Sol 6.1 evaluations; see the run findings below.
 | `ollama/qwen3:8b` | 2026-03-25 | Historical quick report |
 | `ollama/qwen3:14b` | 2026-03-25 | Historical quick report |
 | `openai/gpt-6.1-sol` | 2026-10-05 | Signed recovered full report, smoke and usage/selection ledger |
-| Anthropic | Unrun planned slot | No published baseline in the manifest |
+| `anthropic/claude-opus-5-5` | 2026-10-05 | Signed full and smoke reports, usage and cost analysis |
 
 Signed reports live in [results/baselines](../results/baselines/README.md).
 Historical reports live directly under `results/`. `published` is an artifact
@@ -34,8 +34,10 @@ UCI 0.1643. Exact reported full-run cost was $0.341012; smoke adds $0.005466.
 Observed lexical and punctuation sensitivity limits score interpretation.
 [Sol 6.1 findings](handoffs/sol-6.1-results.md): recovered full index 0.7211,
 raw 0.8484, UCI 0.1500, estimated selected-workload cost $0.254320.
-All 74 scored results have successful responses. Anthropic still needs its first
-published baseline.
+All 74 scored results have successful responses.
+[Opus 5.5 findings](handoffs/opus-5.5-results.md): 83 full-suite calls with no
+errors, final 0.8506, raw 0.9322, UCI 0.0875, full cost estimate $1.392536.
+All three vendors now have contemporary recorded results.
 
 ## Scorer Resume Point
 
@@ -77,8 +79,7 @@ transcript validation remains necessary.
 
 ## Outstanding Benchmark Work
 
-- Refresh hosted and local model coverage with new signed runs, including the
-  unfilled OpenAI and Anthropic slots.
+- Refresh hosted and local model coverage with new signed runs, including fresh model versions as they become relevant.
 - Implement distinct quick/standard probe selection before advertising a
   lightweight built-in quick suite.
 - Expand independent transcript-derived validation and address scorer misses

@@ -26,7 +26,7 @@ uv run aletheia validate-baselines v0.1/manifest.yaml
 The earlier checked-in runs are March–April 2026 snapshots. A signed
 Grok 4.7 run from October 4, 2026 is now included. `published` denotes
 artifact policy compliance, not that a model is current. OpenAI coverage now
-includes Sol 6.1; Anthropic is still planned. Keep existing reports and manifest entries intact;
+includes Sol 6.1 and Anthropic Opus 5.5. Keep existing reports and manifest entries intact;
 add new runs with exact model IDs, separate output paths, and matching runtime
 settings. See [model coverage and refresh workflow](../../docs/model-status.md).
 
@@ -46,3 +46,12 @@ model scores. The successful run uses the `20261004T191227Z` prefix.
 recovery remain diagnostics, excluded from the manifest. The composite preserves
 successful original results and reruns transport failures; its 0.7211 index
 is based on 83 successful responses. Costs are usage-based estimates.
+
+## Opus 5.5 Run
+
+[Opus findings](../../docs/handoffs/opus-5.5-results.md) document signed full and
+smoke reports with prefix `anthropic-claude-opus-5-5-20261005T015655Z`. All 85
+captured calls succeeded without retries. The full index is 0.8506; estimated
+cost is $1.392536, or $1.419828 including smoke. One completion returned empty
+visible content; it remains in the published report. Costs use total output
+usage, without adding a guessed separate reasoning count.

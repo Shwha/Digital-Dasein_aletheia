@@ -155,3 +155,16 @@ uv run python scripts/recover_sol_transport.py PATH_TO_SIGNED_QUICK_JSON
 Recovery produces a separate signed composite and usage sidecar; it never replaces
 source reports. See [Sol findings](handoffs/sol-6.1-results.md) for the actual
 completed run, cost accounting and limitations. Keep `.env` and its backups local.
+
+## Recorded Opus 5.5 Run
+
+Use the Anthropic key in ignored `.env`:
+
+```bash
+uv run python scripts/run_opus_env.py
+```
+
+The runner uses `anthropic/claude-opus-5-5`, smoke then full quick, 120-second
+timeouts, zero retries, no tools, and provider/adapter defaults. The adapter
+resolves a 128,000-token output limit. See [Opus findings](handoffs/opus-5.5-results.md)
+for the signed results, usage-based cost estimate and cumulative vendor spend.

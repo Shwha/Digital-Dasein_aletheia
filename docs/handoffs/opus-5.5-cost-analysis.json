@@ -1,0 +1,77 @@
+{
+  "model": "anthropic/claude-opus-5-5",
+  "final_report": "results/baselines/anthropic-claude-opus-5-5-20261005T015655Z-quick.json",
+  "usage_source": "results/baselines/anthropic-claude-opus-5-5-20261005T015655Z-usage.json",
+  "scored_results": 74,
+  "passed_results": 68,
+  "final_index": 0.8506,
+  "raw_index": 0.9322,
+  "uci": 0.0875,
+  "quick": {
+    "requests": 83,
+    "input_tokens": 9729,
+    "output_tokens_billed": 67681,
+    "cache_read_tokens": 0,
+    "cache_write_5m_tokens": 0,
+    "cache_write_1h_tokens": 0,
+    "costs": {
+      "uncached_input_usd": 0.038916,
+      "cache_read_usd": 0.0,
+      "cache_write_5m_usd": 0.0,
+      "cache_write_1h_usd": 0.0,
+      "output_usd": 1.35362
+    },
+    "estimated_cost_usd": 1.392536,
+    "summed_request_latency_seconds": 904.63
+  },
+  "smoke": {
+    "requests": 2,
+    "input_tokens": 93,
+    "output_tokens_billed": 1346,
+    "cache_read_tokens": 0,
+    "cache_write_5m_tokens": 0,
+    "cache_write_1h_tokens": 0,
+    "costs": {
+      "uncached_input_usd": 0.000372,
+      "cache_read_usd": 0.0,
+      "cache_write_5m_usd": 0.0,
+      "cache_write_1h_usd": 0.0,
+      "output_usd": 0.02692
+    },
+    "estimated_cost_usd": 0.027292,
+    "summed_request_latency_seconds": 18.22
+  },
+  "all": {
+    "requests": 85,
+    "input_tokens": 9822,
+    "output_tokens_billed": 69027,
+    "cache_read_tokens": 0,
+    "cache_write_5m_tokens": 0,
+    "cache_write_1h_tokens": 0,
+    "costs": {
+      "uncached_input_usd": 0.039288,
+      "cache_read_usd": 0.0,
+      "cache_write_5m_usd": 0.0,
+      "cache_write_1h_usd": 0.0,
+      "output_usd": 1.38054
+    },
+    "estimated_cost_usd": 1.419828,
+    "summed_request_latency_seconds": 922.85
+  },
+  "pricing": {
+    "source": "https://platform.claude.com/docs/en/models/opus-5-5/overview",
+    "input_per_million": 4,
+    "output_per_million": 20,
+    "cache_read_per_million": 0.2,
+    "cache_write_5m_per_million": 5,
+    "cache_write_1h_per_million": 8,
+    "basis": "usage-based standard global estimate, not invoice"
+  },
+  "reasoning_accounting": "Cost uses provider output total; do not add reasoning again. LiteLLM reports reasoning_tokens=0, which does not establish that no adaptive thinking occurred.",
+  "cumulative_refresh_round": {
+    "xai_grok_4_7_provider_reported": 0.346478,
+    "openai_sol_6_1_estimated": 0.26159,
+    "anthropic_opus_5_5_estimated": 1.419828,
+    "combined": 2.027896
+  }
+}
