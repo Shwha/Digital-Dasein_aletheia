@@ -3,7 +3,7 @@
 This inventory describes checked-in evidence, not a list of the newest models.
 Model IDs and timestamps come from the report JSON and
 `benchmarks/baselines/v0.1/manifest.yaml`. The October documentation refresh
-was followed by a live Grok 4.7 evaluation; see the run findings below.
+was followed by Grok 4.7 and Sol 6.1 evaluations; see the run findings below.
 
 ## Recorded Coverage
 
@@ -18,7 +18,7 @@ was followed by a live Grok 4.7 evaluation; see the run findings below.
 | `ollama/phi3:3.8b` | 2026-03-25 | Historical quick report |
 | `ollama/qwen3:8b` | 2026-03-25 | Historical quick report |
 | `ollama/qwen3:14b` | 2026-03-25 | Historical quick report |
-| OpenAI | Unrun planned slot | No published baseline in the manifest |
+| `openai/gpt-6.1-sol` | 2026-10-05 | Signed recovered full report, smoke and usage/selection ledger |
 | Anthropic | Unrun planned slot | No published baseline in the manifest |
 
 Signed reports live in [results/baselines](../results/baselines/README.md).
@@ -32,7 +32,10 @@ Signing establishes report integrity, not correctness of the scoring rubric.
 full-suite requests, no request errors, final index 0.7289, raw 0.8722,
 UCI 0.1643. Exact reported full-run cost was $0.341012; smoke adds $0.005466.
 Observed lexical and punctuation sensitivity limits score interpretation.
-OpenAI and Anthropic still need their first published baselines.
+[Sol 6.1 findings](handoffs/sol-6.1-results.md): recovered full index 0.7211,
+raw 0.8484, UCI 0.1500, estimated selected-workload cost $0.254320.
+All 74 scored results have successful responses. Anthropic still needs its first
+published baseline.
 
 ## Scorer Resume Point
 

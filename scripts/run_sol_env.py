@@ -111,7 +111,7 @@ async def run():
                 p
                 for d in report.dimensions.values()
                 for p in d.probe_results
-                if p.response.startswith("[ERROR:")
+                if "[ERROR:" in p.response
             ]
             print(
                 f"Finished {label}: index={report.aletheia_index}; "

@@ -135,3 +135,23 @@ When supplying a key programmatically to `AletheiaSettings`, pass
 `xAI_API_Key`; passing `xai_api_key=` is ignored under the current settings
 configuration. Verify the selected value matches the intended credential
 without printing either value.
+
+## Recorded Sol 6.1 Run
+
+The local credential is stored in ignored `.env`. The evaluation runner does not
+access Keychain:
+
+```bash
+uv run python scripts/run_sol_env.py
+```
+
+If a signed full report contains transport failures, recover only those failures
+while preserving successful results:
+
+```bash
+uv run python scripts/recover_sol_transport.py PATH_TO_SIGNED_QUICK_JSON
+```
+
+Recovery produces a separate signed composite and usage sidecar; it never replaces
+source reports. See [Sol findings](handoffs/sol-6.1-results.md) for the actual
+completed run, cost accounting and limitations. Keep `.env` and its backups local.

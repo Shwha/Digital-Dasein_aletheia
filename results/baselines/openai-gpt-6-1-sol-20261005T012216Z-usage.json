@@ -1,0 +1,42 @@
+{
+  "model": "openai/gpt-6.1-sol",
+  "started_utc": "20261005T012216Z",
+  "pricing_source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+  "calls": [
+    {
+      "phase": "smoke",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 38,
+        "prompt_tokens": 32,
+        "total_tokens": 70,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 3.11
+    },
+    {
+      "phase": "smoke",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.2
+    }
+  ],
+  "elapsed_seconds": 3.33
+}
