@@ -20,3 +20,14 @@ model defaults.
 - `run-comparison.sh`: comma-separated multi-model comparison.
 
 Outputs are written under `results/` unless `ALETHEIA_RESULTS_DIR` is set.
+
+## Model Freshness
+
+Choose an exact API model ID supported by the pinned LiteLLM version. Start
+with `ALETHEIA_SUITE=manifest-smoke` (hosted) or `manifest-smoke-local` (local),
+then inspect errors before running the built-in suite. `quick` and `standard`
+currently execute the same built-in probes.
+
+See [provider setup](../../docs/providers.md) and
+[recorded model coverage](../../docs/model-status.md). These scripts do not
+constitute test results for newly released models.

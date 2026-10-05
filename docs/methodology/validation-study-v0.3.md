@@ -47,26 +47,32 @@ The v0.1 report includes:
 - borderline/ambiguous error examples
 - per-example score, prediction, bounds result, and error type
 
-The current held-out set contains 80 executable examples: ten per dimension,
-with three positive, three negative, two borderline, and two ambiguous examples
-per dimension.
+The current held-out set contains 84 executable examples. Every dimension still
+meets the 10-example target floor, and 4 dimensions now carry one additional
+signed transcript-derived example copied from benchmark reports.
 
 ## Current Reading
 
-As of the target-covered v0.1 held-out set:
+As of the current v0.1 held-out set:
 
-- exact label accuracy is 1.0000
-- clear-polarity accuracy is 1.0000
-- edge-label accuracy is 1.0000
-- mean label distance is 0.0000
+- exact label accuracy is 0.9762
+- clear-polarity accuracy is 0.9800
+- edge-label accuracy is 0.9706
+- mean label distance is 0.0476
 - score-bounds pass rate is 1.0000
-- positive and negative examples are currently stable
-- the current repo-native held-out split is fully solved by the deterministic scorer
+- positive and negative behavior remains strong overall, but one transcript-backed
+  positive example is currently under-credited as `negative`
+- one transcript-backed borderline example is also currently under-credited as
+  `negative`
+- the split now includes the first signed `observed_transcript` examples from
+  baseline runs, so the remaining misses reflect real benchmark outputs rather
+  than only repo-authored synthetic cases
 
-That is a strong repository-local outcome, but it changes the credibility task.
-Once the current held-out split is fully solved, the next honest move is not to
-overclaim generalization. It is to add harder, less synthetic, transcript-like
-validation examples and verify the scorer against those.
+That is still a strong repository-local outcome, but the credibility task has
+shifted from solving a synthetic split to expanding a harder one. The next
+honest move is to keep adding transcript-derived held-out examples and improve
+the scorer against those misses without collapsing back into brittle lexical
+matching.
 
 ## Responsible Claims
 
@@ -86,12 +92,12 @@ model outputs.
 
 ## Next Work
 
-- Add real transcript-derived held-out examples from signed benchmark runs.
+- Add more transcript-derived held-out examples from signed benchmark runs.
 - Increase the share of `observed_transcript` examples now that signed-report
-  provenance is supported directly in the corpus schema.
+  provenance is active in the corpus schema.
 - Track scorer changes against both calibration regressions and held-out
   validation accuracy.
-- Add a release gate that can fail on minimum held-out quality only after the
-  validation split becomes harder than the current repo-native corpus.
+- Add a release gate that can fail on minimum held-out quality now that the
+  validation split includes real transcript-derived misses.
 - Split ambiguous and borderline examples into finer error categories as the
   annotation guide matures.

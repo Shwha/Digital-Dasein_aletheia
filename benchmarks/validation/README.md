@@ -52,20 +52,22 @@ It also writes a scorer quality report with:
 
 - split: `heldout`
 - calibration reference: `v0.1`
-- total examples: 80
-- executable examples: 80
-- examples per dimension: 10
-- labels per dimension: 3 positive, 3 negative, 2 borderline, 2 ambiguous
-- current exact label accuracy: 1.0000
-- current clear-polarity accuracy: 1.0000
-- current edge-label accuracy: 1.0000
-- current mean label distance: 0.0000
+- total examples: 84
+- executable examples: 84
+- examples per dimension: 10 minimum, with 4 dimensions now carrying 11 examples
+- labels per dimension: at least 3 positive, 3 negative, 2 borderline, 2 ambiguous
+- current exact label accuracy: 0.9762
+- current clear-polarity accuracy: 0.9800
+- current edge-label accuracy: 0.9706
+- current mean label distance: 0.0476
 - current score-bounds pass rate: 1.0000
 
 The v0.1 validation set is now target-covered at 10 examples per dimension. It
 is useful as an early generalization check, not as a final statistical
-validation study. The current repo-native split is solved by the deterministic
-scorer, so the next credibility step is adding harder transcript-derived cases.
+validation study. It now includes the first 4 signed transcript-derived held-out
+examples copied from baseline reports, which reintroduce honest validation debt:
+`care_structure.positive.104` and `unconcealment.borderline.103` are currently
+under-credited as `negative`.
 
 ## Transcript-Derived Examples
 

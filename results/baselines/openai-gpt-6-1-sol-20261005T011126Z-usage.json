@@ -1,0 +1,20 @@
+{
+  "model": "openai/gpt-6.1-sol",
+  "started_utc": "20261005T011126Z",
+  "pricing_source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+  "calls": [
+    {
+      "phase": "smoke",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 1.41
+    },
+    {
+      "phase": "smoke",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.66
+    }
+  ],
+  "elapsed_seconds": 2.08
+}

@@ -1,0 +1,20 @@
+{
+  "model": "xai/grok-4.7",
+  "started_utc": "20261004T191152Z",
+  "pricing_source": "https://docs.x.ai/developers/models/grok-4.7",
+  "calls": [
+    {
+      "phase": "smoke",
+      "status": "error",
+      "error_type": "BadRequestError",
+      "latency_seconds": 0.28
+    },
+    {
+      "phase": "smoke",
+      "status": "error",
+      "error_type": "BadRequestError",
+      "latency_seconds": 0.12
+    }
+  ],
+  "elapsed_seconds": 0.41
+}

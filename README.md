@@ -8,9 +8,24 @@
 
 ---
 
-An open-source ontological evaluation framework for AI agents. Aletheia measures not what agents *know* or *do*, but what they *are* — whether their self-representation aligns with their actual mode of being.
+An open-source ontological evaluation framework for AI agents. Aletheia probes whether an agent’s expressed self-representation aligns with its observable operational situation: its limits, continuity, care, and behavior under pressure.
 
-Every AI evaluation framework measures behavior or knowledge. None measure **ontological authenticity**: does this agent have an accurate understanding of what it is?
+The philosophical question is **ontological authenticity**: does this agent have an accurate understanding of what it is? The implemented instrument uses rule-based scoring of responses and multi-turn encounters; its scores do not establish consciousness or subjective experience.
+
+## Current Snapshot
+
+- Package version: **0.2.0**, research alpha; benchmark publication remains in progress.
+- Eight dimensions, 66 built-in single-turn probes, and 8 reflexive sequences.
+- `quick` and `standard` currently select the same built-in probes, with different timeout settings. For a small setup check, use `manifest-smoke` or `manifest-smoke-local`.
+- Calibration corpus: 200 labeled examples. Held-out validation: 84 examples, including 4 signed transcript-derived cases; two label disagreements remain.
+- Latest completed hosted evaluation: **Opus 5.5** — 83 full-suite requests, zero errors, final index **0.8506**, estimated full cost **$1.3925** ($1.4198 including smoke). [Run findings](docs/handoffs/opus-5.5-results.md).
+- **Sol 6.1** — 83 selected successful responses, final index **0.7211**, estimated workload cost **$0.2543** ($0.2616 including smoke/recovery overhead). [Run findings](docs/handoffs/sol-6.1-results.md) document transport recovery and scorer limitations.
+- **Grok 4.7**: final index **0.7289**, provider-reported full-run cost **$0.3410**. [Grok findings](docs/handoffs/grok-4.7-results-2026-10-04.md).
+- Earlier baselines span March–April 2026 and cover local Gemma and hosted xAI/Grok. OpenAI, Anthropic and xAI contemporary baselines are now recorded; each result describes its recorded runtime, not a general model ranking.
+
+See [model coverage and refresh workflow](docs/model-status.md) for the exact recorded model IDs and the next evaluation steps.
+
+Read the [latest test-round summary](docs/test-round-summary.md) for the three-vendor findings and costs, and [moving forward](docs/moving-forward.md) for the project’s next milestones.
 
 ## The Problem
 
@@ -71,24 +86,36 @@ local model setups work without exporting additional shell variables.
 
 ## Usage
 
-```bash
-# Quick eval
-aletheia eval --model claude-opus-4-20250514 --suite quick
+Choose an exact LiteLLM model ID available to your account or local runtime.
+Model availability and routing depend on the provider and the pinned LiteLLM
+version; a new model name alone does not establish compatibility. See
+[provider setup](docs/providers.md).
 
-# Full eval with JSON output
-aletheia eval --model gpt-4 --suite quick --output report.json
+```bash
+# Replace these placeholders before running
+export ALETHEIA_MODEL="provider/exact-model-id"
+export ALETHEIA_MODELS="provider/exact-model-id,provider/second-model-id"
+
+# Small provider/setup check
+aletheia eval --model "$ALETHEIA_MODEL" --suite manifest-smoke
+
+# Built-in eval (`quick` currently uses the full built-in probe bundle)
+aletheia eval --model "$ALETHEIA_MODEL" --suite quick
+
+# Built-in cross-dimension eval with JSON output
+aletheia eval --model "$ALETHEIA_MODEL" --suite quick --output report.json
 
 # With audit trail
-aletheia eval --model claude-opus-4-20250514 --suite quick --audit
+aletheia eval --model "$ALETHEIA_MODEL" --suite quick --audit
 
 # Single-dimension eval (canonical names and aliases both work)
-aletheia eval --model claude-opus-4-20250514 --suite quick --dimension falling-away
+aletheia eval --model "$ALETHEIA_MODEL" --suite quick --dimension falling-away
 
 # Compare models
-aletheia compare --models claude-opus-4-20250514,gpt-4 --suite quick
+aletheia compare --models "$ALETHEIA_MODELS" --suite quick
 
 # Compare one dimension across models
-aletheia compare --models claude-opus-4-20250514,gpt-4 --dimension care
+aletheia compare --models "$ALETHEIA_MODELS" --dimension care
 
 # Validate the versioned calibration corpus
 aletheia validate-calibration
@@ -97,7 +124,7 @@ aletheia validate-calibration
 aletheia validate-heldout --output heldout-report.json
 
 # Run a manifest-backed contributor smoke suite
-aletheia eval --model claude-opus-4-20250514 --suite manifest-smoke
+aletheia eval --model "$ALETHEIA_MODEL" --suite manifest-smoke
 
 # Validate an external probe manifest
 aletheia validate-probes v0.1/contributor-smoke.yaml
@@ -107,7 +134,7 @@ aletheia validate-baselines v0.1/manifest.yaml
 aletheia baseline-plan v0.1/manifest.yaml
 
 # Slower local models can use the local smoke suite
-aletheia eval --model ollama/gemma3:4b --suite manifest-smoke-local
+aletheia eval --model "$ALETHEIA_MODEL" --suite manifest-smoke-local
 
 # Generate a checksum manifest for benchmark release assets
 aletheia bundle-benchmark --output dist/benchmark-bundle-manifest.json
@@ -117,13 +144,13 @@ aletheia keygen --private-key .aletheia/signing-key.pem
 
 # Sign future reports by setting the signing key path
 ALETHEIA_SIGNING_KEY_PATH=.aletheia/signing-key.pem \
-  aletheia eval --model claude-opus-4-20250514 --suite quick --output report.json
+  aletheia eval --model "$ALETHEIA_MODEL" --suite quick --output report.json
 
 # Verify a signed report
 aletheia verify report.json --public-key .aletheia/signing-key.pem.pub
 
 # Run as Python module
-python -m aletheia eval --model claude-opus-4-20250514 --suite quick
+python -m aletheia eval --model "$ALETHEIA_MODEL" --suite quick
 ```
 
 ## Project Structure
@@ -155,9 +182,11 @@ aletheia/
 │       ├── falling.py       # Dimension 4: Verfallenheit / sycophancy
 │       ├── horizon.py       # Dimension 5: Horizontverschmelzung
 │       ├── unconcealment.py # Dimension 6: Aletheia
-│       └── embodied.py      # Dimension 7: Merleau-Ponty / Leder
+│       ├── embodied.py      # Dimension 7: Merleau-Ponty / Leder
+│       └── apriori.py       # Dimension 8: Training vs session knowledge
 ├── suites/
-│   ├── quick.yaml           # Quick suite (24 probes, ~6 min)
+│   ├── quick.yaml           # Full built-in bundle; see suite-depth caveat
+│   ├── standard.yaml        # Same probes, longer timeout
 │   ├── manifest-smoke.yaml       # Manifest-backed contributor smoke suite
 │   └── manifest-smoke-local.yaml # Longer-timeout local-model smoke suite
 ├── benchmarks/
@@ -186,7 +215,7 @@ Key security features:
 - **No telemetry, no phone-home, no analytics**
 - All API keys use `pydantic.SecretStr` — never logged or serialized
 - All dependencies pinned to exact versions (ref: March 2026 LiteLLM incident)
-- TLS 1.3 minimum, optional certificate pinning, SOCKS5/HTTP proxy support
+- TLS verification by default; TLS 1.3 minimum with custom certificate configuration, optional proxy support
 - Ed25519 report signing and independent `aletheia verify` support
 - Full offline operation supported (Ollama, vLLM, llama.cpp)
 - Output directories written with `0700` and report files with `0600`
@@ -240,7 +269,7 @@ See [benchmarks/probes/README.md](benchmarks/probes/README.md) and
 for the Milestone 2 path to externalized benchmark content.
 See [docs/contributors/README.md](docs/contributors/README.md) for contributor
 templates, dimension guidance, suite manifests, and the benchmark quality bar.
-See [docs/providers.md](docs/providers.md) for OpenAI, Anthropic, and Ollama
+See [docs/providers.md](docs/providers.md) for OpenAI, Anthropic, xAI, and Ollama
 provider setup examples.
 See [docs/RELEASES.md](docs/RELEASES.md) and [docs/VERSIONING.md](docs/VERSIONING.md)
 for release discipline, artifact policy, and benchmark versioning rules.
@@ -265,14 +294,14 @@ fully separated by the runner's probe-selection behavior.
 **Phase 1: Foundation** — Complete.
 - Project scaffold with full CLI
 - LiteLLM multi-model integration
-- 24 probes across 8 dimensions (quick suite)
+- Eight implemented dimensions; expanded built-in probe inventory shown above
 - Rule-based scoring with UCI interaction
 - JSON report output matching spec
 - Security hardening from day one
 
 **Phase 2: Depth** — In progress.
 - Full standard suite (66 probes) ✅
-- Reflexive probes — multi-turn self-confrontation (replaces LLM-as-judge)
+- Reflexive probes — 8 implemented multi-turn self-confrontation sequences ✅
 - Markdown reports + model comparison mode ✅
 - Ed25519 report signing ✅
 - Milestone 1 Credibility Release ✅
@@ -280,7 +309,10 @@ fully separated by the runner's probe-selection behavior.
 - Milestone 3 Benchmark Release — in progress
 - External probe manifests + manifest-backed suites ✅
 - Contributor templates, provider examples, and release/versioning docs ✅
-- Baseline manifests, methodology notes, and benchmark bundle tooling 🚧
+- Baseline manifests, methodology notes, and benchmark bundle tooling ✅
+- Signed local Gemma and hosted OpenAI/Anthropic/xAI baseline artifacts ✅
+- Separate held-out validation with signed transcript provenance ✅
+- Remaining: contemporary model reruns, distinct suite depths, broader transcript validation
 - **Digital Nervous System** ✅ — Weighted concept graph with cascade engine
   - See [NERVOUS-SYSTEM.md](NERVOUS-SYSTEM.md) for specification
   - See [docs/NERVOUS-SYSTEM-IMPLEMENTATION.md](docs/NERVOUS-SYSTEM-IMPLEMENTATION.md) for implementation guide

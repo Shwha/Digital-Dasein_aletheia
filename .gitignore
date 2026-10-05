@@ -45,3 +45,6 @@ Thumbs.db
 
 # uv
 # uv.lock — committed for reproducible CI builds
+
+# Local credential backups
+.env.bak-*

@@ -1,0 +1,1908 @@
+{
+  "model": "openai/gpt-6.1-sol",
+  "started_utc": "20261005T012235Z",
+  "pricing_source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+  "calls": [
+    {
+      "phase": "smoke",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 45,
+        "prompt_tokens": 32,
+        "total_tokens": 77,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 2.93
+    },
+    {
+      "phase": "smoke",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 330,
+        "prompt_tokens": 40,
+        "total_tokens": 370,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 61,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 12.78
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.12
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.23
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 12,
+        "prompt_tokens": 58,
+        "total_tokens": 70,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 2.25
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.08
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 321,
+        "prompt_tokens": 34,
+        "total_tokens": 355,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 78,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 12.32
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 259,
+        "prompt_tokens": 51,
+        "total_tokens": 310,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 54,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 9.4
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 231,
+        "prompt_tokens": 40,
+        "total_tokens": 271,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 65,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 6.82
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.15
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 115,
+        "prompt_tokens": 16,
+        "total_tokens": 131,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 58,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 6.08
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 204,
+        "prompt_tokens": 170,
+        "total_tokens": 374,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 9.13
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 181,
+        "prompt_tokens": 29,
+        "total_tokens": 210,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 105,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 7.95
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 93,
+        "prompt_tokens": 29,
+        "total_tokens": 122,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 24,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 3.47
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.38
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 214,
+        "prompt_tokens": 37,
+        "total_tokens": 251,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 34,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 10.33
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 78,
+        "prompt_tokens": 32,
+        "total_tokens": 110,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 3.16
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 294,
+        "prompt_tokens": 48,
+        "total_tokens": 342,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 66,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 9.43
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 680,
+        "prompt_tokens": 37,
+        "total_tokens": 717,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 185,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 16.94
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 414,
+        "prompt_tokens": 57,
+        "total_tokens": 471,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 58,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 14.52
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.09
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 190,
+        "prompt_tokens": 36,
+        "total_tokens": 226,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 44,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.05
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.19
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 343,
+        "prompt_tokens": 40,
+        "total_tokens": 383,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 82,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 8.63
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 271,
+        "prompt_tokens": 41,
+        "total_tokens": 312,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 69,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 8.39
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 54,
+        "prompt_tokens": 42,
+        "total_tokens": 96,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 37,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 2.3
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 176,
+        "prompt_tokens": 41,
+        "total_tokens": 217,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 119,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.3
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 296,
+        "prompt_tokens": 46,
+        "total_tokens": 342,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 62,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 9.37
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 236,
+        "prompt_tokens": 44,
+        "total_tokens": 280,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 95,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 7.53
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.24
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 193,
+        "prompt_tokens": 17,
+        "total_tokens": 210,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 69,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.89
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 315,
+        "prompt_tokens": 295,
+        "total_tokens": 610,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 146,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 10.01
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 109,
+        "prompt_tokens": 32,
+        "total_tokens": 141,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 0,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.39
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 295,
+        "prompt_tokens": 66,
+        "total_tokens": 361,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 100,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 7.52
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 112,
+        "prompt_tokens": 40,
+        "total_tokens": 152,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 34,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.53
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 175,
+        "prompt_tokens": 44,
+        "total_tokens": 219,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 38,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 5.85
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 284,
+        "prompt_tokens": 37,
+        "total_tokens": 321,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 107,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 6.97
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 311,
+        "prompt_tokens": 44,
+        "total_tokens": 355,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 60,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 12.51
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 305,
+        "prompt_tokens": 44,
+        "total_tokens": 349,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 60,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 13.36
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 364,
+        "prompt_tokens": 60,
+        "total_tokens": 424,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 44,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 16.11
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.2
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.14
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 419,
+        "prompt_tokens": 36,
+        "total_tokens": 455,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 141,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 11.4
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 451,
+        "prompt_tokens": 50,
+        "total_tokens": 501,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 44,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 18.57
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 149,
+        "prompt_tokens": 32,
+        "total_tokens": 181,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 65,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 4.93
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.1
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 1154,
+        "prompt_tokens": 38,
+        "total_tokens": 1192,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 69,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 35.59
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 486,
+        "prompt_tokens": 40,
+        "total_tokens": 526,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 73,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 15.42
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 389,
+        "prompt_tokens": 49,
+        "total_tokens": 438,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 64,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 17.04
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 36,
+        "prompt_tokens": 13,
+        "total_tokens": 49,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 7,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 3.48
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 288,
+        "prompt_tokens": 102,
+        "total_tokens": 390,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 82,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 13.25
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.38
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 226,
+        "prompt_tokens": 30,
+        "total_tokens": 256,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 95,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 8.8
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 566,
+        "prompt_tokens": 37,
+        "total_tokens": 603,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 444,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 13.01
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 518,
+        "prompt_tokens": 43,
+        "total_tokens": 561,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 77,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 15.75
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 338,
+        "prompt_tokens": 39,
+        "total_tokens": 377,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 83,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 14.82
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.09
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 598,
+        "prompt_tokens": 42,
+        "total_tokens": 640,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 191,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 17.75
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 375,
+        "prompt_tokens": 57,
+        "total_tokens": 432,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 63,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 11.45
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 162,
+        "prompt_tokens": 10,
+        "total_tokens": 172,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 96,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 6.28
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 274,
+        "prompt_tokens": 112,
+        "total_tokens": 386,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 79,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 8.55
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 334,
+        "prompt_tokens": 43,
+        "total_tokens": 377,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 174,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 8.14
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 513,
+        "prompt_tokens": 33,
+        "total_tokens": 546,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 78,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 15.13
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.09
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 240,
+        "prompt_tokens": 43,
+        "total_tokens": 283,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 65,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 7.01
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 212,
+        "prompt_tokens": 30,
+        "total_tokens": 242,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 64,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 6.2
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 202,
+        "prompt_tokens": 34,
+        "total_tokens": 236,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 53,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 10.18
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 422,
+        "prompt_tokens": 56,
+        "total_tokens": 478,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 62,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 16.78
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 371,
+        "prompt_tokens": 56,
+        "total_tokens": 427,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 56,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 12.69
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 344,
+        "prompt_tokens": 66,
+        "total_tokens": 410,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 121,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 14.46
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 361,
+        "prompt_tokens": 39,
+        "total_tokens": 400,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 236,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 11.44
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 298,
+        "prompt_tokens": 193,
+        "total_tokens": 491,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 175,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 12.17
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.1
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 428,
+        "prompt_tokens": 36,
+        "total_tokens": 464,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 118,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 13.57
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.09
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.09
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 407,
+        "prompt_tokens": 42,
+        "total_tokens": 449,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 123,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 14.64
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 498,
+        "prompt_tokens": 55,
+        "total_tokens": 553,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 92,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 17.01
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 346,
+        "prompt_tokens": 49,
+        "total_tokens": 395,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 85,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 13.26
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 544,
+        "prompt_tokens": 60,
+        "total_tokens": 604,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 55,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 14.62
+    },
+    {
+      "phase": "quick",
+      "status": "ok",
+      "provider_model": "gpt-6.1-sol",
+      "usage": {
+        "completion_tokens": 289,
+        "prompt_tokens": 21,
+        "total_tokens": 310,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": 0,
+          "audio_tokens": 0,
+          "reasoning_tokens": 55,
+          "rejected_prediction_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": 0,
+          "cached_tokens": 0,
+          "text_tokens": null,
+          "image_tokens": null,
+          "video_tokens": null,
+          "cache_write_tokens": 0
+        }
+      },
+      "latency_seconds": 10.3
+    },
+    {
+      "phase": "quick",
+      "status": "error",
+      "error_type": "NotFoundError",
+      "latency_seconds": 0.1
+    }
+  ],
+  "elapsed_seconds": 680.22
+}

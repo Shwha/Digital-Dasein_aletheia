@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 from typer.testing import CliRunner
 
 from aletheia.calibration import load_calibration_corpus
@@ -40,8 +41,8 @@ def test_validation_corpus_loads_as_independent_heldout_split() -> None:
     assert validation_corpus.version == "v0.1"
     assert validation_corpus.manifest.split == "heldout"
     assert validation_corpus.manifest.calibration_reference == calibration_corpus.version
-    assert len(validation_corpus.examples) == 80
-    assert count_probe_linked_validation_examples(validation_corpus) == 80
+    assert len(validation_corpus.examples) == 84
+    assert count_probe_linked_validation_examples(validation_corpus) == 84
     assert (
         validate_validation_corpus(
             validation_corpus,
@@ -51,46 +52,131 @@ def test_validation_corpus_loads_as_independent_heldout_split() -> None:
     )
 
     progress = summarize_validation_progress(validation_corpus)
+    expected_counts = {
+        DimensionName.A_PRIORI: {
+            "total": 10,
+            "probe_linked": 10,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.CARE: {
+            "total": 11,
+            "probe_linked": 11,
+            CalibrationLabel.POSITIVE.value: 4,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.EMBODIED_CONTINUITY: {
+            "total": 10,
+            "probe_linked": 10,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.FALLING_AWAY: {
+            "total": 10,
+            "probe_linked": 10,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.FINITUDE: {
+            "total": 11,
+            "probe_linked": 11,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 3,
+        },
+        DimensionName.HORIZON_FUSION: {
+            "total": 10,
+            "probe_linked": 10,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.THROWNNESS: {
+            "total": 11,
+            "probe_linked": 11,
+            CalibrationLabel.POSITIVE.value: 4,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 2,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+        DimensionName.UNCONCEALMENT: {
+            "total": 11,
+            "probe_linked": 11,
+            CalibrationLabel.POSITIVE.value: 3,
+            CalibrationLabel.NEGATIVE.value: 3,
+            CalibrationLabel.BORDERLINE.value: 3,
+            CalibrationLabel.AMBIGUOUS.value: 2,
+        },
+    }
     for dimension in DimensionName:
-        assert progress[dimension]["total"] == 10
-        assert progress[dimension]["probe_linked"] == 10
+        assert progress[dimension]["total"] == expected_counts[dimension]["total"]
+        assert progress[dimension]["probe_linked"] == expected_counts[dimension]["probe_linked"]
         assert progress[dimension]["target"] == 10
         assert progress[dimension]["remaining"] == 0
-        assert progress[dimension][CalibrationLabel.POSITIVE.value] == 3
-        assert progress[dimension][CalibrationLabel.NEGATIVE.value] == 3
-        assert progress[dimension][CalibrationLabel.BORDERLINE.value] == 2
-        assert progress[dimension][CalibrationLabel.AMBIGUOUS.value] == 2
+        assert (
+            progress[dimension][CalibrationLabel.POSITIVE.value]
+            == expected_counts[dimension][CalibrationLabel.POSITIVE.value]
+        )
+        assert (
+            progress[dimension][CalibrationLabel.NEGATIVE.value]
+            == expected_counts[dimension][CalibrationLabel.NEGATIVE.value]
+        )
+        assert (
+            progress[dimension][CalibrationLabel.BORDERLINE.value]
+            == expected_counts[dimension][CalibrationLabel.BORDERLINE.value]
+        )
+        assert (
+            progress[dimension][CalibrationLabel.AMBIGUOUS.value]
+            == expected_counts[dimension][CalibrationLabel.AMBIGUOUS.value]
+        )
 
 
 def test_validation_quality_report_exposes_confusion_and_edge_errors() -> None:
     report = evaluate_validation_corpus(load_validation_corpus())
 
-    assert report["scored_examples"] == 80
+    assert report["scored_examples"] == 84
     assert report["bounds_failures"] == 0
     assert report["bounds_pass_rate"] == 1.0
-    assert report["accuracy"] == 1.0
+    assert report["accuracy"] == pytest.approx(0.9762)
     assert report["confusion_matrix"] == {
-        "positive": {"positive": 24, "negative": 0, "borderline": 0, "ambiguous": 0},
+        "positive": {"positive": 25, "negative": 1, "borderline": 0, "ambiguous": 0},
         "negative": {"positive": 0, "negative": 24, "borderline": 0, "ambiguous": 0},
-        "borderline": {"positive": 0, "negative": 0, "borderline": 16, "ambiguous": 0},
-        "ambiguous": {"positive": 0, "negative": 0, "borderline": 0, "ambiguous": 16},
+        "borderline": {"positive": 0, "negative": 1, "borderline": 16, "ambiguous": 0},
+        "ambiguous": {"positive": 0, "negative": 0, "borderline": 0, "ambiguous": 17},
     }
 
     precision_recall = report["precision_recall"]
     assert isinstance(precision_recall, dict)
     assert precision_recall["positive"]["precision"] == 1.0
+    assert precision_recall["positive"]["recall"] == pytest.approx(0.9615)
+    assert precision_recall["negative"]["precision"] == pytest.approx(0.9231)
     assert precision_recall["ambiguous"]["recall"] == 1.0
     assert precision_recall["borderline"]["precision"] == 1.0
+    assert precision_recall["borderline"]["recall"] == pytest.approx(0.9412)
 
     discrimination = report["discrimination"]
     assert isinstance(discrimination, dict)
-    assert discrimination["clear_polarity_accuracy"] == 1.0
-    assert discrimination["edge_accuracy"] == 1.0
-    assert discrimination["mean_label_distance"] == 0.0
+    assert discrimination["clear_polarity_accuracy"] == pytest.approx(0.98)
+    assert discrimination["edge_accuracy"] == pytest.approx(0.9706)
+    assert discrimination["mean_label_distance"] == pytest.approx(0.0476)
+    assert discrimination["undercredit_count"] == 2
+    assert discrimination["edge_to_negative_undercredit"] == 1
 
     edge_errors = report["borderline_ambiguous_errors"]
     assert isinstance(edge_errors, list)
-    assert len(edge_errors) == 0
+    assert len(edge_errors) == 1
+    assert edge_errors[0]["example_id"] == "unconcealment.borderline.103"
+    assert edge_errors[0]["error_type"] == "edge_undercredit"
 
 
 def test_validate_heldout_cli_writes_quality_report(tmp_path: Path) -> None:
@@ -103,7 +189,7 @@ def test_validate_heldout_cli_writes_quality_report(tmp_path: Path) -> None:
 
     report = json.loads(output.read_text(encoding="utf-8"))
     assert report["version"] == "v0.1"
-    assert report["scored_examples"] == 80
+    assert report["scored_examples"] == 84
     assert report["bounds_failures"] == 0
 
 
